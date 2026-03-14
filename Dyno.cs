@@ -35,7 +35,7 @@ namespace EngineSimulator {
 
             for (int i = 0; i <= (int) engine.GetMaxRPM() / 25; i++) {
                 engine.SetRPM(rpm);
-                engine.Update();
+                engine.Update(0);
 
                 double torque = engine.GetBrakeTorque();
                 double power = engine.GetBrakePower() * Units.HP;

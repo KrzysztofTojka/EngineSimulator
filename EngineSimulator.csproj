@@ -95,6 +95,7 @@
     <Compile Include="RangeSlider.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Turbocharger.cs" />
     <Compile Include="Units.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="VerticalFillBar.cs">

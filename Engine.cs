@@ -6,6 +6,7 @@ namespace EngineSimulator {
     public class Engine {
 
         public ECU ecu;
+        private Turbocharger turbocharger;
 
         public const double AFR = 14.7;
         public const double FUEL_DENSITY = 748.9; // kg/m3
@@ -40,6 +41,9 @@ namespace EngineSimulator {
         double netTorque;
 
         public Engine(double displacementL, double maxRpm = 6000, double inertia = 0.12) {
+            this.ecu = new ECU(this);
+            this.turbocharger = new Turbocharger(this, 1.0);
+
             this.displacement = displacementL / 1000;
             this.maxRpm = maxRpm;
             this.inertia = inertia;
@@ -47,13 +51,14 @@ namespace EngineSimulator {
             this.optimalIntakeRpm = 4000;
             this.veRangeScale = 2.0;
             this.maxAirflowRpm = 5500;
-
-            this.ecu = new ECU(this);
         }
 
         public Engine(Engine other) {
             this.ecu = new ECU(this);
-
+            if (other.GetTurbocharger() != null) {
+                this.turbocharger = new Turbocharger(this, other.turbocharger);
+            }
+            
             this.displacement = other.displacement;
             this.inertia = other.inertia;
             this.maxRpm = other.maxRpm;
@@ -71,11 +76,6 @@ namespace EngineSimulator {
         }
 
         public void Update(double dt) {
-            this.Update();
-            rpm = GetNewRPM(rpm, dt, netTorque);
-        }
-
-        public void Update() {
             throttle = ecu.GetThrottle();
 
             afr = ecu.GetAFR(rpm, throttle);
@@ -90,6 +90,12 @@ namespace EngineSimulator {
             brakeTorque = PowerToTorque(brakePower, rpm);
 
             netTorque = brakeTorque - loadTorque;
+
+            if (turbocharger != null) {
+                turbocharger.Update(dt);
+            }
+
+            rpm = GetNewRPM(rpm, dt, netTorque);
         }
 
         public void ShowInfo() {
@@ -121,7 +127,11 @@ namespace EngineSimulator {
         }
 
         private double GetMaxMAF(double rpm) {
-            return GetAirDensity(temperature, pressureAtm) * (displacement / 2) * GetVolumetricEfficiency(rpm) * (rpm / 60); // kg/s
+            double pressure = pressureAtm;
+            if (turbocharger != null) {
+                pressure += turbocharger.GetBoost() * pressureAtm;
+            }
+            return GetAirDensity(temperature, pressure) * (displacement / 2) * GetVolumetricEfficiency(rpm) * (rpm / 60); // kg/s
         }
 
         public double GetMAF(double throttle, double rpm) {
@@ -184,6 +194,14 @@ namespace EngineSimulator {
 
         public ECU GetECU() {
             return this.ecu;
+        }
+
+        public Turbocharger GetTurbocharger() {
+            return this.turbocharger;
+        }
+
+        public void SetTurbocharger(Turbocharger turbo) {
+            this.turbocharger = turbo;
         }
 
         public double GetDisplacement() {
