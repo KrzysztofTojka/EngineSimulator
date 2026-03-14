@@ -12,14 +12,16 @@ namespace EngineSimulator {
         public const double LHV = 43_000_000; // J/kg
         public const double BASE_THERMAL_EFFICIENCY = 0.5;
 
-        public const double MAX_POWER_RPM = 5500;
-
         private readonly double temperature = Units.C_to_K(Program.temperatureC);
         private readonly double pressureAtm = Program.pressureHPA * 100.0;
 
         private double displacement; // m3
         private double inertia; // kg*m2
         private double maxRpm;
+        private double maxVe;
+        private double optimalIntakeRpm;
+        private double veRangeScale;
+        private double maxAirflowRpm;
 
         private double throttle = 0.0;
         private double rpm = 0.0;
@@ -41,6 +43,10 @@ namespace EngineSimulator {
             this.displacement = displacementL / 1000;
             this.maxRpm = maxRpm;
             this.inertia = inertia;
+            this.maxVe = 0.97;
+            this.optimalIntakeRpm = 4000;
+            this.veRangeScale = 2.0;
+            this.maxAirflowRpm = 5500;
 
             this.ecu = new ECU(this);
         }
@@ -51,6 +57,10 @@ namespace EngineSimulator {
             this.displacement = other.displacement;
             this.inertia = other.inertia;
             this.maxRpm = other.maxRpm;
+            this.maxVe = other.maxVe;
+            this.optimalIntakeRpm = other.optimalIntakeRpm;
+            this.veRangeScale = other.veRangeScale;
+            this.maxAirflowRpm = other.maxAirflowRpm;
             this.rpm = other.rpm;
             this.throttle = other.throttle;
             this.loadTorque = other.loadTorque;
@@ -103,11 +113,7 @@ namespace EngineSimulator {
         }
 
         public double GetVolumetricEfficiency(double rpm) {
-            double veMax = 1.0;
-            double rpmOpt = 4000;
-            double rpmScale = 2.0;
-
-            return veMax * Math.Exp(-Math.Pow((rpm - rpmOpt) * (rpm > rpmOpt ? 1.2 : 1.0) / (rpmOpt * rpmScale), 2));
+            return maxVe * Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) * (rpm > optimalIntakeRpm ? 1.2 : 1.0) / (optimalIntakeRpm * veRangeScale), 2));
         }
 
         private double GetAirDensity(double temperature, double pressure) {
@@ -119,7 +125,7 @@ namespace EngineSimulator {
         }
 
         public double GetMAF(double throttle, double rpm) {
-            double calculatedMaf = GetMaxMAF(MAX_POWER_RPM) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02);
+            double calculatedMaf = GetMaxMAF(maxAirflowRpm) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02);
             return Math.Min(calculatedMaf, GetMaxMAF(rpm)); // kg/s
         }
 
@@ -178,6 +184,10 @@ namespace EngineSimulator {
 
         public ECU GetECU() {
             return this.ecu;
+        }
+
+        public double GetDisplacement() {
+            return this.displacement;
         }
 
         public void SetThrottle(double throttle) {
@@ -258,6 +268,38 @@ namespace EngineSimulator {
 
         public void SetLoadTorque(double loadTorque) {
             this.loadTorque = loadTorque;
+        }
+
+        public double GetMaxVe() {
+            return this.maxVe;
+        }
+
+        public void SetMaxVe(double maxVe) {
+            this.maxVe = maxVe;
+        }
+
+        public double GetMaxVeRpm() {
+            return this.optimalIntakeRpm;
+        }
+
+        public void SetMaxVeRpm(double rpm) {
+            this.optimalIntakeRpm = rpm;
+        }
+
+        public double GetVeRangeScale() {
+            return this.veRangeScale;
+        }
+
+        public void SetVeRangeScale(double scale) {
+            this.veRangeScale = scale;
+        }
+
+        public double GetMaxAirflowRpm() {
+            return this.maxAirflowRpm;
+        }
+
+        public void SetMaxAirflowRpm(double rpm) {
+            this.maxAirflowRpm = rpm;
         }
 
         public string Serialize() {

@@ -26,8 +26,8 @@ namespace EngineSimulator {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dynoChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.rpmGauge = new AquaControls.AquaGauge();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -38,26 +38,30 @@ namespace EngineSimulator {
             this.afrGauge = new AquaControls.AquaGauge();
             this.speedGauge = new AquaControls.AquaGauge();
             this.mafGauge = new AquaControls.AquaGauge();
+            this.label1 = new System.Windows.Forms.Label();
+            this.gearLabel = new System.Windows.Forms.Label();
+            this.veScaleSlider = new DialSlider();
+            this.maxVeRpmSlider = new DialSlider();
             this.torqueBar = new VerticalFillBarSimple();
             this.powerBar = new VerticalFillBarSimple();
             this.rpmLimitSlider = new DialSlider();
             this.inertiaSlider = new DialSlider();
             this.idleThrottleSlider = new DialSlider();
             this.displacementSlider = new DialSlider();
-            this.label1 = new System.Windows.Forms.Label();
-            this.gearLabel = new System.Windows.Forms.Label();
+            this.maxAirflowRpmSlider = new DialSlider();
+            this.maxVeSlider = new DialSlider();
             ((System.ComponentModel.ISupportInitialize)(this.dynoChart)).BeginInit();
             this.SuspendLayout();
             // 
             // dynoChart
             // 
-            chartArea1.Name = "ChartArea1";
-            this.dynoChart.ChartAreas.Add(chartArea1);
+            chartArea3.Name = "ChartArea1";
+            this.dynoChart.ChartAreas.Add(chartArea3);
             this.dynoChart.Location = new System.Drawing.Point(1067, 12);
             this.dynoChart.Name = "dynoChart";
-            series1.ChartArea = "ChartArea1";
-            series1.Name = "Series1";
-            this.dynoChart.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.Name = "Series1";
+            this.dynoChart.Series.Add(series3);
             this.dynoChart.Size = new System.Drawing.Size(779, 479);
             this.dynoChart.TabIndex = 0;
             this.dynoChart.Text = "dynoChart";
@@ -382,6 +386,68 @@ namespace EngineSimulator {
             this.mafGauge.Value = 0F;
             this.mafGauge.ValueToDigital = false;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F);
+            this.label1.Location = new System.Drawing.Point(329, 347);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(74, 31);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "Gear";
+            // 
+            // gearLabel
+            // 
+            this.gearLabel.AutoSize = true;
+            this.gearLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F);
+            this.gearLabel.Location = new System.Drawing.Point(334, 378);
+            this.gearLabel.Name = "gearLabel";
+            this.gearLabel.Size = new System.Drawing.Size(73, 69);
+            this.gearLabel.TabIndex = 16;
+            this.gearLabel.Text = "N";
+            // 
+            // veScaleSlider
+            // 
+            this.veScaleSlider.DecimalPlaces = 1;
+            this.veScaleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.veScaleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.veScaleSlider.LabelWidth = 140;
+            this.veScaleSlider.Location = new System.Drawing.Point(1466, 618);
+            this.veScaleSlider.MaxValue = 3F;
+            this.veScaleSlider.MinValue = 0.5F;
+            this.veScaleSlider.Name = "veScaleSlider";
+            this.veScaleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.veScaleSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.veScaleSlider.RimColor = System.Drawing.Color.Black;
+            this.veScaleSlider.Size = new System.Drawing.Size(365, 60);
+            this.veScaleSlider.SliderName = "VE scale";
+            this.veScaleSlider.Step = 0.1F;
+            this.veScaleSlider.TabIndex = 19;
+            this.veScaleSlider.Text = "veScaleSlider";
+            this.veScaleSlider.Value = 2F;
+            this.veScaleSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            // 
+            // maxVeRpmSlider
+            // 
+            this.maxVeRpmSlider.DecimalPlaces = 1;
+            this.maxVeRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.maxVeRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.maxVeRpmSlider.LabelWidth = 140;
+            this.maxVeRpmSlider.Location = new System.Drawing.Point(1466, 574);
+            this.maxVeRpmSlider.MaxValue = 6000F;
+            this.maxVeRpmSlider.MinValue = 1000F;
+            this.maxVeRpmSlider.Name = "maxVeRpmSlider";
+            this.maxVeRpmSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxVeRpmSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.maxVeRpmSlider.RimColor = System.Drawing.Color.Black;
+            this.maxVeRpmSlider.Size = new System.Drawing.Size(365, 60);
+            this.maxVeRpmSlider.SliderName = "Max VE RPM";
+            this.maxVeRpmSlider.Step = 100F;
+            this.maxVeRpmSlider.TabIndex = 18;
+            this.maxVeRpmSlider.Text = "maxVeRpmSlider";
+            this.maxVeRpmSlider.Value = 4000F;
+            this.maxVeRpmSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            // 
             // torqueBar
             // 
             this.torqueBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
@@ -416,7 +482,7 @@ namespace EngineSimulator {
             this.rpmLimitSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.rpmLimitSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.rpmLimitSlider.LabelWidth = 140;
-            this.rpmLimitSlider.Location = new System.Drawing.Point(1009, 664);
+            this.rpmLimitSlider.Location = new System.Drawing.Point(1071, 667);
             this.rpmLimitSlider.MaxValue = 10000F;
             this.rpmLimitSlider.MinValue = 4000F;
             this.rpmLimitSlider.Name = "rpmLimitSlider";
@@ -437,7 +503,7 @@ namespace EngineSimulator {
             this.inertiaSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.inertiaSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.inertiaSlider.LabelWidth = 140;
-            this.inertiaSlider.Location = new System.Drawing.Point(1009, 620);
+            this.inertiaSlider.Location = new System.Drawing.Point(1071, 623);
             this.inertiaSlider.MaxValue = 0.3F;
             this.inertiaSlider.MinValue = 0.05F;
             this.inertiaSlider.Name = "inertiaSlider";
@@ -458,7 +524,7 @@ namespace EngineSimulator {
             this.idleThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.idleThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.idleThrottleSlider.LabelWidth = 140;
-            this.idleThrottleSlider.Location = new System.Drawing.Point(1009, 571);
+            this.idleThrottleSlider.Location = new System.Drawing.Point(1071, 574);
             this.idleThrottleSlider.MaxValue = 0.035F;
             this.idleThrottleSlider.MinValue = 0.005F;
             this.idleThrottleSlider.Name = "idleThrottleSlider";
@@ -479,7 +545,7 @@ namespace EngineSimulator {
             this.displacementSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.displacementSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.displacementSlider.LabelWidth = 140;
-            this.displacementSlider.Location = new System.Drawing.Point(1009, 524);
+            this.displacementSlider.Location = new System.Drawing.Point(1071, 527);
             this.displacementSlider.MaxValue = 6F;
             this.displacementSlider.MinValue = 1F;
             this.displacementSlider.Name = "displacementSlider";
@@ -494,31 +560,56 @@ namespace EngineSimulator {
             this.displacementSlider.Value = 2F;
             this.displacementSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
-            // label1
+            // maxAirflowRpmSlider
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F);
-            this.label1.Location = new System.Drawing.Point(329, 347);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 31);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "Gear";
+            this.maxAirflowRpmSlider.DecimalPlaces = 1;
+            this.maxAirflowRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.maxAirflowRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.maxAirflowRpmSlider.LabelWidth = 140;
+            this.maxAirflowRpmSlider.Location = new System.Drawing.Point(1466, 667);
+            this.maxAirflowRpmSlider.MaxValue = 6000F;
+            this.maxAirflowRpmSlider.MinValue = 3000F;
+            this.maxAirflowRpmSlider.Name = "maxAirflowRpmSlider";
+            this.maxAirflowRpmSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxAirflowRpmSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.maxAirflowRpmSlider.RimColor = System.Drawing.Color.Black;
+            this.maxAirflowRpmSlider.Size = new System.Drawing.Size(365, 60);
+            this.maxAirflowRpmSlider.SliderName = "Max airflow RPM";
+            this.maxAirflowRpmSlider.Step = 100F;
+            this.maxAirflowRpmSlider.TabIndex = 20;
+            this.maxAirflowRpmSlider.Text = "maxAirflowRpmSlider";
+            this.maxAirflowRpmSlider.Value = 5500F;
+            this.maxAirflowRpmSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
-            // gearLabel
+            // maxVeSlider
             // 
-            this.gearLabel.AutoSize = true;
-            this.gearLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F);
-            this.gearLabel.Location = new System.Drawing.Point(334, 378);
-            this.gearLabel.Name = "gearLabel";
-            this.gearLabel.Size = new System.Drawing.Size(73, 69);
-            this.gearLabel.TabIndex = 16;
-            this.gearLabel.Text = "N";
+            this.maxVeSlider.DecimalPlaces = 2;
+            this.maxVeSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.maxVeSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.maxVeSlider.LabelWidth = 140;
+            this.maxVeSlider.Location = new System.Drawing.Point(1466, 527);
+            this.maxVeSlider.MaxValue = 1.2F;
+            this.maxVeSlider.MinValue = 0.8F;
+            this.maxVeSlider.Name = "maxVeSlider";
+            this.maxVeSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxVeSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.maxVeSlider.RimColor = System.Drawing.Color.Black;
+            this.maxVeSlider.Size = new System.Drawing.Size(365, 60);
+            this.maxVeSlider.SliderName = "Max VE";
+            this.maxVeSlider.Step = 0.01F;
+            this.maxVeSlider.TabIndex = 18;
+            this.maxVeSlider.Text = "maxVeSlider";
+            this.maxVeSlider.Value = 1.03F;
+            this.maxVeSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
             // Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1858, 774);
+            this.Controls.Add(this.maxAirflowRpmSlider);
+            this.Controls.Add(this.veScaleSlider);
+            this.Controls.Add(this.maxVeRpmSlider);
             this.Controls.Add(this.gearLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.torqueBar);
@@ -536,6 +627,7 @@ namespace EngineSimulator {
             this.Controls.Add(this.speedGauge);
             this.Controls.Add(this.rpmGauge);
             this.Controls.Add(this.mapGauge);
+            this.Controls.Add(this.maxVeSlider);
             this.Name = "Window";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dynoChart)).EndInit();
@@ -563,6 +655,10 @@ namespace EngineSimulator {
         private VerticalFillBarSimple torqueBar;
         private Label label1;
         private Label gearLabel;
+        private DialSlider maxVeRpmSlider;
+        private DialSlider veScaleSlider;
+        private DialSlider maxAirflowRpmSlider;
+        private DialSlider maxVeSlider;
     }
 }
 

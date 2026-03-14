@@ -27,7 +27,16 @@ namespace EngineSimulator {
         }
 
         private void InitControls() {
-            idleThrottleSlider.Value = (float) engine.GetECU().idleThrottle;
+            idleThrottleSlider.Value = (float) engine.GetECU().GetIdleThrottle();
+            displacementSlider.Value = (float) (engine.GetDisplacement() * Units.L);
+            inertiaSlider.Value = (float) engine.GetInertia();
+            rpmLimitSlider.Value = (float) engine.GetMaxRPM();
+            maxVeSlider.Value = (float) engine.GetMaxVe();
+            maxVeRpmSlider.Value = (float) engine.GetMaxVeRpm();
+            maxVeRpmSlider.MaxValue = rpmLimitSlider.Value;
+            veScaleSlider.Value = (float) engine.GetVeRangeScale();
+            maxAirflowRpmSlider.Value = (float) engine.GetMaxAirflowRpm();
+            maxAirflowRpmSlider.MaxValue = rpmLimitSlider.Value;
         }
 
 
@@ -95,6 +104,32 @@ namespace EngineSimulator {
             }
             if (rpmLimitSlider.ValueChanged()) {
                 SetRpmLimit(rpmLimitSlider.Value);
+                maxVeRpmSlider.MaxValue = rpmLimitSlider.Value;
+                maxAirflowRpmSlider.MaxValue = rpmLimitSlider.Value;
+                dyno.Run();
+                DrawDyno();
+            }
+
+            if (maxVeSlider.ValueChanged()) {
+                engine.SetMaxVe(maxVeSlider.Value);
+                dyno.Run();
+                DrawDyno();
+            }
+
+            if (maxVeRpmSlider.ValueChanged()) {
+                engine.SetMaxVeRpm(maxVeRpmSlider.Value);
+                dyno.Run();
+                DrawDyno();
+            }
+
+            if (veScaleSlider.ValueChanged()) {
+                engine.SetVeRangeScale(veScaleSlider.Value);
+                dyno.Run();
+                DrawDyno();
+            }
+
+            if (maxAirflowRpmSlider.ValueChanged()) {
+                engine.SetMaxAirflowRpm(maxAirflowRpmSlider.Value);
                 dyno.Run();
                 DrawDyno();
             }
