@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Collections.Generic;
 
 namespace EngineSimulator {
@@ -9,6 +10,7 @@ namespace EngineSimulator {
         public const double AFR = 14.7;
         public const double FUEL_DENSITY = 748.9; // kg/m3
         public const double LHV = 43_000_000; // J/kg
+        public const double BASE_THERMAL_EFFICIENCY = 0.5;
 
         public const double MAX_POWER_RPM = 5500;
 
@@ -43,6 +45,21 @@ namespace EngineSimulator {
             this.ecu = new ECU(this);
         }
 
+        public Engine(Engine other) {
+            this.ecu = new ECU(this);
+
+            this.displacement = other.displacement;
+            this.inertia = other.inertia;
+            this.maxRpm = other.maxRpm;
+            this.rpm = other.rpm;
+            this.throttle = other.throttle;
+            this.loadTorque = other.loadTorque;
+        }
+
+        public Engine Clone() {
+            return new Engine(this);
+        }
+
         public void Update(double dt) {
             this.Update();
             rpm = GetNewRPM(rpm, dt, netTorque);
@@ -59,7 +76,7 @@ namespace EngineSimulator {
             fuelPower = GetFuelPower(fuelRate, afr);
             fuelTorque = PowerToTorque(fuelPower, rpm);
             load = GetEngineLoad(fuelPower, rpm, afr);
-            brakePower = 0.5 * fuelPower - GetBrakingPower(rpm);
+            brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
             brakeTorque = PowerToTorque(brakePower, rpm);
 
             netTorque = brakeTorque - loadTorque;
@@ -102,7 +119,7 @@ namespace EngineSimulator {
         }
 
         public double GetMAF(double throttle, double rpm) {
-            double calculatedMaf = GetMaxMAF(MAX_POWER_RPM) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.97, 1.03);
+            double calculatedMaf = GetMaxMAF(MAX_POWER_RPM) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02);
             return Math.Min(calculatedMaf, GetMaxMAF(rpm)); // kg/s
         }
 
@@ -126,7 +143,7 @@ namespace EngineSimulator {
 
 
         public double GetFuelPower(double fuelRate, double afr) {
-            return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.95, 1.05); // W
+            return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.97, 1.03); // W
         }
 
         public double PowerToTorque(double power, double rpm) {
@@ -242,5 +259,15 @@ namespace EngineSimulator {
         public void SetLoadTorque(double loadTorque) {
             this.loadTorque = loadTorque;
         }
+
+        public string Serialize() {
+            return JsonSerializer.Serialize(this);
+        }
+
+        public static Engine Deserialize(string json) {
+            return JsonSerializer.Deserialize<Engine>(json);
+        }
+
+        
     }
 }

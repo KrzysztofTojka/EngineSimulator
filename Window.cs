@@ -30,6 +30,7 @@ namespace EngineSimulator {
             idleThrottleSlider.Value = (float) engine.GetECU().idleThrottle;
         }
 
+
         private void DrawDyno() {
             torqueBar.MaxValue = (float) dyno.GetMaxTorque();
             powerBar.MaxValue = (float) dyno.GetMaxPower();
@@ -86,12 +87,16 @@ namespace EngineSimulator {
             }
             if (displacementSlider.ValueChanged()) {
                 engine.SetDisplacement(displacementSlider.Value);
+                dyno.Run();
+                DrawDyno();
             }
             if (inertiaSlider.ValueChanged()) {
                 engine.SetInertia(inertiaSlider.Value);
             }
             if (rpmLimitSlider.ValueChanged()) {
                 SetRpmLimit(rpmLimitSlider.Value);
+                dyno.Run();
+                DrawDyno();
             }
 
             UpdateDyno();

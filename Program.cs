@@ -21,7 +21,6 @@ namespace EngineSimulator {
 
         public static void Main() {
             Console.WindowWidth = 180;
-            MathHelper.UseRandom(false);
 
             simulationThread = new Thread(Run);
 
@@ -57,7 +56,7 @@ namespace EngineSimulator {
         public static void Run() {
             engine.Ignite();
 
-            dyno = new Dyno(engine);
+            dyno = new Dyno();
             dyno.Run();
 
             while (isRunning) {

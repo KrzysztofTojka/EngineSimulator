@@ -16,14 +16,15 @@ namespace EngineSimulator {
         public List<double> torqueList = new List<double>();
         public List<double> powerList = new List<double>();
 
-        public Dyno(Engine engine) {
-            this.engine = engine;
+        public Dyno() {
             this.maxTorque = 0.0;
             this.maxPower = 0.0;
         }
 
         public void Run() {
-            //MathHelper.UseRandom(false);
+            engine = Program.GetEngine().Clone();
+
+            MathHelper.UseRandom(false);
             rpmList.Clear();
             torqueList.Clear();
             powerList.Clear();
@@ -32,7 +33,7 @@ namespace EngineSimulator {
 
             double rpm = 0.0;
 
-            for (int i = 0; i <= 240; i++) {
+            for (int i = 0; i <= (int) engine.GetMaxRPM() / 25; i++) {
                 engine.SetRPM(rpm);
                 engine.Update();
 
@@ -55,12 +56,7 @@ namespace EngineSimulator {
 
             }
 
-            //MathHelper.UseRandom(true);
-
-            engine.GetECU().SetThrottle(0.0);
-            engine.SetRPM(0);
-
-            engine.Ignite();
+            MathHelper.UseRandom(true);
         }
 
         public double GetMaxTorque() {

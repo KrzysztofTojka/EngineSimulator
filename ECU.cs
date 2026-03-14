@@ -37,7 +37,7 @@ namespace EngineSimulator {
             double afrMax = 15.2;
             double afrMin = 12.8;
 
-            return afrMax - (afrMax - afrMin) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.97, 1.03);
+            return afrMax - (afrMax - afrMin) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02);
         }
 
     }
