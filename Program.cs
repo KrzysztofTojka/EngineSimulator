@@ -11,6 +11,9 @@ namespace EngineSimulator {
         public static double pressureHPA = 1024.0;
 
         static Thread simulationThread;
+        static Thread soundThread;
+        static EngineSoundPlayer engineSound2000;
+        static EngineSoundPlayer engineSound3000;
         static bool isRunning = false;
         static long lastUpdateTime = 0;
 
@@ -33,8 +36,10 @@ namespace EngineSimulator {
 
             isRunning = true;
 
-            //Test();
             simulationThread.Start();
+            soundThread = new Thread(Sound);
+            soundThread.Start();
+
             //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -62,7 +67,6 @@ namespace EngineSimulator {
             while (isRunning) {
                 HandleInput();
 
-                
                 lastUpdateTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 
                 clutch.Update(0.01);
@@ -76,7 +80,20 @@ namespace EngineSimulator {
             }
         }
 
-        
+        private static void Sound() {
+            engineSound2000 = new EngineSoundPlayer("assets/2000RPM.wav", 2000);
+            //engineSound2000.Play();
+            engineSound3000 = new EngineSoundPlayer("assets/3000RPM.wav", 3000);
+            engineSound3000.Play();
+
+            while (true) {
+                engineSound2000.SetRPM((float) engine.GetRPM());
+                engineSound2000.SetVolume((float)(engine.GetRPM() / 3000));
+                engineSound3000.SetRPM((float) engine.GetRPM());
+                engineSound3000.SetVolume((float)(engine.GetRPM() / 4000));
+                Thread.Sleep(10);
+            }
+        }
 
         public static void HandleInput() {
             double currentThrottle = 0.0;
