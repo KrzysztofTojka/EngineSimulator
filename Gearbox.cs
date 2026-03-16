@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class Gearbox {
 
-        private Engine engine;
+        protected Engine engine;
 
-        private double wheelRadius = 0.323;
+        protected double wheelRadius = 0.323;
         private double mass = 1400;
         private double Cd = 0.32;
         private double area = 2.2;
@@ -18,18 +18,18 @@ namespace EngineSimulator {
         private double brakesTorque = 12000.0;
 
         private Type type;
-        private int gears;
-        private double finalDriveRatio;
-        private Dictionary<int, double> gearRatios = new Dictionary<int, double>();
+        protected int gears;
+        protected double finalDriveRatio;
+        protected Dictionary<int, double> gearRatios = new Dictionary<int, double>();
 
         private double brakesEngangement;
-        private int currentGear;
-        private double inputTorque; // Nm
-        private double inputRpm; // rpm
+        protected int currentGear;
+        protected double inputTorque; // Nm
+        protected double inputRpm; // rpm
         private double inputOmega; // rad/s
         private double wheelTorque; // Nm
-        private double wheelRpm; // rpm
-        private double carSpeed; // m/s
+        protected double wheelRpm; // rpm
+        protected double carSpeed; // m/s
 
         public Gearbox(Engine engine, Type type, int gears, double[] gearRatios, double finalGearRatio) {
             this.engine = engine;
@@ -47,7 +47,7 @@ namespace EngineSimulator {
             }
         }
 
-        public void Update(double dt) {
+        public virtual void Update(double dt) {
             if (currentGear == 0) {
                 inputRpm = engine.GetRPM();
                 return;
@@ -69,6 +69,10 @@ namespace EngineSimulator {
             double dragForce = 0.5 * airDensity * Cd * area * carSpeed * carSpeed * Math.Sign(carSpeed);
 
             return rollingForce + dragForce;
+        }
+
+        public void SetGear(int gear) {
+            this.currentGear = gear;
         }
 
         public void GearUp() {

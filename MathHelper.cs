@@ -27,7 +27,8 @@ namespace EngineSimulator {
             return yMin + (yMax - yMin) * Math.Pow(x, power);
         }
 
-        public static double Random(double min, double max) {
+        public static double Random(double min, double max, bool enabled) {
+            if (!enabled) return 1.0;
             if (!useRandom) return (min + max) / 2.0;
             return min + (max - min) * random.NextDouble();
         }

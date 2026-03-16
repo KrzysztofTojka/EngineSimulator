@@ -11,9 +11,8 @@ public class Clutch {
     private double maxTorque = 500;
     private double stiffness = 2;
 
-    public Clutch(Engine engine, Gearbox gearbox) {
+    public Clutch(Engine engine) {
         this.engine = engine;
-        this.gearbox = gearbox;
     }
 
     public void Update(double dt) {
@@ -35,5 +34,13 @@ public class Clutch {
 
     public void SetEngagement(double value) {
         engagement = MathHelper.Clamp(value, 0, 1);
+    }
+
+    public double GetEngangement() {
+        return engagement;
+    }
+
+    public void SetGearbox(Gearbox gearbox) {
+        this.gearbox = gearbox;
     }
 }

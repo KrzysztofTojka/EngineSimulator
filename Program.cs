@@ -27,12 +27,13 @@ namespace EngineSimulator {
 
             simulationThread = new Thread(Run);
 
-            engine = new Engine(2.0, 6000);
+            engine = new Engine(3.0, 6000);
 
             var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             double finalGearRatio = 3.65;
-            gearbox = new Gearbox(engine, Gearbox.Type.Manual, 6, gearRatios, finalGearRatio);
-            clutch = new Clutch(engine, gearbox);
+            clutch = new Clutch(engine);
+            gearbox = new AutomaticGearbox(engine, Gearbox.Type.Automatic, 6, gearRatios, finalGearRatio);
+            clutch.SetGearbox(gearbox);
 
             isRunning = true;
 
@@ -74,7 +75,7 @@ namespace EngineSimulator {
                 gearbox.Update(0.01);
 
                 engine.Update(0.01);
-                engine.ShowInfo();
+                //engine.ShowInfo();
 
                 Thread.Sleep(10);
             }
@@ -84,7 +85,7 @@ namespace EngineSimulator {
             engineSound2000 = new EngineSoundPlayer("assets/2000RPM.wav", 2000);
             //engineSound2000.Play();
             engineSound3000 = new EngineSoundPlayer("assets/3000RPM.wav", 3000);
-            engineSound3000.Play();
+            //engineSound3000.Play();
 
             while (true) {
                 engineSound2000.SetRPM((float) engine.GetRPM());
@@ -139,10 +140,12 @@ namespace EngineSimulator {
                 gearbox.GearUp();
             }
 
-            if (Keyboard.IsKeyDown(Keys.Space)) {
-                clutch.SetEngagement(1.0);
-            } else {
-                clutch.SetEngagement(0.0);
+            if (!(gearbox is AutomaticGearbox auto) || auto.GetShiftPhase() == AutomaticGearbox.ShiftPhase.IDLE) {
+                if (Keyboard.IsKeyDown(Keys.Space)) {
+                    clutch.SetEngagement(1.0);
+                } else {
+                    clutch.SetEngagement(0.0);
+                } 
             }
 
             if (Keyboard.IsKeyDown(Keys.S)) {
@@ -164,6 +167,10 @@ namespace EngineSimulator {
 
         public static Gearbox GetGearbox() {
             return gearbox;
+        }
+
+        public static Clutch GetClutch() {
+            return clutch;
         }
 
         public static long GetLastUpdateTime() {
