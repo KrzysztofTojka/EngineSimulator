@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class AutomaticGearbox : Gearbox {
 
-        public const double CLUTCH_TIME = 0.02;
-        public const double SHIFT_TIME = 0.1;
+        public const double CLUTCH_TIME = 0.05;
+        public const double SHIFT_TIME = 0.05;
+        public const double THROTTLE_COOLDOWN = 0.1;
         public const double UPSHIFT_COOLDOWN = 1.0;
         public const double DOWNSHIFT_COOLDOWN = 1.0;
 
@@ -41,9 +42,11 @@ namespace EngineSimulator {
             if (shiftPhase != ShiftPhase.IDLE || clutch.GetEngangement() < 1.0) {
                 return;
             }
-            
-            if (ShouldDownshift() && (DateTimeOffset.Now.ToUnixTimeSeconds() - lastUpshiftTime) > DOWNSHIFT_COOLDOWN) {
-                StartShift(currentGear - 1);
+
+            int minDownshiftGear = GetMinDownshiftGear();
+
+            if (minDownshiftGear < currentGear && (DateTimeOffset.Now.ToUnixTimeSeconds() - lastUpshiftTime) > DOWNSHIFT_COOLDOWN) {
+                StartShift(minDownshiftGear);
             }
 
             if (ShouldUpshift() && (DateTimeOffset.Now.ToUnixTimeSeconds() - lastUpshiftTime) > UPSHIFT_COOLDOWN) {
@@ -78,12 +81,45 @@ namespace EngineSimulator {
             } else if (shiftPhase == ShiftPhase.ENGAGING) {
                 clutch.SetEngagement(shiftTimer / CLUTCH_TIME);
                 if (shiftTimer >= CLUTCH_TIME) {
+                    shiftPhase = ShiftPhase.THROTTLE_DELAY;
+                    shiftTimer = 0.0;
+                }
+            } else if (shiftPhase == ShiftPhase.THROTTLE_DELAY) {
+                if (shiftTimer >= THROTTLE_COOLDOWN) {
                     shiftPhase = ShiftPhase.IDLE;
                     shiftTimer = -1;
                 }
             }
 
             shiftTimer += dt;
+        }
+
+        public int GetMinDownshiftGear() {
+            if (currentGear <= 1) {
+                return currentGear;
+            }
+
+            double currentTorque = GetWheelTorque(engine.GetTorque(GetRpmForGear(currentGear)), currentGear);
+
+            int minGear = currentGear;
+            for (int i = currentGear; i > 1; i--) {
+                double prevGearRpm = GetRpmForGear(i - 1);
+
+                if (prevGearRpm >= engine.GetMaxRPM() * 0.95) {
+                    return minGear;
+                }
+                double prevGearTorque = GetWheelTorque(engine.GetTorque(prevGearRpm), i - 1);
+
+                if (prevGearTorque > currentTorque) {
+                    minGear = i;
+                }
+            }
+
+            if (minGear < currentGear) {
+                Console.WriteLine(currentGear + " -> " + minGear);
+            }
+
+            return minGear;
         }
 
         public bool ShouldUpshift() {
@@ -156,7 +192,8 @@ namespace EngineSimulator {
             IDLE,
             DISENGAGING,
             SHIFTING,
-            ENGAGING
+            ENGAGING,
+            THROTTLE_DELAY
         }
     }
 }

@@ -127,6 +127,10 @@ namespace EngineSimulator {
             this.brakesEngangement = engangement;
         }
 
+        public double GetWheelRadius() {
+            return wheelRadius;
+        }
+
         public enum Type {
             Manual,
             Automatic

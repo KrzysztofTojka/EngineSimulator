@@ -10,6 +10,7 @@ public class Clutch {
 
     private double maxTorque = 500;
     private double stiffness = 2;
+    private double damping = 15.0;
 
     public Clutch(Engine engine) {
         this.engine = engine;
@@ -22,13 +23,21 @@ public class Clutch {
         double slip = engineOmega - gearboxOmega;
         double torqueLimit = maxTorque * engagement;
 
-        double damping = 15.0;
-        double torqueTransfer = slip * damping * engagement;
+        double torqueTransfer;
+        if (engagement > 0.9 && Math.Abs(slip) < 30.0 && gearbox.GetCurrentGear() > 0) {
+            engine.SetRPM(gearbox.GetInputRPM());
+            double resistanceTorque = (gearbox.GetTotalResistance() * gearbox.GetWheelRadius()) / gearbox.GetTotalRatio();
+            double netTorque = engine.GetBrakeTorque() - resistanceTorque;
+            double netAccel = netTorque / (engine.GetInertia() + gearbox.GetCarInertia());
+            torqueTransfer = engine.GetBrakeTorque() - (engine.GetInertia() * netAccel);
+        } else {
+            torqueTransfer = slip * damping * engagement;
+            torqueTransfer = MathHelper.Clamp(torqueTransfer, -torqueLimit, torqueLimit);
+        }
 
-        torqueTransfer = MathHelper.Clamp(torqueTransfer, -torqueLimit, torqueLimit);
+        //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TRSF: {torqueTransfer,6:F1} Nm | SLIP: {slip,6:F2}");
 
         engine.SetLoadTorque(torqueTransfer);
-        //Console.WriteLine($"Clutch Slip: {slip:F2} rad/s, Torque Transfer: {torqueTransfer:F2} Nm");
         gearbox.SetInputTorque(torqueTransfer);
     }
 

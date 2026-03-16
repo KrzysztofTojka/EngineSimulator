@@ -32,7 +32,7 @@ namespace EngineSimulator {
             var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             double finalGearRatio = 3.65;
             clutch = new Clutch(engine);
-            gearbox = new AutomaticGearbox(engine, Gearbox.Type.Automatic, 6, gearRatios, finalGearRatio);
+            gearbox = new Gearbox(engine, Gearbox.Type.Automatic, 6, gearRatios, finalGearRatio);
             clutch.SetGearbox(gearbox);
 
             isRunning = true;
@@ -70,12 +70,12 @@ namespace EngineSimulator {
 
                 lastUpdateTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 
-                clutch.Update(0.01);
-
                 gearbox.Update(0.01);
 
+                clutch.Update(0.01);
+
                 engine.Update(0.01);
-                //engine.ShowInfo();
+                engine.ShowInfo();
 
                 Thread.Sleep(10);
             }
@@ -85,7 +85,7 @@ namespace EngineSimulator {
             engineSound2000 = new EngineSoundPlayer("assets/2000RPM.wav", 2000);
             //engineSound2000.Play();
             engineSound3000 = new EngineSoundPlayer("assets/3000RPM.wav", 3000);
-            //engineSound3000.Play();
+            engineSound3000.Play();
 
             while (true) {
                 engineSound2000.SetRPM((float) engine.GetRPM());
