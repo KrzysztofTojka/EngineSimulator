@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace EngineSimulator {
         private Clutch clutch; // for now
         private TorqueConverter torqueConverter;
 
-        public const double SHIFT_TIME = 50;
+        public const double SHIFT_TIME = 100;
         public const double GLOBAL_SHIFT_COOLDOWN = 1000;
         public const double UPSHIFT_COOLDOWN = 1500;
         public const double DOWNSHIFT_COOLDOWN = 1000;
@@ -21,6 +22,7 @@ namespace EngineSimulator {
         private ShiftPhase shiftPhase;
         private double shiftTimer;
         private int targetGear;
+        private int prevGear;
         private long lastShiftTime;
         private long lastUpshiftTime;
         private long lastDownshiftTime;
@@ -44,6 +46,13 @@ namespace EngineSimulator {
 
             UpdateShiftTimer(dt);
 
+            UpdateShiftLogic(dt);
+
+            torqueConverter.Update(dt);
+            //clutch.Update(dt); // for now
+        }
+
+        public void UpdateShiftLogic(double dt) {
             if (currentGear == 0) {
                 return;
             }
@@ -65,9 +74,6 @@ namespace EngineSimulator {
             if (shiftPhase == ShiftPhase.IDLE) {
                 clutch.SetEngagement(Program.GetClutchPedalPosition());
             }
-
-            torqueConverter.Update(dt);
-            //clutch.Update(dt); // for now
         }
 
         public void UpdateShiftTimer(double dt) {
@@ -76,6 +82,7 @@ namespace EngineSimulator {
             }
 
             if (shiftPhase == ShiftPhase.PRE_SHIFTING && shiftTimer >= SHIFT_TIME / 2.0) {
+                prevGear = currentGear;
                 SetGear(targetGear);
                 shiftPhase = ShiftPhase.POST_SHIFTING;
                 shiftTimer = 0.0;
@@ -187,6 +194,26 @@ namespace EngineSimulator {
                     SetGear(0);
                     break;
             }
+        }
+
+        public override double GetTotalRatio() {
+            if (currentGear == 0) {
+                return 0.0;
+            }
+
+            if (shiftPhase == ShiftPhase.IDLE) {
+                return base.GetTotalRatio();
+            }
+
+            if (shiftPhase == ShiftPhase.PRE_SHIFTING) {
+                return MathHelper.Lerp(gearRatios[currentGear], gearRatios[targetGear], shiftTimer / SHIFT_TIME) * finalDriveRatio;
+            }
+
+            if (shiftPhase == ShiftPhase.POST_SHIFTING) {
+                return MathHelper.Lerp(gearRatios[prevGear], gearRatios[currentGear], 0.5 + shiftTimer / SHIFT_TIME) * finalDriveRatio;
+            }
+            
+            return gearRatios[currentGear] * finalDriveRatio;
         }
 
         public double GetRpmForGear(int gear) {

@@ -51,7 +51,7 @@ namespace EngineSimulator {
                 return;
             }
 
-            double gearRatio = gearRatios[currentGear] * finalDriveRatio;
+            double gearRatio = GetTotalRatio();
             double driveForce = (inputTorque * gearRatio) / wheelRadius;
             double brakesForce = brakesTorque * brakesEngangement / wheelRadius;
 
@@ -136,7 +136,7 @@ namespace EngineSimulator {
             return currentGear.ToString();
         }
 
-        public double GetTotalRatio() {
+        public virtual double GetTotalRatio() {
             return gearRatios[currentGear] * finalDriveRatio;
         }
 
