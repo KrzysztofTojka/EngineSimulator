@@ -101,6 +101,7 @@ namespace EngineSimulator {
 
         public void ShowInfo() {
             Console.WriteLine(
+                $"{(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Program.startTime)/1000:F3} s | " +
                 $"{rpm:F0} RPM - " +
                 $"THR: {throttle:F2}, " +
                 $"MAF: {maf * 1000:F2} g/s, " +
@@ -177,6 +178,7 @@ namespace EngineSimulator {
         }
 
         public double PowerToTorque(double power, double rpm) {
+            if (rpm < 200) return 0;
             return (power * 60) / (2 * Math.PI * rpm); // Nm
         }
 

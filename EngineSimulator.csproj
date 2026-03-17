@@ -138,6 +138,7 @@
     <Compile Include="EngineSoundPlayer.cs" />
     <Compile Include="Gearbox.cs" />
     <Compile Include="Keyboard.cs" />
+    <Compile Include="ManualGearbox.cs" />
     <Compile Include="MathHelper.cs" />
     <Compile Include="RangeSlider.cs">
       <SubType>Component</SubType>

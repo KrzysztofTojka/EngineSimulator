@@ -12,7 +12,7 @@ namespace EngineSimulator {
         public ECU(Engine engine) {
             this.engine = engine;
             this.throttle = 0.0;
-            this.idleThrottle = 0.0118;
+            this.idleThrottle = 0.006;
         }
 
         public double GetThrottleMap(double throttle) {
@@ -25,11 +25,11 @@ namespace EngineSimulator {
 
         public bool ShouldCutFuel() {
             // for now
-            if (Program.GetGearbox() is AutomaticGearbox auto) {
-                if (auto.GetShiftPhase() != AutomaticGearbox.ShiftPhase.IDLE) {
-                    return true;
-                }
-            }
+            //if (Program.GetGearbox() is AutomaticGearbox auto) {
+            //    if (auto.GetShiftPhase() != AutomaticGearbox.ShiftPhase.IDLE) {
+            //        return true;
+            //    }
+            //}
 
             bool redline = engine.GetRPM() > engine.GetMaxRPM();
             bool decel = engine.GetRPM() > 1300 && throttle == 0.0;

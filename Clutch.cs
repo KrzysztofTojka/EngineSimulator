@@ -8,8 +8,7 @@ public class Clutch {
 
     private double engagement = 0.0;
 
-    private double maxTorque = 500;
-    private double stiffness = 2;
+    private double maxTorque = 600;
     private double damping = 15.0;
 
     public Clutch(Engine engine) {
@@ -24,7 +23,7 @@ public class Clutch {
         double torqueLimit = maxTorque * engagement;
 
         double torqueTransfer;
-        if (engagement > 0.9 && Math.Abs(slip) < 30.0 && gearbox.GetCurrentGear() > 0) {
+        if (engagement > 0.9 && Math.Abs(slip) < 35.0 && gearbox.GetCurrentGear() > 0) {
             double resistanceTorque = (gearbox.GetTotalResistance() * gearbox.GetWheelRadius()) / gearbox.GetTotalRatio();
             double netTorque = engine.GetBrakeTorque() - resistanceTorque;
             double netAccel = netTorque / (engine.GetInertia() + gearbox.GetCarInertia());
@@ -38,7 +37,6 @@ public class Clutch {
         }
 
         engine.SetLoadTorque(torqueTransfer);
-        engine.UpdateRpm(dt);
 
         gearbox.SetInputTorque(torqueTransfer);
 

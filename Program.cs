@@ -22,22 +22,27 @@ namespace EngineSimulator {
         static Clutch clutch;
         static Dyno dyno;
 
+        public static double startTime;
+
         public static void Main() {
             Console.WindowWidth = 180;
 
             simulationThread = new Thread(Run);
 
-            engine = new Engine(3.0, 6000);
+            engine = new Engine(4.0, 6000);
 
             var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             double finalGearRatio = 3.65;
             clutch = new Clutch(engine);
-            gearbox = new Gearbox(engine, 6, gearRatios, finalGearRatio);
+            //gearbox = new ManualGearbox(engine, clutch, 6, gearRatios, finalGearRatio);
+            gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
             clutch.SetGearbox(gearbox);
 
             isRunning = true;
 
+            startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             simulationThread.Start();
+
             soundThread = new Thread(Sound);
             soundThread.Start();
 
@@ -74,7 +79,7 @@ namespace EngineSimulator {
 
                 gearbox.Update(0.01);
 
-                clutch.Update(0.01);
+                engine.UpdateRpm(0.01);
 
                 engine.ShowInfo();
 
@@ -143,9 +148,9 @@ namespace EngineSimulator {
 
             if (!(gearbox is AutomaticGearbox auto) || auto.GetShiftPhase() == AutomaticGearbox.ShiftPhase.IDLE) {
                 if (Keyboard.IsKeyDown(Keys.Space)) {
-                    clutch.SetEngagement(1.0);
-                } else {
                     clutch.SetEngagement(0.0);
+                } else {
+                    clutch.SetEngagement(1.0);
                 } 
             }
 

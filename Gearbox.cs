@@ -10,24 +10,22 @@ namespace EngineSimulator {
         protected Engine engine;
 
         protected double wheelRadius = 0.323;
-        private double mass = 1400;
-        private double Cd = 0.32;
-        private double area = 2.2;
-        private double rollingResistance = 0.015; // 0.015
-        private double airDensity = 1.225;
-        private double brakesTorque = 12000.0;
+        protected double mass = 1400;
+        protected double Cd = 0.32;
+        protected double area = 2.2;
+        protected double rollingResistance = 0.015; // 0.015
+        protected double airDensity = 1.225;
+        protected double brakesTorque = 12000.0;
 
         protected Type type;
         protected int gears;
         protected double finalDriveRatio;
         protected Dictionary<int, double> gearRatios = new Dictionary<int, double>();
 
-        private double brakesEngangement;
+        protected double brakesEngangement;
         protected int currentGear;
         protected double inputTorque; // Nm
         protected double inputRpm; // rpm
-        private double inputOmega; // rad/s
-        private double wheelTorque; // Nm
         protected double wheelRpm; // rpm
         protected double carSpeed; // m/s
 
@@ -38,7 +36,7 @@ namespace EngineSimulator {
             this.gears = gears;
             this.finalDriveRatio = finalGearRatio;
 
-            this.currentGear = 1;
+            this.currentGear = 0;
             this.carSpeed = 0.0;
             this.brakesEngangement = 0.0;
 
@@ -75,7 +73,16 @@ namespace EngineSimulator {
 
             double dragForce = 0.5 * airDensity * Cd * area * carSpeed * carSpeed * Math.Sign(carSpeed);
 
-            return rollingForce + dragForce;
+            double drivetrainFriction = 80.0; // Nm
+            double drivetrainLosses = 0;
+
+            // TODO
+            //if (currentGear > 0 && Program.GetClutch().GetEngangement() > 0.0) {
+            //    drivetrainLosses = (drivetrainFriction * GetTotalRatio()) / wheelRadius;
+            //}
+
+
+            return rollingForce + dragForce + drivetrainLosses;
         }
 
         public void SetGear(int gear) {
