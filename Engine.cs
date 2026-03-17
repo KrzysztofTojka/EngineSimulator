@@ -89,12 +89,13 @@ namespace EngineSimulator {
             brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
             brakeTorque = PowerToTorque(brakePower, rpm);
 
-            netTorque = brakeTorque - loadTorque;
-
             if (turbocharger != null) {
                 turbocharger.Update(dt);
             }
+        }
 
+        public void UpdateRpm(double dt) {
+            netTorque = brakeTorque - loadTorque;
             rpm = GetNewRPM(rpm, dt, netTorque);
         }
 

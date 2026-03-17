@@ -12,6 +12,7 @@ namespace EngineSimulator {
         public const double THROTTLE_COOLDOWN = 0.1;
         public const double UPSHIFT_COOLDOWN = 1.0;
         public const double DOWNSHIFT_COOLDOWN = 1.0;
+        public const double MIN_UPSHIFT_RPM = 1700;
 
         private DriveMode driveMode;
         private ShiftPhase shiftPhase;
@@ -21,7 +22,8 @@ namespace EngineSimulator {
 
         private Clutch clutch;
 
-        public AutomaticGearbox(Engine engine, Type type, int gears, double[] gearRatios, double finalGearRatio) : base(engine, type, gears, gearRatios, finalGearRatio) {
+        public AutomaticGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
+            this.type = Type.Automatic;
             this.driveMode = DriveMode.NORMAL;
             this.shiftPhase = ShiftPhase.IDLE;
             this.shiftTimer = -1;
@@ -145,23 +147,6 @@ namespace EngineSimulator {
             double nextGearTorque = GetWheelTorque(engine.GetTorque(nextGearRpm), currentGear + 1);
 
             return nextGearTorque > currentTorque;
-        }
-
-        public bool ShouldDownshift() {
-            if (currentGear <= 1) {
-                return false;
-            }
-
-            double prevGearRpm = GetRpmForGear(currentGear - 1);
-
-            if (prevGearRpm >= engine.GetMaxRPM() * 0.95) {
-                return false;
-            }
-
-            double currentTorque = GetWheelTorque(engine.GetTorque(GetRpmForGear(currentGear)), currentGear);
-            double prevGearTorque = GetWheelTorque(engine.GetTorque(prevGearRpm), currentGear - 1);
-
-            return prevGearTorque > currentTorque;
         }
 
         public void StartShift(int gear) {

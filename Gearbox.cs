@@ -17,7 +17,7 @@ namespace EngineSimulator {
         private double airDensity = 1.225;
         private double brakesTorque = 12000.0;
 
-        private Type type;
+        protected Type type;
         protected int gears;
         protected double finalDriveRatio;
         protected Dictionary<int, double> gearRatios = new Dictionary<int, double>();
@@ -31,10 +31,10 @@ namespace EngineSimulator {
         protected double wheelRpm; // rpm
         protected double carSpeed; // m/s
 
-        public Gearbox(Engine engine, Type type, int gears, double[] gearRatios, double finalGearRatio) {
+        public Gearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) {
             this.engine = engine;
 
-            this.type = type;
+            this.type = Type.Manual;
             this.gears = gears;
             this.finalDriveRatio = finalGearRatio;
 
@@ -65,7 +65,14 @@ namespace EngineSimulator {
         }
 
         public double GetTotalResistance() {
-            double rollingForce = Math.Sign(carSpeed) * rollingResistance * mass * 9.81; // 9.81
+            double rollingForce = rollingResistance * mass * 9.81;
+
+            if (Math.Abs(carSpeed) < 0.1) {
+                rollingForce *= (carSpeed / 0.1);
+            } else {
+                rollingForce *= Math.Sign(carSpeed);
+            }
+
             double dragForce = 0.5 * airDensity * Cd * area * carSpeed * carSpeed * Math.Sign(carSpeed);
 
             return rollingForce + dragForce;

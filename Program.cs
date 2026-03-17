@@ -32,7 +32,7 @@ namespace EngineSimulator {
             var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             double finalGearRatio = 3.65;
             clutch = new Clutch(engine);
-            gearbox = new Gearbox(engine, Gearbox.Type.Automatic, 6, gearRatios, finalGearRatio);
+            gearbox = new Gearbox(engine, 6, gearRatios, finalGearRatio);
             clutch.SetGearbox(gearbox);
 
             isRunning = true;
@@ -69,12 +69,13 @@ namespace EngineSimulator {
                 HandleInput();
 
                 lastUpdateTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                
+
+                engine.Update(0.01);
+
                 gearbox.Update(0.01);
 
                 clutch.Update(0.01);
 
-                engine.Update(0.01);
                 engine.ShowInfo();
 
                 Thread.Sleep(10);
