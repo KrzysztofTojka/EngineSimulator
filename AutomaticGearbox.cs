@@ -85,6 +85,7 @@ namespace EngineSimulator {
             double currentTorque = GetWheelTorque(engine.GetTorque(GetRpmForGear(currentGear)), currentGear);
 
             int minGear = currentGear;
+            double maxTorque = currentTorque;
             for (int i = currentGear; i > 2; i--) {
                 double prevGearRpm = GetRpmForGear(i - 1);
 
@@ -93,7 +94,8 @@ namespace EngineSimulator {
                 }
                 double prevGearTorque = GetWheelTorque(engine.GetTorque(prevGearRpm), i - 1);
 
-                if (prevGearTorque > currentTorque) {
+                if (prevGearTorque > maxTorque) {
+                    maxTorque = prevGearTorque;
                     minGear = i - 1;
                 }
             }
