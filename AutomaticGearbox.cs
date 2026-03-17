@@ -63,7 +63,7 @@ namespace EngineSimulator {
 
             int minDownshiftGear = GetMinDownshiftGear();
 
-            if (minDownshiftGear < currentGear && TimeSince(lastShiftTime) > DOWNSHIFT_COOLDOWN) {
+            if (minDownshiftGear < currentGear/* && TimeSince(lastShiftTime) > DOWNSHIFT_COOLDOWN*/) {
                 StartShift(minDownshiftGear);
             }
 
@@ -99,6 +99,10 @@ namespace EngineSimulator {
         public int GetMinDownshiftGear() {
             if (currentGear <= 1) {
                 return currentGear;
+            }
+
+            if (engine.GetRPM() < 900) {
+                return currentGear - 1;
             }
 
             double currentTorque = GetWheelTorque(engine.GetTorque(GetRpmForGear(currentGear)), currentGear);

@@ -38,7 +38,7 @@ namespace EngineSimulator {
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.325;//4.624;
 
-            //gearbox = new ManualGearbox(engine, clutch, 6, gearRatios, finalGearRatio);
+            //gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
             gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
 
             isRunning = true;
