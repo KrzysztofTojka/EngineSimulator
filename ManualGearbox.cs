@@ -9,16 +9,15 @@ namespace EngineSimulator {
 
         private Clutch clutch;
 
-        public ManualGearbox(Engine engine, Clutch clutch, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
+        public ManualGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
             this.type = Type.Manual;
-            this.clutch = clutch;
+            this.clutch = new Clutch(engine, this);
         }
 
         public override void Update(double dt) {
             base.Update(dt);
+            clutch.SetEngagement(Program.GetClutchPedalPosition());
             clutch.Update(dt);
-            
-            
         }
 
     }

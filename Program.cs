@@ -19,24 +19,27 @@ namespace EngineSimulator {
 
         static Engine engine;
         static Gearbox gearbox;
-        static Clutch clutch;
         static Dyno dyno;
+
+        static double clutchPedalPosition = 0.0;
 
         public static double startTime;
 
         public static void Main() {
-            Console.WindowWidth = 180;
+            Console.WindowWidth = 160;
 
             simulationThread = new Thread(Run);
 
-            engine = new Engine(4.0, 6000);
+            engine = new Engine(2.5, 6500);
 
-            var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
-            double finalGearRatio = 3.65;
-            clutch = new Clutch(engine);
+            //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
+            //double finalGearRatio = 3.65;
+
+            var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
+            double finalGearRatio = 4.325;//4.624;
+
             //gearbox = new ManualGearbox(engine, clutch, 6, gearRatios, finalGearRatio);
             gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
-            clutch.SetGearbox(gearbox);
 
             isRunning = true;
 
@@ -70,6 +73,8 @@ namespace EngineSimulator {
             dyno = new Dyno();
             dyno.Run();
 
+            int i = 0;
+
             while (isRunning) {
                 HandleInput();
 
@@ -81,9 +86,15 @@ namespace EngineSimulator {
 
                 engine.UpdateRpm(0.01);
 
-                engine.ShowInfo();
+                if (i == 1) {
+                    engine.ShowInfo();
+                    i = 0;
+                }
+                
 
                 Thread.Sleep(10);
+
+                i++;
             }
         }
 
@@ -146,12 +157,10 @@ namespace EngineSimulator {
                 gearbox.GearUp();
             }
 
-            if (!(gearbox is AutomaticGearbox auto) || auto.GetShiftPhase() == AutomaticGearbox.ShiftPhase.IDLE) {
-                if (Keyboard.IsKeyDown(Keys.Space)) {
-                    clutch.SetEngagement(0.0);
-                } else {
-                    clutch.SetEngagement(1.0);
-                } 
+            if (Keyboard.IsKeyDown(Keys.Space)) {
+                clutchPedalPosition = 0.0;
+            } else {
+                clutchPedalPosition = 1.0;
             }
 
             if (Keyboard.IsKeyDown(Keys.S)) {
@@ -175,8 +184,8 @@ namespace EngineSimulator {
             return gearbox;
         }
 
-        public static Clutch GetClutch() {
-            return clutch;
+        public static double GetClutchPedalPosition() {
+            return clutchPedalPosition;
         }
 
         public static long GetLastUpdateTime() {

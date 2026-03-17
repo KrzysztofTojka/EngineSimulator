@@ -11,8 +11,9 @@ public class Clutch {
     private double maxTorque = 600;
     private double damping = 15.0;
 
-    public Clutch(Engine engine) {
+    public Clutch(Engine engine, Gearbox gearbox) {
         this.engine = engine;
+        this.gearbox = gearbox;
     }
 
     public void Update(double dt) {
@@ -37,7 +38,6 @@ public class Clutch {
         }
 
         engine.SetLoadTorque(torqueTransfer);
-
         gearbox.SetInputTorque(torqueTransfer);
 
         //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TRSF: {torqueTransfer,6:F1} Nm | SLIP: {slip,6:F2}");
@@ -51,7 +51,4 @@ public class Clutch {
         return engagement;
     }
 
-    public void SetGearbox(Gearbox gearbox) {
-        this.gearbox = gearbox;
-    }
 }

@@ -96,13 +96,21 @@ namespace EngineSimulator {
 
         public void UpdateRpm(double dt) {
             netTorque = brakeTorque - loadTorque;
-            rpm = GetNewRPM(rpm, dt, netTorque);
+            double newRpm = GetNewRPM(rpm, dt, netTorque);
+
+            if (double.IsNaN(newRpm) || double.IsInfinity(newRpm)) {
+                Console.WriteLine("RPM calculation error: " + newRpm);
+                return;
+                //newRpm = 0;
+            }
+            rpm = Math.Max(0, newRpm);
         }
 
         public void ShowInfo() {
             Console.WriteLine(
                 $"{(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Program.startTime)/1000:F3} s | " +
-                $"{rpm:F0} RPM - " +
+                $"{rpm:F0} RPM, " +
+                $"{Program.GetGearbox().GetCarSpeed() * (Units.km / Units.h):F2} kmh - " +
                 $"THR: {throttle:F2}, " +
                 $"MAF: {maf * 1000:F2} g/s, " +
                 $"MAP: {map / 1000:F2} kPa, " +
@@ -155,6 +163,7 @@ namespace EngineSimulator {
         }
 
         public double GetMAP(double maf, double rpm, double throttle) {
+            if (rpm < 50) return pressureAtm;
             return (maf * 2 * 60 * Units.GAS_CONSTANT * temperature) / (displacement * GetVolumetricEfficiency(rpm) * rpm); // Pa
         }
 

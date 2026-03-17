@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class AutomaticGearbox : Gearbox {
 
+        private Clutch clutch; // for now
+        private TorqueConverter torqueConverter;
+
         public const double SHIFT_TIME = 50;
         public const double GLOBAL_SHIFT_COOLDOWN = 1000;
-        public const double UPSHIFT_COOLDOWN = 1000;
+        public const double UPSHIFT_COOLDOWN = 1500;
         public const double DOWNSHIFT_COOLDOWN = 1000;
         public const double MIN_UPSHIFT_RPM = 1700;
 
         private DriveMode driveMode;
+        private ShiftMode shiftMode;
         private ShiftPhase shiftPhase;
         private double shiftTimer;
         private int targetGear;
@@ -23,7 +27,10 @@ namespace EngineSimulator {
 
         public AutomaticGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
             this.type = Type.Automatic;
-            this.driveMode = DriveMode.NORMAL;
+            this.clutch = new Clutch(engine, this);
+            this.torqueConverter = new TorqueConverter(engine, this);
+            this.driveMode = DriveMode.NEUTRAL;
+            this.shiftMode = ShiftMode.NORMAL;
             this.shiftPhase = ShiftPhase.IDLE;
             this.shiftTimer = -1;
             this.targetGear = 0;
@@ -55,7 +62,12 @@ namespace EngineSimulator {
                 StartShift(currentGear + 1);
             }
 
-            Program.GetClutch().Update(dt); // for now
+            if (shiftPhase == ShiftPhase.IDLE) {
+                clutch.SetEngagement(Program.GetClutchPedalPosition());
+            }
+
+            torqueConverter.Update(dt);
+            //clutch.Update(dt); // for now
         }
 
         public void UpdateShiftTimer(double dt) {
@@ -124,6 +136,10 @@ namespace EngineSimulator {
                 return false;
             }
 
+            if (engine.GetRPM() < 1700) {
+                return false;
+            }
+
             double nextGearRpm = GetRpmForGear(currentGear + 1);
 
             if (nextGearRpm < 1000) {
@@ -149,6 +165,30 @@ namespace EngineSimulator {
             targetGear = gear;
         }
 
+        public override void GearUp() {
+            switch (driveMode) {
+                case DriveMode.NEUTRAL:
+                    driveMode = DriveMode.DRIVE;
+                    SetGear(1);
+                    break;
+                case DriveMode.REVERSE:
+                    driveMode = DriveMode.NEUTRAL;
+                    break;
+            }
+        }
+
+        public override void GearDown() {
+            switch (driveMode) {
+                case DriveMode.NEUTRAL:
+                    driveMode = DriveMode.REVERSE;
+                    break;
+                case DriveMode.DRIVE:
+                    driveMode = DriveMode.NEUTRAL;
+                    SetGear(0);
+                    break;
+            }
+        }
+
         public double GetRpmForGear(int gear) {
             if (gear == 0) return engine.GetRPM();
             return wheelRpm * gearRatios[gear] * finalDriveRatio;
@@ -162,6 +202,19 @@ namespace EngineSimulator {
             return shiftPhase;
         }
 
+        public override string GetGearLabel() {
+            switch (driveMode) {
+                case DriveMode.NEUTRAL:
+                    return "N";
+                case DriveMode.DRIVE:
+                    return currentGear.ToString();
+                case DriveMode.REVERSE:
+                    return "R";
+                default:
+                    return "";
+            }
+        }
+
         private long Now() {
             return DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
@@ -171,6 +224,12 @@ namespace EngineSimulator {
         }
 
         public enum DriveMode {
+            NEUTRAL,
+            DRIVE,
+            REVERSE,
+        }
+
+        public enum ShiftMode {
             NORMAL,
             SPORT
         }

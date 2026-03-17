@@ -9,8 +9,8 @@ namespace EngineSimulator {
 
         protected Engine engine;
 
-        protected double wheelRadius = 0.323;
-        protected double mass = 1400;
+        protected double wheelRadius = 0.365; // 0.323
+        protected double mass = 1600; // 1400
         protected double Cd = 0.32;
         protected double area = 2.2;
         protected double rollingResistance = 0.015; // 0.015
@@ -53,10 +53,20 @@ namespace EngineSimulator {
 
             double gearRatio = gearRatios[currentGear] * finalDriveRatio;
             double driveForce = (inputTorque * gearRatio) / wheelRadius;
-            double netForce = driveForce - GetTotalResistance() - brakesTorque * brakesEngangement;
+            double brakesForce = brakesTorque * brakesEngangement / wheelRadius;
+
+            double stoppingForce = GetTotalResistance() + Math.Sign(carSpeed) * brakesForce;
+
+            double netForce = driveForce - stoppingForce;
 
             double accel = netForce / mass;
-            carSpeed += accel * dt;
+            double speedDelta = accel * dt;
+
+            if (Math.Abs(carSpeed) < Math.Abs(speedDelta) && Math.Abs(driveForce) < Math.Abs(stoppingForce)) {
+                carSpeed = 0;
+            } else {
+                carSpeed += speedDelta;
+            }
 
             wheelRpm = (carSpeed / (2 * Math.PI * wheelRadius)) * 60;
             inputRpm = wheelRpm * gearRatio;
@@ -65,8 +75,8 @@ namespace EngineSimulator {
         public double GetTotalResistance() {
             double rollingForce = rollingResistance * mass * 9.81;
 
-            if (Math.Abs(carSpeed) < 0.1) {
-                rollingForce *= (carSpeed / 0.1);
+            if (Math.Abs(carSpeed) < 0.2) {
+                rollingForce *= (carSpeed / 0.2);
             } else {
                 rollingForce *= Math.Sign(carSpeed);
             }
@@ -89,14 +99,14 @@ namespace EngineSimulator {
             this.currentGear = gear;
         }
 
-        public void GearUp() {
+        public virtual void GearUp() {
             if (currentGear == gears) {
                 return;
             }
             currentGear++;
         }
 
-        public void GearDown() {
+        public virtual void GearDown() {
             if (currentGear == 0) {
                 return;
             }
@@ -119,6 +129,11 @@ namespace EngineSimulator {
 
         public int GetCurrentGear() {
             return currentGear;
+        }
+
+        public virtual string GetGearLabel() {
+            if (currentGear == 0) return "N";
+            return currentGear.ToString();
         }
 
         public double GetTotalRatio() {

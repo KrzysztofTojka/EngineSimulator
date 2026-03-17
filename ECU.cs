@@ -12,7 +12,7 @@ namespace EngineSimulator {
         public ECU(Engine engine) {
             this.engine = engine;
             this.throttle = 0.0;
-            this.idleThrottle = 0.006;
+            this.idleThrottle = 0.012; // 4.0 - 0.006, 2.0 - 0.012
         }
 
         public double GetThrottleMap(double throttle) {

@@ -89,7 +89,7 @@ namespace EngineSimulator {
             SetGaugeValue(fuelRateGauge, Units.kgs_to_Lh(engine.GetFuelRate(), Engine.FUEL_DENSITY), dt);
             SetGaugeValue(afrGauge, engine.GetAFR(), dt);
 
-            gearLabel.Text = Program.GetGearbox().GetCurrentGear() == 0 ? "N" : Program.GetGearbox().GetCurrentGear().ToString();
+            gearLabel.Text = Program.GetGearbox().GetGearLabel();
 
             if (idleThrottleSlider.ValueChanged()) {
                 engine.GetECU().idleThrottle = idleThrottleSlider.Value;
