@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class AutomaticGearbox : Gearbox {
 
-        public const double SHIFT_TIME = 0.05;
-        public const double UPSHIFT_COOLDOWN = 1.0;
-        public const double DOWNSHIFT_COOLDOWN = 1.0;
+        public const double SHIFT_TIME = 50;
+        public const double GLOBAL_SHIFT_COOLDOWN = 1000;
+        public const double UPSHIFT_COOLDOWN = 1000;
+        public const double DOWNSHIFT_COOLDOWN = 1000;
         public const double MIN_UPSHIFT_RPM = 1700;
 
         private DriveMode driveMode;
@@ -17,6 +18,8 @@ namespace EngineSimulator {
         private double shiftTimer;
         private int targetGear;
         private long lastShiftTime;
+        private long lastUpshiftTime;
+        private long lastDownshiftTime;
 
         public AutomaticGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
             this.type = Type.Automatic;
@@ -25,6 +28,8 @@ namespace EngineSimulator {
             this.shiftTimer = -1;
             this.targetGear = 0;
             this.lastShiftTime = 0;
+            this.lastUpshiftTime = 0;
+            this.lastDownshiftTime = 0;
         }
 
         public override void Update(double dt) {
@@ -42,11 +47,11 @@ namespace EngineSimulator {
 
             int minDownshiftGear = GetMinDownshiftGear();
 
-            if (minDownshiftGear < currentGear && (DateTimeOffset.Now.ToUnixTimeSeconds() - lastShiftTime) > DOWNSHIFT_COOLDOWN) {
+            if (minDownshiftGear < currentGear && TimeSince(lastShiftTime) > DOWNSHIFT_COOLDOWN) {
                 StartShift(minDownshiftGear);
             }
 
-            if (ShouldUpshift() && (DateTimeOffset.Now.ToUnixTimeSeconds() - lastShiftTime) > UPSHIFT_COOLDOWN) {
+            if (ShouldUpshift()) {
                 StartShift(currentGear + 1);
             }
 
@@ -69,7 +74,7 @@ namespace EngineSimulator {
                 shiftTimer = 0.0;
             }
 
-            shiftTimer += dt;
+            shiftTimer += dt * 1000.0;
         }
 
         public int GetMinDownshiftGear() {
@@ -83,7 +88,7 @@ namespace EngineSimulator {
             for (int i = currentGear; i > 2; i--) {
                 double prevGearRpm = GetRpmForGear(i - 1);
 
-                if (prevGearRpm >= engine.GetMaxRPM() * 0.95) {
+                if (prevGearRpm >= engine.GetMaxRPM() * 0.9) {
                     return minGear;
                 }
                 double prevGearTorque = GetWheelTorque(engine.GetTorque(prevGearRpm), i - 1);
@@ -105,8 +110,16 @@ namespace EngineSimulator {
                 return false;
             }
 
+            if (TimeSince(lastShiftTime) < GLOBAL_SHIFT_COOLDOWN) {
+                return false;
+            }
+
             if (engine.GetRPM() >= engine.GetMaxRPM() * 0.95) {
                 return true;
+            }
+
+            if (TimeSince(lastUpshiftTime) < UPSHIFT_COOLDOWN) {
+                return false;
             }
 
             double nextGearRpm = GetRpmForGear(currentGear + 1);
@@ -122,10 +135,16 @@ namespace EngineSimulator {
         }
 
         public void StartShift(int gear) {
+            if (gear > currentGear) {
+                lastUpshiftTime = Now();
+            }
+            if (gear < currentGear) {
+                lastDownshiftTime = Now();
+            }
+            lastShiftTime = Now();
             shiftPhase = ShiftPhase.PRE_SHIFTING;
             shiftTimer = 0.0;
             targetGear = gear;
-            lastShiftTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
         public double GetRpmForGear(int gear) {
@@ -139,6 +158,14 @@ namespace EngineSimulator {
 
         public ShiftPhase GetShiftPhase() {
             return shiftPhase;
+        }
+
+        private long Now() {
+            return DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        }
+
+        private long TimeSince(long timestamp) {
+            return Now() - timestamp;
         }
 
         public enum DriveMode {
