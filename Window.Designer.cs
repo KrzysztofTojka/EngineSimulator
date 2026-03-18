@@ -26,8 +26,10 @@ namespace EngineSimulator {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dynoChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.rpmGauge = new AquaControls.AquaGauge();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -40,29 +42,38 @@ namespace EngineSimulator {
             this.mafGauge = new AquaControls.AquaGauge();
             this.label1 = new System.Windows.Forms.Label();
             this.gearLabel = new System.Windows.Forms.Label();
-            this.veScaleSlider = new DialSlider();
-            this.maxVeRpmSlider = new DialSlider();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.dynoPage = new System.Windows.Forms.TabPage();
+            this.shiftingPage = new System.Windows.Forms.TabPage();
+            this.shiftingChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.torqueBar = new VerticalFillBarSimple();
             this.powerBar = new VerticalFillBarSimple();
+            this.maxAirflowRpmSlider = new DialSlider();
+            this.veScaleSlider = new DialSlider();
+            this.maxVeRpmSlider = new DialSlider();
             this.rpmLimitSlider = new DialSlider();
             this.inertiaSlider = new DialSlider();
             this.idleThrottleSlider = new DialSlider();
             this.displacementSlider = new DialSlider();
-            this.maxAirflowRpmSlider = new DialSlider();
             this.maxVeSlider = new DialSlider();
+            this.dynoThrottleSlider = new DialSlider();
             ((System.ComponentModel.ISupportInitialize)(this.dynoChart)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.dynoPage.SuspendLayout();
+            this.shiftingPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.shiftingChart)).BeginInit();
             this.SuspendLayout();
             // 
             // dynoChart
             // 
-            chartArea3.Name = "ChartArea1";
-            this.dynoChart.ChartAreas.Add(chartArea3);
-            this.dynoChart.Location = new System.Drawing.Point(1067, 12);
+            chartArea9.Name = "ChartArea1";
+            this.dynoChart.ChartAreas.Add(chartArea9);
+            this.dynoChart.Location = new System.Drawing.Point(3, 3);
             this.dynoChart.Name = "dynoChart";
-            series3.ChartArea = "ChartArea1";
-            series3.Name = "Series1";
-            this.dynoChart.Series.Add(series3);
-            this.dynoChart.Size = new System.Drawing.Size(779, 479);
+            series9.ChartArea = "ChartArea1";
+            series9.Name = "Series1";
+            this.dynoChart.Series.Add(series9);
+            this.dynoChart.Size = new System.Drawing.Size(772, 454);
             this.dynoChart.TabIndex = 0;
             this.dynoChart.Text = "dynoChart";
             this.dynoChart.Paint += new System.Windows.Forms.PaintEventHandler(this.dyno_Paint);
@@ -406,21 +417,123 @@ namespace EngineSimulator {
             this.gearLabel.TabIndex = 16;
             this.gearLabel.Text = "N";
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.dynoPage);
+            this.tabControl1.Controls.Add(this.shiftingPage);
+            this.tabControl1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.tabControl1.HotTrack = true;
+            this.tabControl1.Location = new System.Drawing.Point(1023, 24);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(785, 489);
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this.tabControl1.TabIndex = 21;
+            this.tabControl1.TabStop = false;
+            // 
+            // dynoPage
+            // 
+            this.dynoPage.Controls.Add(this.dynoChart);
+            this.dynoPage.Location = new System.Drawing.Point(4, 27);
+            this.dynoPage.Name = "dynoPage";
+            this.dynoPage.Padding = new System.Windows.Forms.Padding(3);
+            this.dynoPage.Size = new System.Drawing.Size(777, 458);
+            this.dynoPage.TabIndex = 1;
+            this.dynoPage.Text = "Dyno";
+            this.dynoPage.UseVisualStyleBackColor = true;
+            // 
+            // shiftingPage
+            // 
+            this.shiftingPage.Controls.Add(this.shiftingChart);
+            this.shiftingPage.Location = new System.Drawing.Point(4, 27);
+            this.shiftingPage.Name = "shiftingPage";
+            this.shiftingPage.Padding = new System.Windows.Forms.Padding(3);
+            this.shiftingPage.Size = new System.Drawing.Size(777, 458);
+            this.shiftingPage.TabIndex = 0;
+            this.shiftingPage.Text = "Shifting";
+            this.shiftingPage.UseVisualStyleBackColor = true;
+            // 
+            // shiftingChart
+            // 
+            chartArea10.Name = "ChartArea1";
+            this.shiftingChart.ChartAreas.Add(chartArea10);
+            this.shiftingChart.Location = new System.Drawing.Point(3, 3);
+            this.shiftingChart.Name = "shiftingChart";
+            series10.ChartArea = "ChartArea1";
+            series10.Name = "Series1";
+            this.shiftingChart.Series.Add(series10);
+            this.shiftingChart.Size = new System.Drawing.Size(772, 454);
+            this.shiftingChart.TabIndex = 0;
+            this.shiftingChart.Text = "shiftingChart";
+            // 
+            // torqueBar
+            // 
+            this.torqueBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.torqueBar.FillColor = System.Drawing.Color.Blue;
+            this.torqueBar.Location = new System.Drawing.Point(948, 51);
+            this.torqueBar.MaxValue = 100F;
+            this.torqueBar.MinValue = 0F;
+            this.torqueBar.Name = "torqueBar";
+            this.torqueBar.RimColor = System.Drawing.Color.Gray;
+            this.torqueBar.Size = new System.Drawing.Size(27, 458);
+            this.torqueBar.TabIndex = 14;
+            this.torqueBar.Text = "torqueBar";
+            this.torqueBar.Value = 50F;
+            // 
+            // powerBar
+            // 
+            this.powerBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.powerBar.FillColor = System.Drawing.Color.Red;
+            this.powerBar.Location = new System.Drawing.Point(981, 51);
+            this.powerBar.MaxValue = 100F;
+            this.powerBar.MinValue = 0F;
+            this.powerBar.Name = "powerBar";
+            this.powerBar.RimColor = System.Drawing.Color.Gray;
+            this.powerBar.Size = new System.Drawing.Size(27, 458);
+            this.powerBar.TabIndex = 13;
+            this.powerBar.Text = "powerBar";
+            this.powerBar.Value = 50F;
+            // 
+            // maxAirflowRpmSlider
+            // 
+            this.maxAirflowRpmSlider.DecimalPlaces = 1;
+            this.maxAirflowRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.maxAirflowRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.maxAirflowRpmSlider.LabelWidth = 140;
+            this.maxAirflowRpmSlider.Location = new System.Drawing.Point(1422, 691);
+            this.maxAirflowRpmSlider.MaxValue = 6000F;
+            this.maxAirflowRpmSlider.MinValue = 3000F;
+            this.maxAirflowRpmSlider.Name = "maxAirflowRpmSlider";
+            this.maxAirflowRpmSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxAirflowRpmSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.maxAirflowRpmSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.maxAirflowRpmSlider.RimColor = System.Drawing.Color.Black;
+            this.maxAirflowRpmSlider.Size = new System.Drawing.Size(365, 60);
+            this.maxAirflowRpmSlider.SliderName = "Max airflow RPM";
+            this.maxAirflowRpmSlider.SliderSize = 8;
+            this.maxAirflowRpmSlider.Step = 100F;
+            this.maxAirflowRpmSlider.TabIndex = 20;
+            this.maxAirflowRpmSlider.Text = "maxAirflowRpmSlider";
+            this.maxAirflowRpmSlider.Value = 5500F;
+            this.maxAirflowRpmSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            // 
             // veScaleSlider
             // 
             this.veScaleSlider.DecimalPlaces = 1;
             this.veScaleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.veScaleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.veScaleSlider.LabelWidth = 140;
-            this.veScaleSlider.Location = new System.Drawing.Point(1466, 618);
+            this.veScaleSlider.Location = new System.Drawing.Point(1422, 642);
             this.veScaleSlider.MaxValue = 3F;
             this.veScaleSlider.MinValue = 0.5F;
             this.veScaleSlider.Name = "veScaleSlider";
             this.veScaleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.veScaleSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.veScaleSlider.PointerColor = System.Drawing.Color.DimGray;
             this.veScaleSlider.RimColor = System.Drawing.Color.Black;
             this.veScaleSlider.Size = new System.Drawing.Size(365, 60);
             this.veScaleSlider.SliderName = "VE scale";
+            this.veScaleSlider.SliderSize = 8;
             this.veScaleSlider.Step = 0.1F;
             this.veScaleSlider.TabIndex = 19;
             this.veScaleSlider.Text = "veScaleSlider";
@@ -433,48 +546,22 @@ namespace EngineSimulator {
             this.maxVeRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.maxVeRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.maxVeRpmSlider.LabelWidth = 140;
-            this.maxVeRpmSlider.Location = new System.Drawing.Point(1466, 574);
+            this.maxVeRpmSlider.Location = new System.Drawing.Point(1422, 598);
             this.maxVeRpmSlider.MaxValue = 6000F;
             this.maxVeRpmSlider.MinValue = 1000F;
             this.maxVeRpmSlider.Name = "maxVeRpmSlider";
             this.maxVeRpmSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxVeRpmSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.maxVeRpmSlider.PointerColor = System.Drawing.Color.DimGray;
             this.maxVeRpmSlider.RimColor = System.Drawing.Color.Black;
             this.maxVeRpmSlider.Size = new System.Drawing.Size(365, 60);
             this.maxVeRpmSlider.SliderName = "Max VE RPM";
+            this.maxVeRpmSlider.SliderSize = 8;
             this.maxVeRpmSlider.Step = 100F;
             this.maxVeRpmSlider.TabIndex = 18;
             this.maxVeRpmSlider.Text = "maxVeRpmSlider";
             this.maxVeRpmSlider.Value = 4000F;
             this.maxVeRpmSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            // 
-            // torqueBar
-            // 
-            this.torqueBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.torqueBar.FillColor = System.Drawing.Color.Blue;
-            this.torqueBar.Location = new System.Drawing.Point(992, 13);
-            this.torqueBar.MaxValue = 100F;
-            this.torqueBar.MinValue = 0F;
-            this.torqueBar.Name = "torqueBar";
-            this.torqueBar.RimColor = System.Drawing.Color.Gray;
-            this.torqueBar.Size = new System.Drawing.Size(27, 478);
-            this.torqueBar.TabIndex = 14;
-            this.torqueBar.Text = "torqueBar";
-            this.torqueBar.Value = 50F;
-            // 
-            // powerBar
-            // 
-            this.powerBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.powerBar.FillColor = System.Drawing.Color.Red;
-            this.powerBar.Location = new System.Drawing.Point(1025, 13);
-            this.powerBar.MaxValue = 100F;
-            this.powerBar.MinValue = 0F;
-            this.powerBar.Name = "powerBar";
-            this.powerBar.RimColor = System.Drawing.Color.Gray;
-            this.powerBar.Size = new System.Drawing.Size(27, 478);
-            this.powerBar.TabIndex = 13;
-            this.powerBar.Text = "powerBar";
-            this.powerBar.Value = 50F;
             // 
             // rpmLimitSlider
             // 
@@ -482,15 +569,17 @@ namespace EngineSimulator {
             this.rpmLimitSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.rpmLimitSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.rpmLimitSlider.LabelWidth = 140;
-            this.rpmLimitSlider.Location = new System.Drawing.Point(1071, 667);
+            this.rpmLimitSlider.Location = new System.Drawing.Point(1027, 691);
             this.rpmLimitSlider.MaxValue = 10000F;
             this.rpmLimitSlider.MinValue = 4000F;
             this.rpmLimitSlider.Name = "rpmLimitSlider";
             this.rpmLimitSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.rpmLimitSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.rpmLimitSlider.PointerColor = System.Drawing.Color.DimGray;
             this.rpmLimitSlider.RimColor = System.Drawing.Color.Black;
             this.rpmLimitSlider.Size = new System.Drawing.Size(365, 60);
             this.rpmLimitSlider.SliderName = "RPM limiter";
+            this.rpmLimitSlider.SliderSize = 8;
             this.rpmLimitSlider.Step = 100F;
             this.rpmLimitSlider.TabIndex = 12;
             this.rpmLimitSlider.Text = "rpmLimitSlider";
@@ -503,15 +592,17 @@ namespace EngineSimulator {
             this.inertiaSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.inertiaSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.inertiaSlider.LabelWidth = 140;
-            this.inertiaSlider.Location = new System.Drawing.Point(1071, 623);
+            this.inertiaSlider.Location = new System.Drawing.Point(1027, 647);
             this.inertiaSlider.MaxValue = 0.3F;
             this.inertiaSlider.MinValue = 0.05F;
             this.inertiaSlider.Name = "inertiaSlider";
             this.inertiaSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.inertiaSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.inertiaSlider.PointerColor = System.Drawing.Color.DimGray;
             this.inertiaSlider.RimColor = System.Drawing.Color.Black;
             this.inertiaSlider.Size = new System.Drawing.Size(365, 60);
             this.inertiaSlider.SliderName = "Inertia";
+            this.inertiaSlider.SliderSize = 8;
             this.inertiaSlider.Step = 0.001F;
             this.inertiaSlider.TabIndex = 8;
             this.inertiaSlider.Text = "inertiaSlider";
@@ -524,15 +615,17 @@ namespace EngineSimulator {
             this.idleThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.idleThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.idleThrottleSlider.LabelWidth = 140;
-            this.idleThrottleSlider.Location = new System.Drawing.Point(1071, 574);
+            this.idleThrottleSlider.Location = new System.Drawing.Point(1027, 598);
             this.idleThrottleSlider.MaxValue = 0.035F;
             this.idleThrottleSlider.MinValue = 0.005F;
             this.idleThrottleSlider.Name = "idleThrottleSlider";
             this.idleThrottleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.idleThrottleSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.idleThrottleSlider.PointerColor = System.Drawing.Color.DimGray;
             this.idleThrottleSlider.RimColor = System.Drawing.Color.Black;
             this.idleThrottleSlider.Size = new System.Drawing.Size(365, 60);
             this.idleThrottleSlider.SliderName = "Idle throttle";
+            this.idleThrottleSlider.SliderSize = 8;
             this.idleThrottleSlider.Step = 0.001F;
             this.idleThrottleSlider.TabIndex = 7;
             this.idleThrottleSlider.Text = "idleThrottleSlider";
@@ -545,41 +638,22 @@ namespace EngineSimulator {
             this.displacementSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.displacementSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.displacementSlider.LabelWidth = 140;
-            this.displacementSlider.Location = new System.Drawing.Point(1071, 527);
+            this.displacementSlider.Location = new System.Drawing.Point(1027, 551);
             this.displacementSlider.MaxValue = 6F;
             this.displacementSlider.MinValue = 1F;
             this.displacementSlider.Name = "displacementSlider";
             this.displacementSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.displacementSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.displacementSlider.PointerColor = System.Drawing.Color.DimGray;
             this.displacementSlider.RimColor = System.Drawing.Color.Black;
             this.displacementSlider.Size = new System.Drawing.Size(365, 60);
             this.displacementSlider.SliderName = "Displacement (L)";
+            this.displacementSlider.SliderSize = 8;
             this.displacementSlider.Step = 0.1F;
             this.displacementSlider.TabIndex = 6;
             this.displacementSlider.Text = "displacementSlider";
             this.displacementSlider.Value = 2F;
             this.displacementSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            // 
-            // maxAirflowRpmSlider
-            // 
-            this.maxAirflowRpmSlider.DecimalPlaces = 1;
-            this.maxAirflowRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.maxAirflowRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.maxAirflowRpmSlider.LabelWidth = 140;
-            this.maxAirflowRpmSlider.Location = new System.Drawing.Point(1466, 667);
-            this.maxAirflowRpmSlider.MaxValue = 6000F;
-            this.maxAirflowRpmSlider.MinValue = 3000F;
-            this.maxAirflowRpmSlider.Name = "maxAirflowRpmSlider";
-            this.maxAirflowRpmSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
-            this.maxAirflowRpmSlider.PointerColor = System.Drawing.Color.DimGray;
-            this.maxAirflowRpmSlider.RimColor = System.Drawing.Color.Black;
-            this.maxAirflowRpmSlider.Size = new System.Drawing.Size(365, 60);
-            this.maxAirflowRpmSlider.SliderName = "Max airflow RPM";
-            this.maxAirflowRpmSlider.Step = 100F;
-            this.maxAirflowRpmSlider.TabIndex = 20;
-            this.maxAirflowRpmSlider.Text = "maxAirflowRpmSlider";
-            this.maxAirflowRpmSlider.Value = 5500F;
-            this.maxAirflowRpmSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
             // maxVeSlider
             // 
@@ -587,33 +661,58 @@ namespace EngineSimulator {
             this.maxVeSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.maxVeSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.maxVeSlider.LabelWidth = 140;
-            this.maxVeSlider.Location = new System.Drawing.Point(1466, 527);
+            this.maxVeSlider.Location = new System.Drawing.Point(1422, 551);
             this.maxVeSlider.MaxValue = 1.2F;
             this.maxVeSlider.MinValue = 0.8F;
             this.maxVeSlider.Name = "maxVeSlider";
             this.maxVeSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.maxVeSlider.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.maxVeSlider.PointerColor = System.Drawing.Color.DimGray;
             this.maxVeSlider.RimColor = System.Drawing.Color.Black;
             this.maxVeSlider.Size = new System.Drawing.Size(365, 60);
             this.maxVeSlider.SliderName = "Max VE";
+            this.maxVeSlider.SliderSize = 8;
             this.maxVeSlider.Step = 0.01F;
             this.maxVeSlider.TabIndex = 18;
             this.maxVeSlider.Text = "maxVeSlider";
             this.maxVeSlider.Value = 1.03F;
             this.maxVeSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
+            // dynoThrottleSlider
+            // 
+            this.dynoThrottleSlider.DecimalPlaces = 2;
+            this.dynoThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.dynoThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.dynoThrottleSlider.LabelWidth = 140;
+            this.dynoThrottleSlider.Location = new System.Drawing.Point(1808, 39);
+            this.dynoThrottleSlider.MaxValue = 1F;
+            this.dynoThrottleSlider.Name = "dynoThrottleSlider";
+            this.dynoThrottleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.dynoThrottleSlider.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.dynoThrottleSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.dynoThrottleSlider.RimColor = System.Drawing.Color.Black;
+            this.dynoThrottleSlider.Size = new System.Drawing.Size(41, 498);
+            this.dynoThrottleSlider.SliderName = "Dyno throttle";
+            this.dynoThrottleSlider.SliderSize = 15;
+            this.dynoThrottleSlider.Step = 0.01F;
+            this.dynoThrottleSlider.TabIndex = 22;
+            this.dynoThrottleSlider.Text = "dialSlider1";
+            this.dynoThrottleSlider.Value = 1F;
+            this.dynoThrottleSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            // 
             // Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1858, 774);
+            this.ClientSize = new System.Drawing.Size(1858, 767);
+            this.Controls.Add(this.dynoThrottleSlider);
+            this.Controls.Add(this.torqueBar);
+            this.Controls.Add(this.powerBar);
             this.Controls.Add(this.maxAirflowRpmSlider);
             this.Controls.Add(this.veScaleSlider);
             this.Controls.Add(this.maxVeRpmSlider);
             this.Controls.Add(this.gearLabel);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.torqueBar);
-            this.Controls.Add(this.powerBar);
             this.Controls.Add(this.rpmLimitSlider);
             this.Controls.Add(this.mafGauge);
             this.Controls.Add(this.afrGauge);
@@ -623,14 +722,18 @@ namespace EngineSimulator {
             this.Controls.Add(this.fuelRateGauge);
             this.Controls.Add(this.loadGauge);
             this.Controls.Add(this.throttleGauge);
-            this.Controls.Add(this.dynoChart);
             this.Controls.Add(this.speedGauge);
             this.Controls.Add(this.rpmGauge);
             this.Controls.Add(this.mapGauge);
             this.Controls.Add(this.maxVeSlider);
+            this.Controls.Add(this.tabControl1);
             this.Name = "Window";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dynoChart)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.dynoPage.ResumeLayout(false);
+            this.shiftingPage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.shiftingChart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -659,6 +762,11 @@ namespace EngineSimulator {
         private DialSlider veScaleSlider;
         private DialSlider maxAirflowRpmSlider;
         private DialSlider maxVeSlider;
+        private TabControl tabControl1;
+        private TabPage shiftingPage;
+        private TabPage dynoPage;
+        private System.Windows.Forms.DataVisualization.Charting.Chart shiftingChart;
+        private DialSlider dynoThrottleSlider;
     }
 }
 

@@ -21,7 +21,7 @@ namespace EngineSimulator {
             this.maxPower = 0.0;
         }
 
-        public void Run() {
+        public void Run(double throttle) {
             engine = Program.GetEngine().Clone();
 
             MathHelper.UseRandom(false);
@@ -29,11 +29,11 @@ namespace EngineSimulator {
             torqueList.Clear();
             powerList.Clear();
 
-            engine.GetECU().SetThrottle(1.0);
+            engine.GetECU().SetThrottle(throttle);
 
             double rpm = 0.0;
 
-            for (int i = 0; i <= (int) engine.GetMaxRPM() / 25; i++) {
+            for (int i = 0; i <= (int) engine.GetMaxRPM() / 10; i++) {
                 engine.SetRPM(rpm);
                 engine.Update(0);
 
@@ -52,7 +52,7 @@ namespace EngineSimulator {
                     powerList.Add(power);
                 }
 
-                rpm += 25;
+                rpm += 10;
 
             }
 

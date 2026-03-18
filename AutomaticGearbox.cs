@@ -12,7 +12,7 @@ namespace EngineSimulator {
         private TorqueConverter torqueConverter;
 
         public const double SHIFT_TIME = 100;
-        public const double GLOBAL_SHIFT_COOLDOWN = 1000;
+        public const double GLOBAL_SHIFT_COOLDOWN = 500;
         public const double UPSHIFT_COOLDOWN = 1500;
         public const double DOWNSHIFT_COOLDOWN = 1000;
         public const double MIN_UPSHIFT_RPM = 1700;
@@ -127,7 +127,7 @@ namespace EngineSimulator {
         }
 
         public bool ShouldUpshift() {
-            if (engine.GetECU().GetThrottlePedal() == 0.0) {
+            if (engine.GetECU().GetThrottlePedal() <= 0.05) {
                 return false;
             }
 
@@ -139,7 +139,7 @@ namespace EngineSimulator {
                 return false;
             }
 
-            if (engine.GetRPM() >= engine.GetMaxRPM() * 0.95) {
+            if (engine.GetRPM() >= engine.GetMaxRPM() * 0.98) {
                 return true;
             }
 
@@ -218,15 +218,6 @@ namespace EngineSimulator {
             }
             
             return gearRatios[currentGear] * finalDriveRatio;
-        }
-
-        public double GetRpmForGear(int gear) {
-            if (gear == 0) return engine.GetRPM();
-            return wheelRpm * gearRatios[gear] * finalDriveRatio;
-        }
-
-        public double GetWheelTorque(double engineTorque, int gear) {
-            return engineTorque * gearRatios[gear] * finalDriveRatio - GetTotalResistance() * wheelRadius;
         }
 
         public ShiftPhase GetShiftPhase() {

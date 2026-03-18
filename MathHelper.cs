@@ -37,6 +37,15 @@ namespace EngineSimulator {
             return a + (b - a) * t;
         }
 
+        public static List<double> Linspace(double start, double end, int num) {
+            List<double> result = new List<double>();
+            double step = (end - start) / (num - 1);
+            for (int i = 0; i < num; i++) {
+                result.Add(start + step * i);
+            }
+            return result;
+        }
+
         public static void UseRandom(bool use) {
             useRandom = use;
         }

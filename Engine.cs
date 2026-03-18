@@ -83,7 +83,7 @@ namespace EngineSimulator {
             map = GetMAP(maf, rpm, throttle);
             ve = GetVolumetricEfficiency(rpm);
             fuelRate = GetFuelRate(maf, afr);
-            fuelPower = GetFuelPower(fuelRate, afr);
+            fuelPower = GetFuelPower(fuelRate, rpm, afr);
             fuelTorque = PowerToTorque(fuelPower, rpm);
             load = GetEngineLoad(fuelPower, rpm, afr);
             brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
@@ -136,7 +136,7 @@ namespace EngineSimulator {
             double maf = GetMAF(throttle, rpm, random);
             double afr = ecu.GetAFR(rpm, throttle, random);
             double fuelRate = GetFuelRate(maf, afr);
-            double fuelPower = GetFuelPower(fuelRate, afr, random);
+            double fuelPower = GetFuelPower(fuelRate, rpm, afr, random);
             double brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
             return PowerToTorque(brakePower, rpm);
         }
@@ -174,7 +174,7 @@ namespace EngineSimulator {
         }
 
         public double GetEngineLoad(double fuelPower, double rpm, double afr) {
-            double maxFuelPower = GetFuelPower(GetFuelRate(GetMAF(1.0, rpm), ecu.GetAFR(rpm, 1.0)), afr);
+            double maxFuelPower = GetFuelPower(GetFuelRate(GetMAF(1.0, rpm), ecu.GetAFR(rpm, 1.0)), rpm, afr);
 
             if (maxFuelPower == 0.0) return 0.0;
 
@@ -182,8 +182,8 @@ namespace EngineSimulator {
         }
 
 
-        public double GetFuelPower(double fuelRate, double afr, bool random = true) {
-            return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.97, 1.03, random); // W
+        public double GetFuelPower(double fuelRate, double rpm, double afr, bool random = true) {
+            return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.97, 1.03, random) * (Math.Sin(Math.PI * Math.Min(1.0, rpm / 500) - Math.PI / 2) + 1) / 2; // W
         }
 
         public double PowerToTorque(double power, double rpm) {

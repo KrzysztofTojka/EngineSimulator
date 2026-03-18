@@ -71,7 +71,7 @@ namespace EngineSimulator {
             engine.Ignite();
 
             dyno = new Dyno();
-            dyno.Run();
+            dyno.Run(1.0);
 
             int i = 0;
 

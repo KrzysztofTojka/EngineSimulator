@@ -22,6 +22,7 @@ namespace EngineSimulator {
             this.dyno = Program.GetDyno();
             InitializeComponent();
             DrawDyno();
+            DrawShifting();
 
             InitControls();
         }
@@ -65,9 +66,40 @@ namespace EngineSimulator {
             }
         }
 
-        private void UpdateDyno() {
+        private void DrawShifting() {
+            shiftingChart.Series.Clear();
+            
+            Gearbox.ShiftData shiftData = Program.GetGearbox().GetShiftData();
+
+            foreach (int gear in shiftData.throttleValues.Keys) {
+                Series line = new Series($"Gear {gear} -> {gear + 1}");
+                line.ChartType = SeriesChartType.Line;
+                line.BorderWidth = 3;
+
+                List<double> throttleValues = shiftData.throttleValues[gear];
+                for (int i = 0; i < throttleValues.Count; i++) {
+                    line.Points.AddXY(shiftData.speedValues[i], throttleValues[i]);
+                }
+
+                shiftingChart.Series.Add(line);
+            }
+
+            Console.WriteLine(shiftData.throttleValues[1].Count);
+            Console.WriteLine(shiftData.throttleValues[2].Count);
+            Console.WriteLine(shiftData.throttleValues[3].Count);
+            Console.WriteLine(shiftData.throttleValues[4].Count);
+            Console.WriteLine(shiftData.throttleValues[5].Count);
+            Console.WriteLine(shiftData.throttleValues[6].Count);
+        }
+
+        private void UpdatePowerBars() {
             torqueBar.Value = (int) MathHelper.Clamp(engine.GetTorque(), 0.0, torqueBar.MaxValue);
             powerBar.Value = (int) MathHelper.Clamp(engine.GetPower() * Units.HP, 0.0, powerBar.MaxValue);
+        }
+
+        private void UpdateDyno() {
+            dyno.Run(dynoThrottleSlider.Value);
+            DrawDyno();
         }
 
         private void dyno_Paint(object sender, PaintEventArgs e) {
@@ -96,8 +128,7 @@ namespace EngineSimulator {
             }
             if (displacementSlider.ValueChanged()) {
                 engine.SetDisplacement(displacementSlider.Value);
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
             if (inertiaSlider.ValueChanged()) {
                 engine.SetInertia(inertiaSlider.Value);
@@ -106,35 +137,34 @@ namespace EngineSimulator {
                 SetRpmLimit(rpmLimitSlider.Value);
                 maxVeRpmSlider.MaxValue = rpmLimitSlider.Value;
                 maxAirflowRpmSlider.MaxValue = rpmLimitSlider.Value;
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
 
             if (maxVeSlider.ValueChanged()) {
                 engine.SetMaxVe(maxVeSlider.Value);
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
 
             if (maxVeRpmSlider.ValueChanged()) {
                 engine.SetMaxVeRpm(maxVeRpmSlider.Value);
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
 
             if (veScaleSlider.ValueChanged()) {
                 engine.SetVeRangeScale(veScaleSlider.Value);
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
 
             if (maxAirflowRpmSlider.ValueChanged()) {
                 engine.SetMaxAirflowRpm(maxAirflowRpmSlider.Value);
-                dyno.Run();
-                DrawDyno();
+                UpdateDyno();
             }
 
-            UpdateDyno();
+            if (dynoThrottleSlider.ValueChanged()) {
+                UpdateDyno();
+            }
+
+            UpdatePowerBars();
         }
 
         private void SetGaugeValue(AquaGauge gauge, double value, double dt) {

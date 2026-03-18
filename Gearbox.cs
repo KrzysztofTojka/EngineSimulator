@@ -117,10 +117,23 @@ namespace EngineSimulator {
             return 2 * Math.PI * wheelRadius * wheelRpm / 60.0;
         }
 
+        public double CarSpeedToRpm(double carSpeedMS, double wheelRadius, double totalRatio) {
+            return (carSpeedMS / (2.0 * Math.PI * wheelRadius)) * totalRatio * 60;
+        }
+
         public double GetCarInertia() {
             if (currentGear == 0) return 0;
             double totalRatio = gearRatios[currentGear] * finalDriveRatio;
             return mass * Math.Pow(wheelRadius / totalRatio, 2);
+        }
+
+        public double GetWheelTorque(double engineTorque, int gear) {
+            return engineTorque * gearRatios[gear] * finalDriveRatio - GetTotalResistance() * wheelRadius;
+        }
+
+        public double GetRpmForGear(int gear) {
+            if (gear == 0) return engine.GetRPM();
+            return wheelRpm * gearRatios[gear] * finalDriveRatio;
         }
 
         public double GetCarSpeed() {
@@ -160,6 +173,10 @@ namespace EngineSimulator {
             return wheelRadius;
         }
 
+        public double GetMaxSpeed(int gear) {
+            return WheelRpmToCarSpeed(engine.GetMaxRPM() / (gearRatios[gear] * finalDriveRatio), wheelRadius);
+        }
+
         public enum Type {
             Manual,
             Automatic
@@ -167,6 +184,74 @@ namespace EngineSimulator {
 
         public static double[] GearSet(params double[] values) {
             return values;
+        }
+
+        public class ShiftData {
+
+            public List<double> speedValues = new List<double>();
+            public Dictionary<int, List<double>> throttleValues = new Dictionary<int, List<double>>();
+
+            public ShiftData(int gears) {
+                for (int i = 1; i <= gears; i++) {
+                    throttleValues[i] = new List<double>();
+                }
+            }
+
+            public ShiftData(List<double> speedValues, Dictionary<int, List<double>> throttleValues) {
+                this.speedValues = speedValues;
+                this.throttleValues = throttleValues;
+            }
+
+        }
+
+        public ShiftData GetShiftData() {
+            List<double> throttleValues = MathHelper.Linspace(0.01, 1.0, 100);
+            List<double> speedValues = MathHelper.Linspace(0.1, GetMaxSpeed(gears), (int)(GetMaxSpeed(gears)));
+
+            ShiftData shiftData = new ShiftData(gears);
+
+            for (int gear = 1; gear < gears; gear++) {
+                //Console.WriteLine($"Gear {gear} -> {gear + 1}");
+                double currentRatio = gearRatios[gear] * finalDriveRatio;
+                double nextRatio = gearRatios[gear + 1] * finalDriveRatio;
+
+                foreach (double speed in speedValues) {
+                    double rpm = CarSpeedToRpm(speed, wheelRadius, currentRatio);
+
+                    if (rpm < 500) {
+                        continue;
+                    }
+
+                    if (rpm > engine.GetMaxRPM()) {
+                        break;
+                    }
+
+                    //Console.WriteLine($"Speed: {speed * (Units.km / Units.h):F2} km/h");
+
+                    double nextGearRpm = CarSpeedToRpm(speed, wheelRadius, nextRatio);
+
+                    foreach (double throttle in throttleValues) {
+                        double currentTorque = GetWheelTorque(engine.GetTorque(throttle, rpm), gear);
+                        double nextGearTorque = GetWheelTorque(engine.GetTorque(throttle, nextGearRpm), gear + 1);
+
+                        if (currentTorque < 0 && nextGearTorque < 0) {
+                            continue;
+                        }   
+
+                        if (nextGearTorque < currentTorque) {
+                            //Console.WriteLine($"  Shift Point: {speed * (Units.km / Units.h):F2} km/h | Throttle: {throttle:F2} | RPM: {rpm:F0} | TQ_CURR: {currentTorque,6:F1} Nm | TQ_NEXT: {nextGearTorque,6:F1} Nm");
+                            shiftData.throttleValues[gear].Add(throttle);
+                            break;
+                        }
+                    }
+                }
+
+                shiftData.throttleValues[gear].Add(1.0);
+            }
+
+            shiftData.speedValues = speedValues.Select(x => x * (Units.km / Units.h)).ToList();
+
+            return shiftData;
         }
     }
 }
