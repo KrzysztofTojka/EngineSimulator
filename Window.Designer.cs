@@ -26,10 +26,10 @@ namespace EngineSimulator {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dynoChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.rpmGauge = new AquaControls.AquaGauge();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -46,6 +46,7 @@ namespace EngineSimulator {
             this.dynoPage = new System.Windows.Forms.TabPage();
             this.shiftingPage = new System.Windows.Forms.TabPage();
             this.shiftingChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.dynoThrottleSlider = new DialSlider();
             this.torqueBar = new VerticalFillBarSimple();
             this.powerBar = new VerticalFillBarSimple();
             this.maxAirflowRpmSlider = new DialSlider();
@@ -56,7 +57,6 @@ namespace EngineSimulator {
             this.idleThrottleSlider = new DialSlider();
             this.displacementSlider = new DialSlider();
             this.maxVeSlider = new DialSlider();
-            this.dynoThrottleSlider = new DialSlider();
             ((System.ComponentModel.ISupportInitialize)(this.dynoChart)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.dynoPage.SuspendLayout();
@@ -66,13 +66,13 @@ namespace EngineSimulator {
             // 
             // dynoChart
             // 
-            chartArea9.Name = "ChartArea1";
-            this.dynoChart.ChartAreas.Add(chartArea9);
+            chartArea1.Name = "ChartArea1";
+            this.dynoChart.ChartAreas.Add(chartArea1);
             this.dynoChart.Location = new System.Drawing.Point(3, 3);
             this.dynoChart.Name = "dynoChart";
-            series9.ChartArea = "ChartArea1";
-            series9.Name = "Series1";
-            this.dynoChart.Series.Add(series9);
+            series1.ChartArea = "ChartArea1";
+            series1.Name = "Series1";
+            this.dynoChart.Series.Add(series1);
             this.dynoChart.Size = new System.Drawing.Size(772, 454);
             this.dynoChart.TabIndex = 0;
             this.dynoChart.Text = "dynoChart";
@@ -455,16 +455,38 @@ namespace EngineSimulator {
             // 
             // shiftingChart
             // 
-            chartArea10.Name = "ChartArea1";
-            this.shiftingChart.ChartAreas.Add(chartArea10);
+            chartArea2.Name = "ChartArea1";
+            this.shiftingChart.ChartAreas.Add(chartArea2);
             this.shiftingChart.Location = new System.Drawing.Point(3, 3);
             this.shiftingChart.Name = "shiftingChart";
-            series10.ChartArea = "ChartArea1";
-            series10.Name = "Series1";
-            this.shiftingChart.Series.Add(series10);
+            series2.ChartArea = "ChartArea1";
+            series2.Name = "Series1";
+            this.shiftingChart.Series.Add(series2);
             this.shiftingChart.Size = new System.Drawing.Size(772, 454);
             this.shiftingChart.TabIndex = 0;
             this.shiftingChart.Text = "shiftingChart";
+            // 
+            // dynoThrottleSlider
+            // 
+            this.dynoThrottleSlider.DecimalPlaces = 2;
+            this.dynoThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.dynoThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.dynoThrottleSlider.LabelWidth = 140;
+            this.dynoThrottleSlider.Location = new System.Drawing.Point(1808, 39);
+            this.dynoThrottleSlider.MaxValue = 1F;
+            this.dynoThrottleSlider.Name = "dynoThrottleSlider";
+            this.dynoThrottleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
+            this.dynoThrottleSlider.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.dynoThrottleSlider.PointerColor = System.Drawing.Color.DimGray;
+            this.dynoThrottleSlider.RimColor = System.Drawing.Color.Black;
+            this.dynoThrottleSlider.Size = new System.Drawing.Size(41, 498);
+            this.dynoThrottleSlider.SliderName = "Dyno throttle";
+            this.dynoThrottleSlider.SliderSize = 15;
+            this.dynoThrottleSlider.Step = 0.01F;
+            this.dynoThrottleSlider.TabIndex = 22;
+            this.dynoThrottleSlider.Text = "dialSlider1";
+            this.dynoThrottleSlider.Value = 1F;
+            this.dynoThrottleSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
             // torqueBar
             // 
@@ -677,28 +699,6 @@ namespace EngineSimulator {
             this.maxVeSlider.Text = "maxVeSlider";
             this.maxVeSlider.Value = 1.03F;
             this.maxVeSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            // 
-            // dynoThrottleSlider
-            // 
-            this.dynoThrottleSlider.DecimalPlaces = 2;
-            this.dynoThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.dynoThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.dynoThrottleSlider.LabelWidth = 140;
-            this.dynoThrottleSlider.Location = new System.Drawing.Point(1808, 39);
-            this.dynoThrottleSlider.MaxValue = 1F;
-            this.dynoThrottleSlider.Name = "dynoThrottleSlider";
-            this.dynoThrottleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);
-            this.dynoThrottleSlider.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.dynoThrottleSlider.PointerColor = System.Drawing.Color.DimGray;
-            this.dynoThrottleSlider.RimColor = System.Drawing.Color.Black;
-            this.dynoThrottleSlider.Size = new System.Drawing.Size(41, 498);
-            this.dynoThrottleSlider.SliderName = "Dyno throttle";
-            this.dynoThrottleSlider.SliderSize = 15;
-            this.dynoThrottleSlider.Step = 0.01F;
-            this.dynoThrottleSlider.TabIndex = 22;
-            this.dynoThrottleSlider.Text = "dialSlider1";
-            this.dynoThrottleSlider.Value = 1F;
-            this.dynoThrottleSlider.ValueFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             // 
             // Window
             // 

@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="EngineSimulator.AutomaticGearbox" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAwAQkCAAIAAmgNEAAQAABADADIAAAAAAIAQAAiAAAI=</HashCode>
+      <FileName>AutomaticGearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Dyno" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAwAgAAEAAAABAAAAAAIAAAAAAABAAQAAAI=</HashCode>
+      <FileName>Dyno.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.ECU" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAACAAAACAAAAAQABAAAAAAAAAAAAIQAAsA=</HashCode>
+      <FileName>ECU.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Engine" Collapsed="true">
+    <Position X="12.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>yBRAUCQEQMYCcDYgFCQgQAUABKBgBQKMB6yBDUWGUNI=</HashCode>
+      <FileName>Engine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Gearbox" Collapsed="true">
+    <Position X="1.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>goxAAgEAAAAChARMEACCEAwAAEARAAJYAKAwIAUAAKE=</HashCode>
+      <FileName>Gearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Keyboard" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAQAAAA=</HashCode>
+      <FileName>Keyboard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.ManualGearbox" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ManualGearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.MathHelper" Collapsed="true">
+    <Position X="8.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAABAEAAAAAAAAAABAAEAAAABAAAgAQAAAAAAAA=</HashCode>
+      <FileName>MathHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Program" Collapsed="true">
+    <Position X="10.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAIAAABAAACgIAAABBBAAEAEBAQEDEQEDAI=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.TorqueConverter" Collapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQQEAQAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAQABAA=</HashCode>
+      <FileName>TorqueConverter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Turbocharger" Collapsed="true">
+    <Position X="10.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQkAAAAAAAACAAAAABAgAAAAAAAEQAAAAABAEQAAAA=</HashCode>
+      <FileName>Turbocharger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Units" Collapsed="true">
+    <Position X="12.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAFABAAAAAAAAAwAAAAAAAQAABAAQAAAA=</HashCode>
+      <FileName>Units.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Window" Collapsed="true">
+    <Position X="7" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>0AZgUAAAQCEAQBAAiCCAAAIKACBANBQECCABQwQABAA=</HashCode>
+      <FileName>Window.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Clutch" Collapsed="true">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAQAAAAAAAAABAAAAAIAAgAAAAAIAAAAAAAAAAQABAA=</HashCode>
+      <FileName>Clutch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSoundPlayer" Collapsed="true">
+    <Position X="5.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAEAAAAAAAAAAAAAACAACEgAAAAAgAAAA=</HashCode>
+      <FileName>EngineSoundPlayer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DialSlider" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACQBAAAAQAAAigoAAAYQAAAgVAAwKAkIEAiMAYCkQE=</HashCode>
+      <FileName>RangeSlider.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmoothResampler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAEAAAAAAAAAIAAAAAAAAgAAAIQAAAAABAAAAAAAA=</HashCode>
+      <FileName>SmoothResampler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="VerticalFillBarSimple" Collapsed="true">
+    <Position X="5.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACABAAAAAAAACgAAAAIAAAADQAAACAAAAAgAAgAAAA=</HashCode>
+      <FileName>VerticalFillBar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Properties.Resources" Collapsed="true">
+    <Position X="12.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Properties.Settings" Collapsed="true">
+    <Position X="5.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

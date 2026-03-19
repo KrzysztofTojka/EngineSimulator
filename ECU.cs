@@ -16,7 +16,7 @@ namespace EngineSimulator {
         }
 
         public double GetThrottleMap(double throttle) {
-            return MathHelper.PowerFunction(throttle, 0.0, 1.0, 1.5);
+            return MathHelper.PowerFunction(throttle, 0.0, 1.0, 1.75);
         }
 
         public void SetThrottle(double throttle) {
@@ -42,6 +42,10 @@ namespace EngineSimulator {
 
         public double GetIdleThrottle() {
             return idleThrottle;
+        }
+
+        public void SetIdleThrottle(double idleThrottle) {
+            this.idleThrottle = idleThrottle;
         }
 
         public double GetThrottlePedal() {

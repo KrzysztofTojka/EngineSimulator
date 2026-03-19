@@ -133,9 +133,11 @@
   <ItemGroup>
     <Compile Include="AutomaticGearbox.cs" />
     <Compile Include="Clutch.cs" />
+    <Compile Include="DieselEngine.cs" />
     <Compile Include="Dyno.cs" />
     <Compile Include="ECU.cs" />
     <Compile Include="EngineSoundPlayer.cs" />
+    <Compile Include="GasolineEngine.cs" />
     <Compile Include="Gearbox.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="ManualGearbox.cs" />
@@ -172,6 +174,7 @@
       <DependentUpon>Window.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.manifest" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

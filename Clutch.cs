@@ -8,12 +8,13 @@ public class Clutch {
 
     private double engagement = 0.0;
 
-    private double maxTorque = 600;
+    private double maxTorque = 400;
     private double damping = 15.0;
 
-    public Clutch(Engine engine, Gearbox gearbox) {
+    public Clutch(Engine engine, Gearbox gearbox, double maxTorque = 400) {
         this.engine = engine;
         this.gearbox = gearbox;
+        this.maxTorque = maxTorque;
     }
 
     public void Update(double dt) {

@@ -30,13 +30,13 @@ namespace EngineSimulator {
 
             simulationThread = new Thread(Run);
 
-            engine = new Engine(2.5, 6500);
-
-            //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
-            //double finalGearRatio = 3.65;
-
+            engine = new GasolineEngine(2.5, 6500);
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.325;//4.624;
+
+            //engine = new DieselEngine(2.0, 4500);
+            //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
+            //double finalGearRatio = 3.65;
 
             //gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
             gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
@@ -86,12 +86,11 @@ namespace EngineSimulator {
 
                 engine.UpdateRpm(0.01);
 
-                if (i == 1) {
+                if (i == 2) {
                     engine.ShowInfo();
                     i = 0;
                 }
                 
-
                 Thread.Sleep(10);
 
                 i++;

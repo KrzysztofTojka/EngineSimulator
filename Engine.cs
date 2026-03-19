@@ -3,29 +3,29 @@ using System.Text.Json;
 using System.Collections.Generic;
 
 namespace EngineSimulator {
-    public class Engine {
+    public abstract class Engine {
 
         public ECU ecu;
         private Turbocharger turbocharger;
 
-        public const double AFR = 14.7;
-        public const double FUEL_DENSITY = 748.9; // kg/m3
-        public const double LHV = 43_000_000; // J/kg
-        public const double BASE_THERMAL_EFFICIENCY = 0.5;
+        public virtual double AFR_STOICH => 0;
+        public virtual double FUEL_DENSITY => 0; // kg/m3
+        public virtual double LHV => 0; // J/kg
+        public virtual double BASE_THERMAL_EFFICIENCY => 0;
 
         private readonly double temperature = Units.C_to_K(Program.temperatureC);
         private readonly double pressureAtm = Program.pressureHPA * 100.0;
 
-        private double displacement; // m3
-        private double inertia; // kg*m2
-        private double maxRpm;
-        private double maxVe;
-        private double optimalIntakeRpm;
-        private double veRangeScale;
-        private double maxAirflowRpm;
+        protected double displacement; // m3
+        protected private double inertia; // kg*m2
+        protected private double maxRpm;
+        protected private double maxVe;
+        protected private double optimalIntakeRpm;
+        protected private double veRangeScale;
+        protected private double maxAirflowRpm;
 
-        private double throttle = 0.0;
-        private double rpm = 0.0;
+        protected private double throttle = 0.0;
+        protected private double rpm = 0.0;
 
         double afr;
         double maf;
@@ -40,17 +40,13 @@ namespace EngineSimulator {
         double loadTorque;
         double netTorque;
 
-        public Engine(double displacementL, double maxRpm = 6000, double inertia = 0.12) {
+        public Engine(double displacementL, double maxRpm, double inertia) {
             this.ecu = new ECU(this);
             //this.turbocharger = new Turbocharger(this, 1.0);
 
             this.displacement = displacementL / 1000;
             this.maxRpm = maxRpm;
             this.inertia = inertia;
-            this.maxVe = 0.97;
-            this.optimalIntakeRpm = 4000;
-            this.veRangeScale = 2.0;
-            this.maxAirflowRpm = 5500;
         }
 
         public Engine(Engine other) {
@@ -71,9 +67,7 @@ namespace EngineSimulator {
             this.loadTorque = other.loadTorque;
         }
 
-        public Engine Clone() {
-            return new Engine(this);
-        }
+        public abstract Engine Clone();
 
         public void Update(double dt) {
             throttle = ecu.GetThrottle();
@@ -117,7 +111,7 @@ namespace EngineSimulator {
                 $"L: {load:F2}, " +
                 $"AFR: {afr:F2}, " +
                 $"VE: {ve:F2}, " +
-                $"FR: {fuelRate * 1000 * 3600 / Engine.FUEL_DENSITY:F2} L/h, " +
+                $"FR: {fuelRate * 1000 * 3600 / FUEL_DENSITY:F2} L/h, " +
                 $"P: {brakePower * Units.HP:F2} HP, " +
                 $"TQ: {brakeTorque:F2} Nm, " +
                 $"E: {brakePower / fuelPower:F2}"
@@ -195,14 +189,7 @@ namespace EngineSimulator {
             return (torque * 2 * Math.PI * rpm) / 60; // W
         }
 
-        public double GetBrakingPower(double rpm) {
-            double referenceTorque = 40.0;
-            double referenceRpm = 1000;
-            double maxRpm = 6000;
-            double dropRate = 0.75;
-
-            return TorqueToPower(referenceTorque * (1 + ((rpm - referenceRpm) / (maxRpm / dropRate - referenceRpm))), rpm);
-        }
+        public abstract double GetBrakingPower(double rpm);
 
         public double GetAcceleration(double torque) {
             return torque / inertia; // rad/s2

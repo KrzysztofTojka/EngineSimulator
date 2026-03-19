@@ -87,7 +87,7 @@ namespace EngineSimulator {
             double drivetrainLosses = 0;
 
             // TODO
-            //if (currentGear > 0 && Program.GetClutch().GetEngangement() > 0.0) {
+            //if (currentGear > 0 && Program.GetClutchPedalPosition() > 0.0) {
             //    drivetrainLosses = (drivetrainFriction * GetTotalRatio()) / wheelRadius;
             //}
 
@@ -192,7 +192,7 @@ namespace EngineSimulator {
             public Dictionary<int, List<double>> throttleValues = new Dictionary<int, List<double>>();
 
             public ShiftData(int gears) {
-                for (int i = 1; i <= gears; i++) {
+                for (int i = 1; i < gears; i++) {
                     throttleValues[i] = new List<double>();
                 }
             }
@@ -206,7 +206,7 @@ namespace EngineSimulator {
 
         public ShiftData GetShiftData() {
             List<double> throttleValues = MathHelper.Linspace(0.01, 1.0, 100);
-            List<double> speedValues = MathHelper.Linspace(0.1, GetMaxSpeed(gears), (int)(GetMaxSpeed(gears)));
+            List<double> speedValues = MathHelper.Linspace(0.1, GetMaxSpeed(gears), 200);
 
             ShiftData shiftData = new ShiftData(gears);
 
@@ -219,6 +219,7 @@ namespace EngineSimulator {
                     double rpm = CarSpeedToRpm(speed, wheelRadius, currentRatio);
 
                     if (rpm < 500) {
+                        shiftData.throttleValues[gear].Add(0.0);
                         continue;
                     }
 
@@ -231,12 +232,13 @@ namespace EngineSimulator {
                     double nextGearRpm = CarSpeedToRpm(speed, wheelRadius, nextRatio);
 
                     foreach (double throttle in throttleValues) {
-                        double currentTorque = GetWheelTorque(engine.GetTorque(throttle, rpm), gear);
-                        double nextGearTorque = GetWheelTorque(engine.GetTorque(throttle, nextGearRpm), gear + 1);
+                        double throttleMapped = engine.GetECU().GetThrottleMap(throttle);
+                        double currentTorque = GetWheelTorque(engine.GetTorque(throttleMapped, rpm), gear);
+                        double nextGearTorque = GetWheelTorque(engine.GetTorque(throttleMapped, nextGearRpm), gear + 1);
 
-                        if (currentTorque < 0 && nextGearTorque < 0) {
-                            continue;
-                        }   
+                        //if (currentTorque < 0 && nextGearTorque < 0) {
+                        //    continue;
+                        //}   
 
                         if (nextGearTorque < currentTorque) {
                             //Console.WriteLine($"  Shift Point: {speed * (Units.km / Units.h):F2} km/h | Throttle: {throttle:F2} | RPM: {rpm:F0} | TQ_CURR: {currentTorque,6:F1} Nm | TQ_NEXT: {nextGearTorque,6:F1} Nm");

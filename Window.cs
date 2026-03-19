@@ -67,9 +67,17 @@ namespace EngineSimulator {
         }
 
         private void DrawShifting() {
-            shiftingChart.Series.Clear();
-            
             Gearbox.ShiftData shiftData = Program.GetGearbox().GetShiftData();
+            var area = shiftingChart.ChartAreas[0];
+
+            area.AxisY.Minimum = 0.0;
+            area.AxisY.Maximum = 1.0;
+
+            area.AxisX.Interval = 20.0;
+            area.AxisX.Minimum = 0.0;
+            area.AxisX.Maximum = (int)((shiftData.speedValues[shiftData.throttleValues.Last().Value.Count - 1] + 10.0) / 10) * 10.0;
+
+            shiftingChart.Series.Clear();
 
             foreach (int gear in shiftData.throttleValues.Keys) {
                 Series line = new Series($"Gear {gear} -> {gear + 1}");
@@ -83,13 +91,6 @@ namespace EngineSimulator {
 
                 shiftingChart.Series.Add(line);
             }
-
-            Console.WriteLine(shiftData.throttleValues[1].Count);
-            Console.WriteLine(shiftData.throttleValues[2].Count);
-            Console.WriteLine(shiftData.throttleValues[3].Count);
-            Console.WriteLine(shiftData.throttleValues[4].Count);
-            Console.WriteLine(shiftData.throttleValues[5].Count);
-            Console.WriteLine(shiftData.throttleValues[6].Count);
         }
 
         private void UpdatePowerBars() {
@@ -118,7 +119,7 @@ namespace EngineSimulator {
             SetGaugeValue(loadGauge, engine.GetLoad() * 100.0, dt);
             SetGaugeValue(mapGauge, engine.GetMAP() * Units.KPA, dt);
             SetGaugeValue(mafGauge, engine.GetMAF() * 1000.0, dt);
-            SetGaugeValue(fuelRateGauge, Units.kgs_to_Lh(engine.GetFuelRate(), Engine.FUEL_DENSITY), dt);
+            SetGaugeValue(fuelRateGauge, Units.kgs_to_Lh(engine.GetFuelRate(), Program.GetEngine().FUEL_DENSITY), dt);
             SetGaugeValue(afrGauge, engine.GetAFR(), dt);
 
             gearLabel.Text = Program.GetGearbox().GetGearLabel();
