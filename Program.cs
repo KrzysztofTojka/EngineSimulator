@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -30,40 +31,54 @@ namespace EngineSimulator {
 
             simulationThread = new Thread(Run);
 
-            engine = new GasolineEngine(2.5, 6500);
+            engine = new GasolineEngine(2.5, 6500, 0.12);
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
-            double finalGearRatio = 4.325;//4.624;
+            double finalGearRatio = 4.056;//4.325; 4.056
 
             //engine = new DieselEngine(2.0, 4500);
             //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             //double finalGearRatio = 3.65;
 
-            //gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
-            gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
+            gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
+            //gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
 
             isRunning = true;
 
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             simulationThread.Start();
+            //Test();
 
             soundThread = new Thread(Sound);
             soundThread.Start();
 
-            //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Window());
         }
 
         public static void Test() {
-            engine.GetECU().SetThrottle(0.0);
-            double rpm = 0.0;
+            MathHelper.UseRandom(false);
+            File.WriteAllLines("result.csv", new string[] { engine.GetCsvHeader() });
 
-            for (int i = 0; i < 20; i++) {
-                rpm += 300;
+            engine.SetRPM(500);
+            engine.GetECU().SetThrottle(engine.GetECU().GetIdleThrottle());
+            engine.Update(0);
+
+            for (int rpm = 500; rpm <= engine.GetMaxRPM(); rpm += 500) {
                 engine.SetRPM(rpm);
-                engine.Update(0);
-                engine.ShowInfo();
+
+                for (double throttle = 0.0; throttle <= 1.0; throttle += 0.05 * Math.Min(1.0, rpm / 6000.0)) {
+                    if (throttle == 0.0) {
+                        throttle = engine.GetECU().GetIdleThrottle();
+                    }
+                    
+                    engine.GetECU().SetThrottle(throttle);
+
+                    engine.Update(0);
+
+                    string line = engine.GetCsvLine();
+                    File.AppendAllLines("result.csv", new string[] { line });
+                }
             }
         }
 

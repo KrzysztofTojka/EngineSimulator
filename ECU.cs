@@ -52,11 +52,18 @@ namespace EngineSimulator {
             return throttle;
         }
 
-        public double GetAFR(double rpm, double throttle, bool random = true) {
-            double afrMax = 15.2;
-            double afrMin = 12.8;
+        public double GetAFR(double rpm, double map, bool random = true) {
+            double mapKpa = map * Units.kPa;
 
-            return afrMax - (afrMax - afrMin) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02, random);
+            if (mapKpa <= 35) {
+                return 14.7;
+            }
+
+            double loadFactor = Math.Pow((mapKpa - 35.0) / (engine.GetPressureAtm() * Units.kPa - 35.0), 5);
+
+            double rpmFactor = 0.8 + 0.2 * (rpm / engine.GetMaxRPM());
+
+            return 14.7 - (14.7 - 12.5) * loadFactor * rpmFactor;
         }
 
     }

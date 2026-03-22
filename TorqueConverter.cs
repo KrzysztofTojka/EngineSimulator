@@ -55,7 +55,7 @@ namespace EngineSimulator {
             engine.SetLoadTorque(transferTorque);
             gearbox.SetInputTorque(outputTorque);
 
-            //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TQ_OUT: {outputTorque,6:F1} Nm | SPD_RATIO: {speedRatio:F2} | MULT: {torqueMultiplier:F2} | RAT: {gearbox.GetTotalRatio():F2}");
+            //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TQ_OUT: {outputTorque,6:F1} Nm | SPD_RATIO: {speedRatio:F2} | MULT: {torqueMultiplier:F2} | SLIP: {slipRpm:F2} | RAT: {gearbox.GetTotalRatio():F2}");
         }
     }
 }

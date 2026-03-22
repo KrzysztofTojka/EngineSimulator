@@ -14,31 +14,31 @@ namespace EngineSimulator {
         public virtual double BASE_THERMAL_EFFICIENCY => 0;
 
         private readonly double temperature = Units.C_to_K(Program.temperatureC);
-        private readonly double pressureAtm = Program.pressureHPA * 100.0;
+        protected readonly double pressureAtm = Program.pressureHPA * 100.0;
 
         protected double displacement; // m3
-        protected private double inertia; // kg*m2
-        protected private double maxRpm;
-        protected private double maxVe;
-        protected private double optimalIntakeRpm;
-        protected private double veRangeScale;
-        protected private double maxAirflowRpm;
+        protected double inertia; // kg*m2
+        protected double maxRpm;
+        protected double maxVe;
+        protected double optimalIntakeRpm;
+        protected double veRangeScale;
+        protected double maxAirflowRpm;
 
-        protected private double throttle = 0.0;
-        protected private double rpm = 0.0;
+        protected double throttle = 0.0;
+        protected double rpm = 0.0;
 
-        double afr;
-        double maf;
-        double map;
-        double ve;
-        double fuelRate;
-        double fuelPower;
-        double fuelTorque;
-        double load;
-        double brakePower;
-        double brakeTorque;
-        double loadTorque;
-        double netTorque;
+        protected double afr;
+        protected double maf;
+        protected double map;
+        protected double ve;
+        protected double fuelRate;
+        protected double fuelPower;
+        protected double fuelTorque;
+        protected double load;
+        protected double brakePower;
+        protected double brakeTorque;
+        protected double loadTorque;
+        protected double netTorque;
 
         public Engine(double displacementL, double maxRpm, double inertia) {
             this.ecu = new ECU(this);
@@ -72,15 +72,15 @@ namespace EngineSimulator {
         public void Update(double dt) {
             throttle = ecu.GetThrottle();
 
-            afr = ecu.GetAFR(rpm, throttle);
             maf = GetMAF(throttle, rpm);
             map = GetMAP(maf, rpm, throttle);
+            afr = ecu.GetAFR(rpm, map);
             ve = GetVolumetricEfficiency(rpm);
             fuelRate = GetFuelRate(maf, afr);
             fuelPower = GetFuelPower(fuelRate, rpm, afr);
             fuelTorque = PowerToTorque(fuelPower, rpm);
             load = GetEngineLoad(fuelPower, rpm, afr);
-            brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
+            brakePower = GetThermalEfficiency() * fuelPower - TorqueToPower(GetBrakingTorque(rpm, throttle), rpm);
             brakeTorque = PowerToTorque(brakePower, rpm);
 
             if (turbocharger != null) {
@@ -93,7 +93,7 @@ namespace EngineSimulator {
             double newRpm = GetNewRPM(rpm, dt, netTorque);
 
             if (double.IsNaN(newRpm) || double.IsInfinity(newRpm)) {
-                Console.WriteLine("RPM calculation error: " + newRpm);
+                Console.WriteLine("RPM error: " + newRpm);
                 return;
                 //newRpm = 0;
             }
@@ -114,8 +114,30 @@ namespace EngineSimulator {
                 $"FR: {fuelRate * 1000 * 3600 / FUEL_DENSITY:F2} L/h, " +
                 $"P: {brakePower * Units.HP:F2} HP, " +
                 $"TQ: {brakeTorque:F2} Nm, " +
-                $"E: {brakePower / fuelPower:F2}"
+                $"E: {brakePower / GetFuelPower(fuelRate, rpm, 14.7, false):F2}"
             );
+        }
+
+        public string GetCsvHeader() {
+            return "Time (s);RPM;Speed (kmh);Throttle;MAF (g/s);MAP (kPa);Load;AFR;VE;Fuel Rate (g/s);Power (HP);Torque (Nm);Efficiency";
+        }
+
+        public string GetCsvLine() {
+            return string.Join(";", new string[] {
+                $"{(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Program.startTime)/1000.0:F3}",
+                $"{rpm:F0}",
+                $"{Program.GetGearbox().GetCarSpeed() * (Units.km / Units.h):F2}",
+                $"{throttle:F3}",
+                $"{maf * 1000:F3}",
+                $"{map / 1000:F3}",
+                $"{load:F3}",
+                $"{afr:F2}",
+                $"{ve:F2}",
+                $"{fuelRate * 1000/* * 3600 / FUEL_DENSITY*/:F3}",
+                $"{brakePower * Units.HP:F3}",
+                $"{brakeTorque:F2}",
+                $"{brakePower / GetFuelPower(fuelRate, rpm, 14.7, false):F3}"
+            });
         }
 
         public void Ignite() {
@@ -131,12 +153,26 @@ namespace EngineSimulator {
             double afr = ecu.GetAFR(rpm, throttle, random);
             double fuelRate = GetFuelRate(maf, afr);
             double fuelPower = GetFuelPower(fuelRate, rpm, afr, random);
-            double brakePower = BASE_THERMAL_EFFICIENCY * fuelPower - GetBrakingPower(rpm);
+            double brakePower = GetThermalEfficiency() * fuelPower - TorqueToPower(GetBrakingTorque(rpm, throttle), rpm);
             return PowerToTorque(brakePower, rpm);
         }
 
-        public double GetVolumetricEfficiency(double rpm) {
+        public double GetVolumetricEfficiency_Old(double rpm) {
             return maxVe * Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) * (rpm > optimalIntakeRpm ? 1.2 : 1.0) / (optimalIntakeRpm * veRangeScale), 2));
+        }
+
+        public double GetVolumetricEfficiency(double rpm) {
+            double lowRpmFactor = 1.0;
+            if (rpm < 3000) {
+                lowRpmFactor = Math.Pow(rpm / 3000, 0.2) * (0.8 + 0.2 * MathHelper.Clamp((rpm) / 1300, 0.0, 1.0));
+            }
+
+            double baseRpmFactor = Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) / (optimalIntakeRpm * veRangeScale), 2));
+            double rpmFactor = lowRpmFactor * baseRpmFactor;
+
+            double mapFactor = 0.5 + 0.5 * Math.Pow(map / pressureAtm, 0.7);
+
+            return MathHelper.Clamp(maxVe * rpmFactor * mapFactor, 0.2, 1.0);
         }
 
         private double GetAirDensity(double temperature, double pressure) {
@@ -156,9 +192,15 @@ namespace EngineSimulator {
             return Math.Min(calculatedMaf, GetMaxMAF(rpm)); // kg/s
         }
 
-        public double GetMAP(double maf, double rpm, double throttle) {
+        public double GetMAP(double maf, double rpm, double throttle, bool random = true) {
             if (rpm < 50) return pressureAtm;
-            return (maf * 2 * 60 * Units.GAS_CONSTANT * temperature) / (displacement * GetVolumetricEfficiency(rpm) * rpm); // Pa
+            
+            double calculatedMap = (maf * 2 * 60 * Units.GAS_CONSTANT * temperature) / (displacement * GetVolumetricEfficiency(rpm) * rpm);
+            if (calculatedMap < 15_000) {
+                return 15_000 * MathHelper.Random(0.98, 1.02, random);
+            }
+
+            return calculatedMap;
         }
 
         public double GetFuelRate(double maf, double afr) {
@@ -177,11 +219,11 @@ namespace EngineSimulator {
 
 
         public double GetFuelPower(double fuelRate, double rpm, double afr, bool random = true) {
+            if (rpm < 200) return 0;
             return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.97, 1.03, random) * (Math.Sin(Math.PI * Math.Min(1.0, rpm / 500) - Math.PI / 2) + 1) / 2; // W
         }
 
         public double PowerToTorque(double power, double rpm) {
-            if (rpm < 200) return 0;
             return (power * 60) / (2 * Math.PI * rpm); // Nm
         }
 
@@ -189,7 +231,7 @@ namespace EngineSimulator {
             return (torque * 2 * Math.PI * rpm) / 60; // W
         }
 
-        public abstract double GetBrakingPower(double rpm);
+        public abstract double GetBrakingTorque(double rpm, double throttle);
 
         public double GetAcceleration(double torque) {
             return torque / inertia; // rad/s2
@@ -331,6 +373,12 @@ namespace EngineSimulator {
         public void SetMaxAirflowRpm(double rpm) {
             this.maxAirflowRpm = rpm;
         }
+
+        public double GetPressureAtm() {
+            return this.pressureAtm;
+        }
+
+        public abstract double GetThermalEfficiency();
 
         public string Serialize() {
             return JsonSerializer.Serialize(this);

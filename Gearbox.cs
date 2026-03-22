@@ -9,8 +9,8 @@ namespace EngineSimulator {
 
         protected Engine engine;
 
-        protected double wheelRadius = 0.365; // 0.323
-        protected double mass = 1600; // 1400
+        protected double wheelRadius = 0.340; // 0.323, 0.365
+        protected double mass = 1400; // 1400
         protected double Cd = 0.32;
         protected double area = 2.2;
         protected double rollingResistance = 0.015; // 0.015
@@ -83,13 +83,12 @@ namespace EngineSimulator {
 
             double dragForce = 0.5 * airDensity * Cd * area * carSpeed * carSpeed * Math.Sign(carSpeed);
 
-            double drivetrainFriction = 80.0; // Nm
+            double drivetrainFriction = 100.0 * (engine.GetRPM() / engine.GetMaxRPM()); // Nm
             double drivetrainLosses = 0;
 
-            // TODO
-            //if (currentGear > 0 && Program.GetClutchPedalPosition() > 0.0) {
-            //    drivetrainLosses = (drivetrainFriction * GetTotalRatio()) / wheelRadius;
-            //}
+            if (currentGear > 0 && Program.GetClutchPedalPosition() > 0.0) {
+                //drivetrainLosses = (drivetrainFriction * GetTotalRatio()) / wheelRadius;
+            }
 
 
             return rollingForce + dragForce + drivetrainLosses;

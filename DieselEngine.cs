@@ -28,12 +28,16 @@ namespace EngineSimulator {
             return new DieselEngine(this);
         }
 
-        public override double GetBrakingPower(double rpm) {
+        public override double GetBrakingTorque(double rpm, double throttle) {
             double referenceTorque = 50.0;
             double referenceRpm = 1000;
             double dropRate = 0.85;
 
-            return TorqueToPower(referenceTorque * (1 + ((rpm - referenceRpm) / (maxRpm / dropRate - referenceRpm))), rpm);
+            return referenceTorque * (1 + ((rpm - referenceRpm) / (maxRpm / dropRate - referenceRpm)));
+        }
+
+        public override double GetThermalEfficiency() {
+            throw new NotImplementedException();
         }
     }
 }

@@ -48,8 +48,8 @@ namespace EngineSimulator {
 
             UpdateShiftLogic(dt);
 
-            //torqueConverter.Update(dt);
-            clutch.Update(dt); // for now
+            torqueConverter.Update(dt);
+            //clutch.Update(dt); // for now
         }
 
         public void UpdateShiftLogic(double dt) {

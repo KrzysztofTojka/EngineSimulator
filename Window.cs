@@ -46,6 +46,7 @@ namespace EngineSimulator {
             powerBar.MaxValue = (float) dyno.GetMaxPower();
 
             dynoChart.Series.Clear();
+            dynoChart.ChartAreas[0].AxisY.Minimum = 0.0;
 
             Series powerLine = new Series("Power");
             powerLine.ChartType = SeriesChartType.Line;
@@ -117,7 +118,7 @@ namespace EngineSimulator {
             SetGaugeValue(speedGauge, Program.GetGearbox().GetCarSpeed() * (Units.km / Units.h), dt);
             SetGaugeValue(throttleGauge, engine.GetThrottle() * 100.0, dt);
             SetGaugeValue(loadGauge, engine.GetLoad() * 100.0, dt);
-            SetGaugeValue(mapGauge, engine.GetMAP() * Units.KPA, dt);
+            SetGaugeValue(mapGauge, engine.GetMAP() * Units.kPa, dt);
             SetGaugeValue(mafGauge, engine.GetMAF() * 1000.0, dt);
             SetGaugeValue(fuelRateGauge, Units.kgs_to_Lh(engine.GetFuelRate(), Program.GetEngine().FUEL_DENSITY), dt);
             SetGaugeValue(afrGauge, engine.GetAFR(), dt);
