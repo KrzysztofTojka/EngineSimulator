@@ -8,6 +8,7 @@ namespace EngineSimulator {
     public class Dyno {
 
         private Engine engine;
+        private bool running;
 
         private double maxTorque;
         private double maxPower;
@@ -17,11 +18,14 @@ namespace EngineSimulator {
         public List<double> powerList = new List<double>();
 
         public Dyno() {
+            this.running = false;
             this.maxTorque = 0.0;
             this.maxPower = 0.0;
         }
 
         public void Run(double throttle) {
+            //if (true) return;
+            running = true;
             engine = Program.GetEngine().Clone();
 
             MathHelper.UseRandom(false);
@@ -52,11 +56,14 @@ namespace EngineSimulator {
                     powerList.Add(power);
                 }
 
-                rpm += 10;
+                //Console.WriteLine($"RPM: {rpm}, Torque: {torque}, Power: {power}");
+                //engine.ShowInfo();
 
+                rpm += 10;
             }
 
             MathHelper.UseRandom(true);
+            running = false;
         }
 
         public double GetMaxTorque() {
@@ -65,6 +72,10 @@ namespace EngineSimulator {
 
         public double GetMaxPower() {
             return maxPower;
+        }
+
+        public bool isRunning() {
+            return running;
         }
 
     }

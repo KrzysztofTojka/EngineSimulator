@@ -24,20 +24,27 @@ namespace EngineSimulator {
         }
 
         public bool ShouldCutFuel() {
-            // for now
-            //if (Program.GetGearbox() is AutomaticGearbox auto) {
-            //    if (auto.GetShiftPhase() != AutomaticGearbox.ShiftPhase.IDLE) {
-            //        return true;
-            //    }
-            //}
-
             bool redline = engine.GetRPM() > engine.GetMaxRPM();
             bool decel = engine.GetRPM() > 1300 && throttle == 0.0;
             return redline /*|| decel*/;
         }
 
         public double GetThrottle() {
-            return idleThrottle + (1.0 - idleThrottle) * GetThrottleMap(throttle);
+            double throttleMapped = GetThrottleMap(throttle);
+            double throttleFinal;
+
+            if (engine.HasTurbo()) {
+                double maxMafNA = engine.GetMaxMAF(engine.GetMaxRPM(), false);
+                double maxMafTurbo = engine.GetMaxMAF(engine.GetMaxRPM(), true);
+
+                double requestedAirflow = maxMafTurbo * throttleMapped; // TODO use Math.Sin
+
+                throttleFinal = Math.Min(1.0, requestedAirflow / maxMafNA);
+            } else {
+                throttleFinal = throttleMapped;
+            }
+
+            return idleThrottle + (1.0 - idleThrottle) * throttleFinal;
         }
 
         public double GetIdleThrottle() {
@@ -59,7 +66,7 @@ namespace EngineSimulator {
                 return 14.7;
             }
 
-            double loadFactor = Math.Pow((mapKpa - 35.0) / (engine.GetPressureAtm() * Units.kPa - 35.0), 5);
+            double loadFactor = Math.Min(1.1, Math.Pow((mapKpa - 35.0) / (engine.GetPressureAtm() * Units.kPa - 35.0), 5));
 
             double rpmFactor = 0.8 + 0.2 * (rpm / engine.GetMaxRPM());
 

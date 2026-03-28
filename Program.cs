@@ -31,7 +31,7 @@ namespace EngineSimulator {
 
             simulationThread = new Thread(Run);
 
-            engine = new GasolineEngine(2.5, 6500, 0.12);
+            engine = new GasolineEngine(2.5, 6500, 0.15);
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.056;//4.325; 4.056
 
@@ -48,8 +48,8 @@ namespace EngineSimulator {
             simulationThread.Start();
             //Test();
 
-            soundThread = new Thread(Sound);
-            soundThread.Start();
+            //soundThread = new Thread(Sound);
+            //soundThread.Start();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

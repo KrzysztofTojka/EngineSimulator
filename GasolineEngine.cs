@@ -43,9 +43,9 @@ namespace EngineSimulator {
         }
 
         public override double GetBrakingTorque(double rpm, double throttle) {
-            double staticTorque = 17.0 * ((displacement * Units.L) / 2.0);
+            double staticTorque = 22.0 * ((displacement * Units.L) / 2.0); // 17.0
 
-            double referenceTorque = 5.5;
+            double referenceTorque = 4.5; // 5.5
             double referenceRpm = 1000;
 
             double frictionTorque = referenceTorque * (rpm / referenceRpm);

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace EngineSimulator {
         private Engine engine;
         private Dyno dyno;
 
+        private bool initialized = false;
+
         public Window() {
             this.AutoScaleMode = AutoScaleMode.Dpi;
             this.engine = Program.GetEngine();
@@ -25,6 +28,8 @@ namespace EngineSimulator {
             DrawShifting();
 
             InitControls();
+            
+            initialized = true;
         }
 
         private void InitControls() {
@@ -38,6 +43,13 @@ namespace EngineSimulator {
             veScaleSlider.Value = (float) engine.GetVeRangeScale();
             maxAirflowRpmSlider.Value = (float) engine.GetMaxAirflowRpm();
             maxAirflowRpmSlider.MaxValue = rpmLimitSlider.Value;
+
+            if (engine.HasTurbo()) {
+                mapGauge.MaxValue = (float)(100.0 * (1.0 + engine.GetTurbocharger().GetMaxBoost()));
+                mapGauge.NoOfDivisions = (int)(mapGauge.MaxValue / (mapGauge.MaxValue > 150.0 ? 20 : 10));
+                mapGauge.Threshold2Start = (float)(engine.GetPressureAtm() * Units.kPa);
+                mapGauge.Threshold2Stop = mapGauge.MaxValue;
+            }
         }
 
 
@@ -109,6 +121,8 @@ namespace EngineSimulator {
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
+            if (!initialized) return;
+
             long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             double dt = (now - Program.GetLastUpdateTime()) / 50.0;
 
