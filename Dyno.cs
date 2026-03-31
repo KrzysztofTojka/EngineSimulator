@@ -34,6 +34,7 @@ namespace EngineSimulator {
             torqueList.Clear();
             powerList.Clear();
 
+            engine.SetIgnition(true);
             engine.GetECU().SetThrottle(throttle);
 
             double rpm = 0.0;
@@ -73,7 +74,8 @@ namespace EngineSimulator {
 
             File.WriteAllLines("result.csv", new string[] { engine.GetCsvHeader() });
 
-            engine.Ignite();
+            engine.SetIgnition(true);
+            engine.SetRPM(500);
             engine.GetECU().SetThrottle(engine.GetECU().GetIdleThrottle());
             engine.Update(0);
 
@@ -103,7 +105,7 @@ namespace EngineSimulator {
 
             MathHelper.UseRandom(true);
 
-            Process.Start("python", "torque_graph.py result.csv");
+            Process.Start("python", "torque_graph.py");
         }
 
         public double GetMaxTorque() {

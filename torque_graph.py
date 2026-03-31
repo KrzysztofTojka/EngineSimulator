@@ -24,13 +24,13 @@ def generate_torque_graph(file_path):
             "<b>Torque:</b> %{y} Nm<br>" +
             "<b>Power:</b> %{customdata[5]} HP<br>" +
             "<b>MAP:</b> %{customdata[0]} kPa<br>" +
-            "<b>Fuel rate:</b> %{customdata[1]} g/s<br>" +
+            "<b>Fuel rate:</b> %{customdata[1]} L/h<br>" +
             "<b>Efficiency:</b> %{customdata[2]:.2%}<br>" +
             "<b>VE:</b> %{customdata[3]}<br>" +
             "<b>AFR:</b> %{customdata[4]}" +
             "<extra></extra>"
         ),
-        customdata=df[['MAP [kPa]', 'Fuel Rate [g/s]', 'Efficiency', 'VE', 'AFR', 'Power [HP]']]
+        customdata=df[['MAP [kPa]', 'Fuel Rate [L/h]', 'Efficiency', 'VE', 'AFR', 'Power [HP]']]
     ))
 
     fig.add_trace(go.Scatter(

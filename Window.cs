@@ -113,7 +113,7 @@ namespace EngineSimulator {
 
         private void UpdatePowerBars() {
             torqueBar.Value = (int) MathHelper.Clamp(engine.GetTorque(), 0.0, torqueBar.MaxValue);
-            powerBar.Value = (int) MathHelper.Clamp(engine.GetPower() * Units.HP, 0.0, powerBar.MaxValue);
+            powerBar.Value = (int)MathHelper.Clamp(engine.GetPower() * Units.HP, 0.0, powerBar.MaxValue);
         }
 
         private void UpdateDyno() {

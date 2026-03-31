@@ -26,6 +26,9 @@ namespace EngineSimulator {
 
         protected double throttle = 0.0;
         protected double rpm = 0.0;
+        protected bool ignition = false;
+        protected bool starter = false;
+        protected double starterTorque = 40.0;
 
         protected double afr;
         protected double maf;
@@ -77,11 +80,22 @@ namespace EngineSimulator {
             afr = ecu.GetAFR(rpm, map, throttle);
             ve = GetVolumetricEfficiency(rpm);
             fuelRate = GetFuelRate(maf, afr);
-            fuelPower = GetFuelPower(fuelRate, rpm, afr);
+
+            if (ignition) {
+                fuelPower = GetFuelPower(fuelRate, rpm, afr);
+            } else {
+                fuelPower = 0.0;
+            }
+
             fuelTorque = PowerToTorque(fuelPower, rpm);
             load = GetEngineLoad(fuelPower, rpm, afr);
             brakePower = GetThermalEfficiency() * fuelPower - TorqueToPower(GetBrakingTorque(rpm, throttle), rpm);
             brakeTorque = PowerToTorque(brakePower, rpm);
+
+            if (starter) {
+                brakeTorque += Math.Max(0.0, starterTorque - (brakeTorque + GetBrakingTorque(rpm, throttle)));
+                brakePower = TorqueToPower(brakeTorque, rpm);
+            }
 
             if (turbocharger != null) {
                 turbocharger.Update(dt);
@@ -119,7 +133,7 @@ namespace EngineSimulator {
         }
 
         public string GetCsvHeader() {
-            return "Time [s];RPM;Speed [kmh];Throttle;MAF [g/s];MAP [kPa];Load;AFR;VE;Fuel Rate [g/s];Power [HP];Torque [Nm];Efficiency";
+            return "Time [s];RPM;Speed [kmh];Throttle;MAF [g/s];MAP [kPa];Load;AFR;VE;Fuel Rate [L/h];Power [HP];Torque [Nm];Efficiency";
         }
 
         public string GetCsvLine() {
@@ -133,15 +147,11 @@ namespace EngineSimulator {
                 $"{load:F3}",
                 $"{afr:F2}",
                 $"{ve:F2}",
-                $"{fuelRate * 1000/* * 3600 / FUEL_DENSITY*/:F3}",
+                $"{fuelRate * 1000 * 3600 / FUEL_DENSITY:F3}",
                 $"{brakePower * Units.HP:F3}",
                 $"{brakeTorque:F2}",
                 $"{brakePower / GetFuelPower(fuelRate, rpm, AFR_STOICH, false):F3}"
             });
-        }
-
-        public void Ignite() {
-            SetRPM(500);
         }
 
         public double GetTorque(double rpm) {
@@ -184,7 +194,9 @@ namespace EngineSimulator {
         }
 
         public double GetMAP(double maf, double rpm, bool random = true) {
-            if (rpm < 50) return pressureAtm;
+            if (rpm == 0.0) {
+                return pressureAtm;
+            }
             
             double calculatedMap = (maf * 2 * 60 * Units.GAS_CONSTANT * temperature) / (displacement * GetVolumetricEfficiency(rpm) * rpm);
             if (calculatedMap < 15_000) {
@@ -371,6 +383,22 @@ namespace EngineSimulator {
 
         public bool HasTurbo() {
             return this.turbocharger != null;
+        }
+
+        public bool IsIgnitionOn() {
+            return ignition;
+        }
+
+        public void SetIgnition(bool ignition) {
+            this.ignition = ignition;
+        }
+
+        public bool IsStarterOn() {
+            return starter;
+        }
+
+        public void SetStarter(bool starter) {
+            this.starter = starter;
         }
 
         public string Serialize() {

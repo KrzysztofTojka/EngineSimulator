@@ -56,12 +56,10 @@ namespace EngineSimulator {
         }
 
         public static void Run() {
-            engine.Ignite();
-
             dyno = new Dyno();
             dyno.DoMaxTorqueRun(1.0);
 
-            int i = 0;
+            int i = 1;
 
             while (isRunning) {
                 HandleInput();
@@ -74,7 +72,7 @@ namespace EngineSimulator {
 
                 engine.UpdateRpm(0.01);
 
-                if (i == 2) {
+                if (i == 1) {
                     engine.ShowInfo();
                     i = 0;
                 }
@@ -155,6 +153,12 @@ namespace EngineSimulator {
             } else {
                 gearbox.SetBrakesEngangement(0.0);
             }
+
+            if (Keyboard.WasKeyPressed(Keys.Q)) {
+                engine.SetIgnition(!engine.IsIgnitionOn());
+            }
+
+            engine.SetStarter(Keyboard.IsKeyDown(Keys.E));
 
             engine.GetECU().SetThrottle(currentThrottle);
         }
