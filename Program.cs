@@ -8,8 +8,6 @@ using System.Windows.Forms;
 namespace EngineSimulator {
     public class Program {
 
-        public const bool TEST = false;
-
         public static double temperatureC = 20.0;
         public static double pressureHPA = 1024.0;
 
@@ -48,55 +46,20 @@ namespace EngineSimulator {
 
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-            if (TEST) {
-                Test();
-            } else {
-                simulationThread.Start();
-                //soundThread = new Thread(Sound);
-                //soundThread.Start();
+            simulationThread.Start();
+            soundThread = new Thread(Sound);
+            soundThread.Start();
 
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Window());
-            }            
-        }
-
-        public static void Test() {
-            MathHelper.UseRandom(false);
-            File.WriteAllLines("result.csv", new string[] { engine.GetCsvHeader() });
-
-            engine.SetRPM(500);
-            engine.GetECU().SetThrottle(engine.GetECU().GetIdleThrottle());
-            engine.Update(0);
-
-            for (int rpm = 500; rpm <= engine.GetMaxRPM(); rpm += 250) {
-                engine.SetRPM(rpm);
-
-                for (double throttle = 0.0; throttle <= 1.0; throttle += 0.07 * Math.Min(1.0, rpm / engine.GetMaxRPM())) {
-                    if (throttle == 0.0) {
-                        throttle = engine.GetECU().GetIdleThrottle();
-                    }
-                    
-                    engine.GetECU().SetThrottle(throttle);
-
-                    engine.Update(0);
-
-                    string line = engine.GetCsvLine();
-                    File.AppendAllLines("result.csv", new string[] { line });
-                }
-
-                engine.ShowInfo();
-                if (engine.HasTurbo()) {
-                    engine.GetTurbocharger().ShowInfo();
-                }
-            }
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Window());
         }
 
         public static void Run() {
             engine.Ignite();
 
             dyno = new Dyno();
-            dyno.Run(1.0);
+            dyno.DoMaxTorqueRun(1.0);
 
             int i = 0;
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +24,7 @@ namespace EngineSimulator {
             this.maxPower = 0.0;
         }
 
-        public void Run(double throttle) {
+        public void DoMaxTorqueRun(double throttle) {
             //if (true) return;
             running = true;
             Engine engine = Program.GetEngine().Clone();
@@ -63,6 +65,45 @@ namespace EngineSimulator {
 
             MathHelper.UseRandom(true);
             running = false;
+        }
+
+        public void DoFullRun(bool printInfo = true) {
+            Engine engine = Program.GetEngine().Clone();
+            MathHelper.UseRandom(false);
+
+            File.WriteAllLines("result.csv", new string[] { engine.GetCsvHeader() });
+
+            engine.Ignite();
+            engine.GetECU().SetThrottle(engine.GetECU().GetIdleThrottle());
+            engine.Update(0);
+
+            for (int rpm = 500; rpm <= engine.GetMaxRPM(); rpm += 250) {
+                engine.SetRPM(rpm);
+
+                for (double throttle = 0.0; throttle <= 1.0; throttle += 0.07 * Math.Min(1.0, rpm / engine.GetMaxRPM())) {
+                    if (throttle == 0.0) {
+                        throttle = engine.GetECU().GetIdleThrottle();
+                    }
+
+                    engine.GetECU().SetThrottle(throttle);
+
+                    engine.Update(0);
+
+                    string line = engine.GetCsvLine();
+                    File.AppendAllLines("result.csv", new string[] { line });
+                }
+
+                if (printInfo) {
+                    engine.ShowInfo();
+                    if (engine.HasTurbo()) {
+                        engine.GetTurbocharger().ShowInfo();
+                    }
+                }
+            }
+
+            MathHelper.UseRandom(true);
+
+            Process.Start("python", "torque_graph.py result.csv");
         }
 
         public double GetMaxTorque() {

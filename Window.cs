@@ -117,7 +117,7 @@ namespace EngineSimulator {
         }
 
         private void UpdateDyno() {
-            dyno.Run(dynoThrottleSlider.Value);
+            dyno.DoMaxTorqueRun(dynoThrottleSlider.Value);
             DrawDyno();
         }
 
@@ -203,6 +203,10 @@ namespace EngineSimulator {
             rpmGauge.NoOfDivisions = (int)(rpmGauge.MaxValue / 10);
             rpmGauge.NoOfSubDivisions = maxRpm >= 9000 ? 2 : 3;
             engine.SetMaxRPM(rpmLimit);
+        }
+
+        private void torqueGraphButton_Click(object sender, EventArgs e) {
+            dyno.DoFullRun(printInfo: false);
         }
     }
 }

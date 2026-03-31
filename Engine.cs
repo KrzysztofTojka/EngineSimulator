@@ -119,7 +119,7 @@ namespace EngineSimulator {
         }
 
         public string GetCsvHeader() {
-            return "Time (s);RPM;Speed (kmh);Throttle;MAF (g/s);MAP (kPa);Load;AFR;VE;Fuel Rate (g/s);Power (HP);Torque (Nm);Efficiency";
+            return "Time [s];RPM;Speed [kmh];Throttle;MAF [g/s];MAP [kPa];Load;AFR;VE;Fuel Rate [g/s];Power [HP];Torque [Nm];Efficiency";
         }
 
         public string GetCsvLine() {
