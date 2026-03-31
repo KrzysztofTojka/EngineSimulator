@@ -60,5 +60,23 @@ namespace EngineSimulator {
             return BASE_THERMAL_EFFICIENCY * (0.92 + 0.08 * (2.0 / (displacement * Units.L)));
         }
 
+        public override double GetFuelPower(double fuelRate, double rpm, double afr, bool random = true) {
+            if (rpm < 200) return 0;
+            return fuelRate * (Math.Min(afr, AFR_STOICH) / AFR_STOICH) * LHV * MathHelper.Random(0.97, 1.03, random) * (Math.Sin(Math.PI * Math.Min(1.0, rpm / 500) - Math.PI / 2) + 1) / 2; // W
+        }
+
+        public override double GetVolumetricEfficiency(double rpm) {
+            double lowRpmFactor = 1.0;
+            if (rpm < 3000) {
+                lowRpmFactor = Math.Pow(rpm / 3000, 0.2) * (0.8 + 0.2 * MathHelper.Clamp((rpm) / 1300, 0.0, 1.0));
+            }
+
+            double baseRpmFactor = Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) / (optimalIntakeRpm * veRangeScale), 2));
+            double rpmFactor = lowRpmFactor * baseRpmFactor;
+
+            double mapFactor = 0.5 + 0.5 * Math.Pow(map / pressureAtm, 0.7);
+
+            return MathHelper.Clamp(maxVe * rpmFactor * mapFactor, 0.2, 1.0);
+        }
     }
 }

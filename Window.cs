@@ -44,6 +44,11 @@ namespace EngineSimulator {
             maxAirflowRpmSlider.Value = (float) engine.GetMaxAirflowRpm();
             maxAirflowRpmSlider.MaxValue = rpmLimitSlider.Value;
 
+            if (engine is DieselEngine) {
+                afrGauge.MinValue = 14.0f;
+                afrGauge.MaxValue = 100.0f;
+            }
+
             if (engine.HasTurbo()) {
                 mapGauge.MaxValue = (float)(100.0 * (1.0 + engine.GetTurbocharger().GetMaxBoost()));
                 mapGauge.NoOfDivisions = (int)(mapGauge.MaxValue / (mapGauge.MaxValue > 150.0 ? 20 : 10));

@@ -50,7 +50,7 @@ namespace EngineSimulator {
         }
 
         public Engine(Engine other) {
-            this.ecu = new ECU(this);
+            this.ecu = new ECU(other);
             if (other.GetTurbocharger() != null) {
                 this.turbocharger = new Turbocharger(this, other.turbocharger);
             }
@@ -74,7 +74,7 @@ namespace EngineSimulator {
 
             maf = GetMAF(throttle, rpm);
             map = GetMAP(maf, rpm);
-            afr = ecu.GetAFR(rpm, map);
+            afr = ecu.GetAFR(rpm, map, throttle);
             ve = GetVolumetricEfficiency(rpm);
             fuelRate = GetFuelRate(maf, afr);
             fuelPower = GetFuelPower(fuelRate, rpm, afr);
@@ -136,7 +136,7 @@ namespace EngineSimulator {
                 $"{fuelRate * 1000/* * 3600 / FUEL_DENSITY*/:F3}",
                 $"{brakePower * Units.HP:F3}",
                 $"{brakeTorque:F2}",
-                $"{brakePower / GetFuelPower(fuelRate, rpm, 14.7, false):F3}"
+                $"{brakePower / GetFuelPower(fuelRate, rpm, AFR_STOICH, false):F3}"
             });
         }
 
@@ -150,7 +150,7 @@ namespace EngineSimulator {
 
         public double GetTorque(double throttle, double rpm, bool random = false) {
             double maf = GetMAF(throttle, rpm, random);
-            double afr = ecu.GetAFR(rpm, throttle, random);
+            double afr = ecu.GetAFR(rpm, map, throttle, random);
             double fuelRate = GetFuelRate(maf, afr);
             double fuelPower = GetFuelPower(fuelRate, rpm, afr, random);
             double brakePower = GetThermalEfficiency() * fuelPower - TorqueToPower(GetBrakingTorque(rpm, throttle), rpm);
@@ -161,38 +161,26 @@ namespace EngineSimulator {
             return maxVe * Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) * (rpm > optimalIntakeRpm ? 1.2 : 1.0) / (optimalIntakeRpm * veRangeScale), 2));
         }
 
-        public double GetVolumetricEfficiency(double rpm) {
-            double lowRpmFactor = 1.0;
-            if (rpm < 3000) {
-                lowRpmFactor = Math.Pow(rpm / 3000, 0.2) * (0.8 + 0.2 * MathHelper.Clamp((rpm) / 1300, 0.0, 1.0));
-            }
-
-            double baseRpmFactor = Math.Exp(-Math.Pow((rpm - optimalIntakeRpm) / (optimalIntakeRpm * veRangeScale), 2));
-            double rpmFactor = lowRpmFactor * baseRpmFactor;
-
-            double mapFactor = 0.5 + 0.5 * Math.Pow(map / pressureAtm, 0.7);
-
-            return MathHelper.Clamp(maxVe * rpmFactor * mapFactor, 0.2, 1.0);
-        }
+        public abstract double GetVolumetricEfficiency(double rpm);
 
         private double GetAirDensity(double temperature, double pressure) {
             return pressure / (temperature * Units.GAS_CONSTANT); // kg/m3
         }
 
-        public double GetMaxMAF(double rpm, bool turbo = true) {
+        public double GetMaxMAF(double rpm, double throttle, bool turbo = true) {
             double pressure = pressureAtm;
 
             if (turbo && turbocharger != null) {
-                pressure += turbocharger.GetActualMaxBoost(rpm) * pressureAtm;
+                pressure += turbocharger.GetActualMaxBoost(rpm, throttle) * pressureAtm; // TODO
             }
 
             return GetAirDensity(temperature, pressure) * (displacement / 2) * GetVolumetricEfficiency(rpm) * (rpm / 60); // kg/s
         }
 
-        public double GetMAF(double throttle, double rpm, bool random = true) {
+        public virtual double GetMAF(double throttle, double rpm, bool random = true) {
             // TODO fix this condition 
-            double calculatedMaf = GetMaxMAF(maxAirflowRpm, throttle == 1.0) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02, random);
-            return Math.Min(calculatedMaf, GetMaxMAF(rpm, throttle == 1.0)); // kg/s
+            double calculatedMaf = GetMaxMAF(maxAirflowRpm, throttle, throttle == 1.0) * Math.Sin(throttle * (Math.PI / 2)) * MathHelper.Random(0.98, 1.02, random);
+            return Math.Min(calculatedMaf, GetMaxMAF(rpm, throttle, throttle == 1.0)); // kg/s
         }
 
         public double GetMAP(double maf, double rpm, bool random = true) {
@@ -213,7 +201,7 @@ namespace EngineSimulator {
         }
 
         public double GetEngineLoad(double fuelPower, double rpm, double afr) {
-            double maxFuelPower = GetFuelPower(GetFuelRate(GetMAF(1.0, rpm), ecu.GetAFR(rpm, pressureAtm)), rpm, afr);
+            double maxFuelPower = GetFuelPower(GetFuelRate(GetMAF(1.0, rpm), ecu.GetAFR(rpm, pressureAtm, 1.0)), rpm, afr);
 
             if (maxFuelPower == 0.0) return 0.0;
 
@@ -221,10 +209,7 @@ namespace EngineSimulator {
         }
 
 
-        public double GetFuelPower(double fuelRate, double rpm, double afr, bool random = true) {
-            if (rpm < 200) return 0;
-            return fuelRate * (Math.Min(afr, 14.7) / 14.7) * LHV * MathHelper.Random(0.97, 1.03, random) * (Math.Sin(Math.PI * Math.Min(1.0, rpm / 500) - Math.PI / 2) + 1) / 2; // W
-        }
+        public abstract double GetFuelPower(double fuelRate, double rpm, double afr, bool random = true);
 
         public double PowerToTorque(double power, double rpm) {
             if (power == 0.0) return 0.0;

@@ -11,7 +11,7 @@ namespace EngineSimulator {
 
         public ManualGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
             this.type = Type.Manual;
-            this.clutch = new Clutch(engine, this);
+            this.clutch = new Clutch(engine, this, 700);
         }
 
         public override void Update(double dt) {

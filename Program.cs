@@ -8,6 +8,8 @@ using System.Windows.Forms;
 namespace EngineSimulator {
     public class Program {
 
+        public const bool TEST = false;
+
         public static double temperatureC = 20.0;
         public static double pressureHPA = 1024.0;
 
@@ -35,7 +37,7 @@ namespace EngineSimulator {
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.056;//4.325; 4.056
 
-            //engine = new DieselEngine(2.0, 4500);
+            //engine = new DieselEngine(1.9, 4500);
             //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             //double finalGearRatio = 3.65;
 
@@ -45,15 +47,18 @@ namespace EngineSimulator {
             isRunning = true;
 
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            simulationThread.Start();
-            //Test();
 
-            //soundThread = new Thread(Sound);
-            //soundThread.Start();
+            if (TEST) {
+                Test();
+            } else {
+                simulationThread.Start();
+                //soundThread = new Thread(Sound);
+                //soundThread.Start();
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Window());
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Window());
+            }            
         }
 
         public static void Test() {
@@ -64,10 +69,10 @@ namespace EngineSimulator {
             engine.GetECU().SetThrottle(engine.GetECU().GetIdleThrottle());
             engine.Update(0);
 
-            for (int rpm = 500; rpm <= engine.GetMaxRPM(); rpm += 500) {
+            for (int rpm = 500; rpm <= engine.GetMaxRPM(); rpm += 250) {
                 engine.SetRPM(rpm);
 
-                for (double throttle = 0.0; throttle <= 1.0; throttle += 0.05 * Math.Min(1.0, rpm / 6000.0)) {
+                for (double throttle = 0.0; throttle <= 1.0; throttle += 0.07 * Math.Min(1.0, rpm / engine.GetMaxRPM())) {
                     if (throttle == 0.0) {
                         throttle = engine.GetECU().GetIdleThrottle();
                     }
@@ -78,6 +83,11 @@ namespace EngineSimulator {
 
                     string line = engine.GetCsvLine();
                     File.AppendAllLines("result.csv", new string[] { line });
+                }
+
+                engine.ShowInfo();
+                if (engine.HasTurbo()) {
+                    engine.GetTurbocharger().ShowInfo();
                 }
             }
         }

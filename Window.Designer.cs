@@ -638,7 +638,7 @@ namespace EngineSimulator {
             this.idleThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.idleThrottleSlider.LabelWidth = 140;
             this.idleThrottleSlider.Location = new System.Drawing.Point(1027, 598);
-            this.idleThrottleSlider.MaxValue = 0.035F;
+            this.idleThrottleSlider.MaxValue = 0.08F;
             this.idleThrottleSlider.MinValue = 0.005F;
             this.idleThrottleSlider.Name = "idleThrottleSlider";
             this.idleThrottleSlider.NameFont = new System.Drawing.Font("Segoe UI", 10F);

@@ -34,6 +34,7 @@ namespace EngineSimulator {
         }
 
         public static double Lerp(double a, double b, double t) {
+            t = Clamp(t, 0.0, 1.0);
             return a + (b - a) * t;
         }
 

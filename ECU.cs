@@ -16,6 +16,9 @@ namespace EngineSimulator {
         }
 
         public double GetThrottleMap(double throttle) {
+            if (engine is DieselEngine) {
+                return MathHelper.PowerFunction(throttle, 0.0, 1.0, 1.4);
+            }
             return MathHelper.PowerFunction(throttle, 0.0, 1.0, 1.75);
         }
 
@@ -33,9 +36,9 @@ namespace EngineSimulator {
             double throttleMapped = GetThrottleMap(throttle);
             double throttleFinal;
 
-            if (engine.HasTurbo()) {
-                double maxMafNA = engine.GetMaxMAF(engine.GetMaxRPM(), false);
-                double maxMafTurbo = engine.GetMaxMAF(engine.GetMaxRPM(), true);
+            if (!(engine is DieselEngine) && engine.HasTurbo()) {
+                double maxMafNA = engine.GetMaxMAF(engine.GetMaxRPM(), 1.0, false);
+                double maxMafTurbo = engine.GetMaxMAF(engine.GetMaxRPM(), 1.0, true);
 
                 double requestedAirflow = maxMafTurbo * throttleMapped; // TODO use Math.Sin
 
@@ -59,7 +62,17 @@ namespace EngineSimulator {
             return throttle;
         }
 
-        public double GetAFR(double rpm, double map, bool random = true) {
+        public double GetAFR(double rpm, double map, double throttle, bool random = true) {
+            if (engine is GasolineEngine) {
+                return GetAFRGasoline(rpm, map, random);
+            } else if (engine is DieselEngine) {
+                return GetAFRDiesel(rpm, throttle, random);
+            } else {
+                throw new NotImplementedException();
+            }
+        }
+
+        public double GetAFRGasoline(double rpm, double map, bool random = true) {
             double mapKpa = map * Units.kPa;
 
             if (mapKpa <= 35) {
@@ -73,5 +86,13 @@ namespace EngineSimulator {
             return 14.7 - (14.7 - 12.5) * loadFactor * rpmFactor;
         }
 
+        public double GetAFRDiesel(double rpm, double throttle, bool random = true) {
+            double maxFuelFlow = (1 / engine.AFR_STOICH) * engine.GetMaxAirflowRpm();
+            double fuelFlowRequested = throttle * maxFuelFlow;
+            double afrRequested = 1 / (fuelFlowRequested / rpm);
+
+            
+            return MathHelper.Clamp(afrRequested, engine.AFR_STOICH, 120.0);
+        }
     }
 }

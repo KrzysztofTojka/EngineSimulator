@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class Dyno {
 
-        private Engine engine;
         private bool running;
 
         private double maxTorque;
@@ -26,7 +25,7 @@ namespace EngineSimulator {
         public void Run(double throttle) {
             //if (true) return;
             running = true;
-            engine = Program.GetEngine().Clone();
+            Engine engine = Program.GetEngine().Clone();
 
             MathHelper.UseRandom(false);
             rpmList.Clear();
