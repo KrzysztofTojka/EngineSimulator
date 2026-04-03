@@ -105,7 +105,13 @@ public class VerticalFillBarSimple : Control {
 
     private GraphicsPath RoundedRect(Rectangle rect, int radius) {
         GraphicsPath path = new GraphicsPath();
+
         int r = Math.Min(radius, Math.Min(rect.Width / 2, rect.Height / 2));
+
+        if (r <= 0 || rect.Width <= 0 || rect.Height <= 0) {
+            path.AddRectangle(rect);
+            return path;
+        }
 
         path.AddArc(rect.X, rect.Y, r, r, 180, 90);
         path.AddArc(rect.Right - r, rect.Y, r, r, 270, 90);

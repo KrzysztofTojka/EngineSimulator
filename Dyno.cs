@@ -105,7 +105,7 @@ namespace EngineSimulator {
 
             MathHelper.UseRandom(true);
 
-            Process.Start("python", "torque_graph.py");
+            Process.Start("cmd", "/C python torque_graph.py");
         }
 
         public double GetMaxTorque() {

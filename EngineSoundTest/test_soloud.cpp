@@ -18,7 +18,7 @@ static double getVolume(double rpm, double baseRpm, double hearRadius) {
     //return 1.0 - (std::pow(t, 2));
 }
 
-int main() {
+int main2() {
     SoLoud::Soloud soloud;
     
     soloud.init();
