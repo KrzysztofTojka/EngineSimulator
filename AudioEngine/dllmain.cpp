@@ -1,0 +1,50 @@
+#include <windows.h>
+#include "audio_engine.h"
+
+AudioEngine* audioEngine = nullptr;
+Audio audio;
+
+extern "C" {
+    __declspec(dllexport) void Init(int sampleRate) {
+        if (!audioEngine) {
+            audioEngine = new AudioEngine(sampleRate);
+        }
+    }
+
+    __declspec(dllexport) bool LoadAudio(const char* path, int sampleRate, int firstGrainSize) {
+        if (!audioEngine) {
+            return false;
+        }
+
+        if (AudioEngine::loadWav(path, audio, sampleRate)) {
+            AudioEngine::generateGrains(audio, firstGrainSize, 2, sampleRate, false);
+            audioEngine->setAudio(audio);
+            return true;
+        }
+
+        return false;
+    }
+
+    __declspec(dllexport) void StartEngine() {
+        if (audioEngine) {
+            audioEngine->start();
+        }
+    }
+
+    __declspec(dllexport) void SetPlaybackSpeed(float speed) {
+        if (audioEngine) {
+            audioEngine->setPlaybackSpeed(speed);
+        }
+    }
+
+    __declspec(dllexport) void SetVolume(float volume) {
+        if (audioEngine) {
+            audioEngine->setVolume(volume);
+
+        }
+    }
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    return TRUE;
+}

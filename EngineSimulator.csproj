@@ -26,13 +26,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -131,12 +132,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioEngine.cs" />
     <Compile Include="AutomaticGearbox.cs" />
     <Compile Include="Clutch.cs" />
     <Compile Include="DieselEngine.cs" />
     <Compile Include="Dyno.cs" />
     <Compile Include="ECU.cs" />
-    <Compile Include="EngineSoundPlayer.cs" />
     <Compile Include="GasolineEngine.cs" />
     <Compile Include="Gearbox.cs" />
     <Compile Include="Keyboard.cs" />
@@ -145,7 +146,6 @@
     <Compile Include="RangeSlider.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SmoothResampler.cs" />
     <Compile Include="TorqueConverter.cs" />
     <Compile Include="Turbocharger.cs" />
     <Compile Include="Units.cs" />
@@ -200,7 +200,6 @@
     <Error Condition="!Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)assets" "$(TargetDir)assets" /S /I /Y
-xcopy "$(ProjectDir)torque_graph.py" "$(TargetDir)" /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)torque_graph.py" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

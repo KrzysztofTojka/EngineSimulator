@@ -13,8 +13,6 @@ namespace EngineSimulator {
 
         static Thread simulationThread;
         static Thread soundThread;
-        static EngineSoundPlayer engineSound2000;
-        static EngineSoundPlayer engineSound3000;
         static bool isRunning = false;
         static long lastUpdateTime = 0;
 
@@ -47,7 +45,7 @@ namespace EngineSimulator {
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             simulationThread.Start();
-            soundThread = new Thread(Sound);
+            soundThread = new Thread(SoundThread);
             soundThread.Start();
 
             Application.EnableVisualStyles();
@@ -83,18 +81,17 @@ namespace EngineSimulator {
             }
         }
 
-        private static void Sound() {
-            engineSound2000 = new EngineSoundPlayer("assets/2000RPM.wav", 2000);
-            //engineSound2000.Play();
-            engineSound3000 = new EngineSoundPlayer("assets/3000RPM.wav", 3000);
-            engineSound3000.Play();
+        private static void SoundThread() {
+            int sampleRate = 44100;
+
+            AudioEngine.Init(sampleRate);
+            AudioEngine.LoadAudio("AudioEngine/assets/3000.wav", sampleRate, 1755);
+            AudioEngine.SetVolume(0.0f);
+            AudioEngine.StartEngine();
 
             while (true) {
-                engineSound2000.SetRPM((float) engine.GetRPM());
-                engineSound2000.SetVolume((float)(engine.GetRPM() / 3000));
-                engineSound3000.SetRPM((float) engine.GetRPM());
-                engineSound3000.SetVolume((float)(engine.GetRPM() / 4000));
-                Thread.Sleep(10);
+                AudioEngine.Update(engine.GetRPM(), engine.GetLoad(), 20);
+                Thread.Sleep(20);
             }
         }
 
