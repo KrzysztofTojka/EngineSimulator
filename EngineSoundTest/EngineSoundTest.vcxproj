@@ -141,8 +141,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="synthesis.cpp" />
+    <ClCompile Include="audio_engine.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="test_soloud.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="audio.h" />
+    <ClInclude Include="audio_engine.h" />
+    <ClInclude Include="math_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

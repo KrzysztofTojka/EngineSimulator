@@ -1,39 +1,40 @@
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
+
+#include "audio_engine.h"
+#include "math_helper.h"
 
 #include <iostream>
-#include <vector>
+#include <algorithm>
 
-struct Grain {
-    int start;
-    int length;
-};
 
-struct Audio {
-    std::vector<float> samples = {};
-    std::vector<Grain> grains = {};
-    int sampleCount = 0;
-    int cursor = 0;
-    int currentGrainId = 0;
-};
+AudioEngine::AudioEngine(int sampleRate) {
+    config = ma_device_config_init(ma_device_type_playback);
+    config.playback.format = ma_format_f32;
+    config.playback.channels = 2;
+    this->sampleRate = sampleRate;
+    config.sampleRate = sampleRate;
+    config.dataCallback = AudioEngine::audioCallback;
+    config.pUserData = this;
 
-Audio* activeAudio;
+    activeAudio = nullptr;
 
-double roundTo(double value, int decimalPlaces) {
-    double multiplier = std::pow(10.0, decimalPlaces);
-    return std::round(value * multiplier) / multiplier;
+    ma_device_init(NULL, &config, &device);
 }
 
-// Miniaudio callback
-void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
-    float* outputF32 = (float*) pOutput;
-    Audio* audio = activeAudio;//(Audio*) pDevice->pUserData;
+void AudioEngine::audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
+    AudioEngine* audioEngine = (AudioEngine*)pDevice->pUserData;
+
+    audioEngine->processAudio((float*)pOutput, frameCount);
+}
+
+void AudioEngine::processAudio(float* pOutput, ma_uint32 frameCount) {
+    Audio* audio = activeAudio;
 
     for (ma_uint32 i = 0; i < frameCount; i++) {
         float sample = audio->samples[audio->cursor];
 
-        outputF32[i * 2] = sample; // left
-        outputF32[i * 2 + 1] = sample; // right
+        pOutput[i * 2] = sample; // left
+        pOutput[i * 2 + 1] = sample; // right
 
         audio->cursor++;
 
@@ -45,20 +46,51 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         Grain* currentGrain = &audio->grains[audio->currentGrainId];
 
         if (audio->cursor >= currentGrain->start + currentGrain->length) {
-            audio->currentGrainId += 1;
-            
-            if (audio->currentGrainId >= audio->grains.size()) {
-                audio->currentGrainId = 0;
-                audio->cursor = 0;
+            if (audio->currentGrainId + 1 >= audio->grains.size()) {
+                playGrain(audio, 0);
                 continue;
             }
 
-            audio->cursor = audio->grains[audio->currentGrainId].start;
+            playGrain(audio, audio->currentGrainId + 1);
         }
     }
 }
 
-bool loadWav(const std::string& filePath, std::vector<float>& out, int sampleRate) {
+void AudioEngine::setAudio(Audio& audio) {
+    audio.currentGrainId = 0;
+    audio.cursor = 0;
+    activeAudio = &audio;
+}
+
+void AudioEngine::start() {
+    ma_device_start(&device);
+}
+
+void AudioEngine::stop() {
+    ma_device_stop(&device);
+}
+
+void AudioEngine::playGrain(Audio* audio, int grainId) {
+    grainId = std::clamp(grainId, 0, (int)audio->grains.size() - 1);
+    audio->currentGrainId = grainId;
+    audio->cursor = audio->grains[grainId].start;
+}
+
+void AudioEngine::playRandomGrain(Audio* audio, int minId, int maxId) {
+    int grainId;
+
+    do {
+        grainId = randomInt(minId, maxId);
+    } while (grainId == audio->currentGrainId);
+
+    playGrain(audio, grainId);
+}
+
+void AudioEngine::playRandomGrain(Audio* audio) {
+    playRandomGrain(audio, 0, audio->grains.size() - 1);
+}
+
+bool AudioEngine::loadWav(const std::string& filePath, Audio& out, int sampleRate) {
     ma_decoder decoder;
     ma_decoder_config config = ma_decoder_config_init(ma_format_f32, 1, sampleRate);
 
@@ -70,16 +102,16 @@ bool loadWav(const std::string& filePath, std::vector<float>& out, int sampleRat
     ma_uint64 frameCount;
     ma_decoder_get_length_in_pcm_frames(&decoder, &frameCount);
 
-    out.resize(frameCount);
+    out.samples.resize(frameCount);
 
     ma_uint64 framesRead;
-    result = ma_decoder_read_pcm_frames(&decoder, out.data(), frameCount, &framesRead);
+    result = ma_decoder_read_pcm_frames(&decoder, out.samples.data(), frameCount, &framesRead);
 
     ma_decoder_uninit(&decoder);
     return (result == MA_SUCCESS);
 }
 
-int findNextGrain(std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples) {
+int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples) {
     int endEstimated = -1;
 
     for (int i = firstSample + prevSize; i - (firstSample + prevSize) < 10; i++) {
@@ -104,7 +136,7 @@ int findNextGrain(std::vector<float>& samples, int firstSample, int prevSize, in
     return -1;
 }
 
-void generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sampleRate, bool debug) {
+void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sampleRate, bool debug) {
     int grainStart = 0;
     int grainSize = firstGrainSize;
     int direction = 1;
@@ -145,44 +177,6 @@ void generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sa
     }
 }
 
-int main() {
-    int sampleRate = 44100;
-    int cyclesPerGrain = 2;
-
-    std::string file = "assets/3000.wav";
-    Audio audio;
-
-    if (!loadWav(file, audio.samples, sampleRate)) {
-        std::cout << "Could not load file " << file << std::endl;
-        return -1;
-    }
-
-    audio.sampleCount = audio.samples.size();
-
-    std::cout << "Loaded " << file << " (" << audio.samples.size() << " samples)" << std::endl;
-
-    generateGrains(audio, 1755, cyclesPerGrain, sampleRate, true);
-
-    std::cout << "Generated: " << audio.grains.size() << " grains" << std::endl;
-
-    ma_device_config config = ma_device_config_init(ma_device_type_playback);
-    config.playback.format = ma_format_f32;
-    config.playback.channels = 2;
-    config.sampleRate = 44100;
-    config.dataCallback = data_callback;
-    //config.pUserData = &audio;
-    activeAudio = &audio;
-
-    ma_device device;
-    ma_device_init(NULL, &config, &device);
-    ma_device_start(&device);
-
-    for (int i = 0; i < 500; i++) {
-        std::cout << "grainId: " << activeAudio->currentGrainId << ", cursor: " << activeAudio->cursor << "\n";
-        Sleep(100);
-    }
-
-    std::cin.get();
-
-    return 0;
+Audio* AudioEngine::getActiveAudio() {
+    return activeAudio;
 }
