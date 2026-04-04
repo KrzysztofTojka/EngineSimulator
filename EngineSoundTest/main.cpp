@@ -28,7 +28,10 @@ int main() {
     std::cout << "Generated: " << audio.grains.size() << " grains" << std::endl;
 
     audioEngine.setAudio(audio);
+    audioEngine.setPlaybackSpeed(1.0f);
     audioEngine.start();
+
+    std::cout << "Playing (speed: " << audioEngine.getPlaybackSpeed() << ")" << std::endl;
 
     for (int i = 0; i < 500; i++) {
         std::cout << "grainId: " << audioEngine.getActiveAudio()->currentGrainId << ", cursor: " << audioEngine.getActiveAudio()->cursor << "\n";

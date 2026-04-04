@@ -13,6 +13,7 @@ private:
     ma_device_config config;
     ma_device device;
     int sampleRate;
+    float playbackSpeed;
 
     static void audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
     void processAudio(float* pOutput, ma_uint32 frameCount);
@@ -25,6 +26,7 @@ public:
     void stop();
 
     void playGrain(Audio* audio, int grainId);
+    void playGrain(Audio* audio, int grainId, float cursorOffset);
     void playRandomGrain(Audio* audio, int minId, int maxId);
     void playRandomGrain(Audio* audio);
 
@@ -33,6 +35,8 @@ public:
     static int findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples);
 
     Audio* getActiveAudio();
+    float getPlaybackSpeed();
+    void setPlaybackSpeed(float playbackSpeed);
 };
 
 #endif

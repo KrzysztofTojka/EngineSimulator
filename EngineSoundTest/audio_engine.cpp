@@ -8,15 +8,16 @@
 
 
 AudioEngine::AudioEngine(int sampleRate) {
-    config = ma_device_config_init(ma_device_type_playback);
+    this->config = ma_device_config_init(ma_device_type_playback);
     config.playback.format = ma_format_f32;
     config.playback.channels = 2;
-    this->sampleRate = sampleRate;
     config.sampleRate = sampleRate;
     config.dataCallback = AudioEngine::audioCallback;
     config.pUserData = this;
 
-    activeAudio = nullptr;
+    this->activeAudio = nullptr;
+    this->playbackSpeed = 1.0f;
+    this->sampleRate = sampleRate;
 
     ma_device_init(NULL, &config, &device);
 }
@@ -28,37 +29,51 @@ void AudioEngine::audioCallback(ma_device* pDevice, void* pOutput, const void* p
 }
 
 void AudioEngine::processAudio(float* pOutput, ma_uint32 frameCount) {
+    if (activeAudio == nullptr || activeAudio->samples.empty()) {
+        for (ma_uint32 i = 0; i < frameCount * 2; i++) {
+            pOutput[i] = 0.0f;
+        }
+
+        return;
+    }
+
     Audio* audio = activeAudio;
 
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        float sample = audio->samples[audio->cursor];
+        float sample1 = audio->samples[(int)audio->cursor];
+        float sample2 = audio->samples[(int)audio->cursor + 1];
+        float fraction = audio->cursor - (int)audio->cursor;
+
+        float sample = sample1 + fraction * (sample2 - sample1);
 
         pOutput[i * 2] = sample; // left
         pOutput[i * 2 + 1] = sample; // right
 
-        audio->cursor++;
+        audio->cursor += playbackSpeed;
 
-        if (activeAudio->grains.size() == 0 && audio->cursor >= audio->sampleCount) {
-            audio->cursor = 0;
+        if (audio->grains.size() == 0 && audio->cursor >= audio->sampleCount) {
+            audio->cursor = 0.0f;
             continue;
         }
 
         Grain* currentGrain = &audio->grains[audio->currentGrainId];
 
         if (audio->cursor >= currentGrain->start + currentGrain->length) {
+            float overflow = audio->cursor - (currentGrain->start + currentGrain->length);
+
             if (audio->currentGrainId + 1 >= audio->grains.size()) {
-                playGrain(audio, 0);
+                playGrain(audio, 0, overflow);
                 continue;
             }
 
-            playGrain(audio, audio->currentGrainId + 1);
+            playGrain(audio, audio->currentGrainId + 1, overflow);
         }
     }
 }
 
 void AudioEngine::setAudio(Audio& audio) {
     audio.currentGrainId = 0;
-    audio.cursor = 0;
+    audio.cursor = 0.0f;
     activeAudio = &audio;
 }
 
@@ -71,9 +86,13 @@ void AudioEngine::stop() {
 }
 
 void AudioEngine::playGrain(Audio* audio, int grainId) {
+    playGrain(audio, grainId, 0.0f);
+}
+
+void AudioEngine::playGrain(Audio* audio, int grainId, float cursorOffset) {
     grainId = std::clamp(grainId, 0, (int)audio->grains.size() - 1);
     audio->currentGrainId = grainId;
-    audio->cursor = audio->grains[grainId].start;
+    audio->cursor = audio->grains[grainId].start + cursorOffset;
 }
 
 void AudioEngine::playRandomGrain(Audio* audio, int minId, int maxId) {
@@ -179,4 +198,12 @@ void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int cyclesPer
 
 Audio* AudioEngine::getActiveAudio() {
     return activeAudio;
+}
+
+float AudioEngine::getPlaybackSpeed() {
+    return playbackSpeed;
+}
+
+void AudioEngine::setPlaybackSpeed(float playbackSpeed) {
+    this->playbackSpeed = playbackSpeed;
 }

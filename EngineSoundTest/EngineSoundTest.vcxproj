@@ -143,7 +143,6 @@
   <ItemGroup>
     <ClCompile Include="audio_engine.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="test_soloud.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
