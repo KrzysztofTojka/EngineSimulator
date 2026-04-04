@@ -14,7 +14,10 @@ struct Audio {
     std::vector<Grain> grains = {};
     int sampleCount = 0;
     int cursor = 0;
+    int currentGrainId = 0;
 };
+
+Audio* activeAudio;
 
 double roundTo(double value, int decimalPlaces) {
     double multiplier = std::pow(10.0, decimalPlaces);
@@ -24,7 +27,7 @@ double roundTo(double value, int decimalPlaces) {
 // Miniaudio callback
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
     float* outputF32 = (float*) pOutput;
-    Audio* audio = (Audio*) pDevice->pUserData;
+    Audio* audio = activeAudio;//(Audio*) pDevice->pUserData;
 
     for (ma_uint32 i = 0; i < frameCount; i++) {
         float sample = audio->samples[audio->cursor];
@@ -34,8 +37,23 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 
         audio->cursor++;
 
-        if (audio->cursor >= audio->sampleCount) {
+        if (activeAudio->grains.size() == 0 && audio->cursor >= audio->sampleCount) {
             audio->cursor = 0;
+            continue;
+        }
+
+        Grain* currentGrain = &audio->grains[audio->currentGrainId];
+
+        if (audio->cursor >= currentGrain->start + currentGrain->length) {
+            audio->currentGrainId += 1;
+            
+            if (audio->currentGrainId >= audio->grains.size()) {
+                audio->currentGrainId = 0;
+                audio->cursor = 0;
+                continue;
+            }
+
+            audio->cursor = audio->grains[audio->currentGrainId].start;
         }
     }
 }
@@ -152,11 +170,17 @@ int main() {
     config.playback.channels = 2;
     config.sampleRate = 44100;
     config.dataCallback = data_callback;
-    config.pUserData = &audio;
+    //config.pUserData = &audio;
+    activeAudio = &audio;
 
     ma_device device;
     ma_device_init(NULL, &config, &device);
     ma_device_start(&device);
+
+    for (int i = 0; i < 500; i++) {
+        std::cout << "grainId: " << activeAudio->currentGrainId << ", cursor: " << activeAudio->cursor << "\n";
+        Sleep(100);
+    }
 
     std::cin.get();
 
