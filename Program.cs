@@ -91,7 +91,7 @@ namespace EngineSimulator {
 
             while (true) {
                 AudioEngine.Update(engine.GetRPM(), engine.GetLoad(), 20);
-                Thread.Sleep(20);
+                Thread.Sleep(10);
             }
         }
 

@@ -29,7 +29,7 @@ public class AudioEngine {
         double baseVolume = Math.Min(Math.Pow(rpm / 4000, 0.6), 1.0);
         double loadVolume = 0.25 + 0.75 * load;
         double targetVolume = baseVolume * loadVolume;
-        double finalVolume = MathHelper.Lerp(prevVolume, targetVolume, dt / 100.0);
+        double finalVolume = MathHelper.Lerp(prevVolume, targetVolume, dt / 200.0);
 
         AudioEngine.SetVolume((float) finalVolume);
         prevVolume = finalVolume;

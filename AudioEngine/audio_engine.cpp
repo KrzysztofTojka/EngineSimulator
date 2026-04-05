@@ -1,4 +1,5 @@
 #define MINIAUDIO_IMPLEMENTATION
+#define NOMINMAX
 
 #include "audio_engine.h"
 #include "math_helper.h"
@@ -54,7 +55,7 @@ void AudioEngine::processAudio(float* pOutput, ma_uint32 frameCount) {
 
         audio->cursor += playbackSpeed;
 
-        if (audio->grains.size() == 0 && audio->cursor >= audio->sampleCount) {
+        if (audio->grains.size() == 0 && audio->cursor >= audio->samples.size()) {
             audio->cursor = 0.0f;
             continue;
         }
@@ -133,10 +134,28 @@ bool AudioEngine::loadWav(const std::string& filePath, Audio& out, int sampleRat
     return (result == MA_SUCCESS);
 }
 
+bool AudioEngine::saveWav(const std::string& filePath, const Audio& input, int sampleRate) {
+    ma_encoder_config config = ma_encoder_config_init(ma_encoding_format_wav, ma_format_f32, 1, sampleRate);
+
+    ma_encoder encoder;
+    ma_result result = ma_encoder_init_file(filePath.c_str(), &config, &encoder);
+    if (result != MA_SUCCESS) {
+        return false;
+    }
+
+    ma_uint64 framesSaved;
+    result = ma_encoder_write_pcm_frames(&encoder, input.samples.data(), input.samples.size(), &framesSaved);
+
+    ma_encoder_uninit(&encoder);
+
+    return (result == MA_SUCCESS);
+}
+
 int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples) {
     int endEstimated = -1;
 
-    for (int i = firstSample + prevSize; i - (firstSample + prevSize) < 10; i++) {
+    // -1, 40
+    for (int i = firstSample + prevSize; i - (firstSample + prevSize) < 40; i++) {
         if (samples[i] > 0.0f) {
             endEstimated = i;
             break;
@@ -147,7 +166,8 @@ int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSampl
         return -1;
     }
 
-    for (int i = endEstimated + 5; i > endEstimated - 10; i--) {
+    // 5, -30
+    for (int i = endEstimated + 5; i > endEstimated - 30; i--) {
         if (std::signbit(samples[i]) != std::signbit(samples[i - 1])) {
             int lastSample = i;
             int size = lastSample - firstSample;
@@ -196,6 +216,54 @@ void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int cyclesPer
 
         grainStart = grainEnd;
         prevRpm = rpm;
+    }
+}
+
+void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, float phase1, float phase2, bool debug) {
+    newGrain.start = outSamples.size();
+    newGrain.length = (int)((1.0 - proportion) * grain1.length + proportion * grain2.length);
+
+    for (int j = 0; j < newGrain.length; j++) {
+        float relativePos1 = (float)j / (float)newGrain.length + phase1;
+        if (relativePos1 > 1.0f) {
+            relativePos1 -= 1.0f;
+        }
+        float relativePos2 = (float)j / (float)newGrain.length + phase2;
+        if (relativePos2 > 1.0f) {
+            relativePos2 -= 1.0f;
+        }
+
+        float pos1 = grain1.start + (relativePos1 * grain1.length);
+        float pos2 = grain2.start + (relativePos2 * grain2.length);
+
+        float sample1 = std::lerp(audio1.samples[(int)pos1], audio1.samples[(int)pos1 + 1], pos1 - (int)pos1);
+        float sample2 = std::lerp(audio2.samples[(int)pos2], audio2.samples[(int)pos2 + 1], pos2 - (int)pos2);
+
+        //float resultSample = (1.0f - proportion) * sample1 + proportion * sample2;
+        float resultSample = std::sqrt(1.0f - proportion) * sample1 + std::sqrt(proportion) * sample2;
+        outSamples.push_back(resultSample);
+    }
+}
+
+void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, float phase1, float phase2, bool debug) {
+    int minSize = std::min(audio1.grains.size(), audio2.grains.size());
+
+    for (int i = 0; i < minSize; i++) {
+        // Modulation test
+        if (i < minSize / 2.0) {
+            proportion = (float)i / (minSize / 2.0);
+        }
+        else {
+            proportion = (float)(minSize - i) / (minSize / 2.0);
+        }
+
+        Grain newGrain;
+
+        interpolateGrains(audio1, audio2, audio1.grains[i], audio2.grains[i], outAudio.samples, newGrain, proportion, phase1, phase2, debug);
+
+        if (debug) std::cout << i << ": " << newGrain.length << "\n";
+
+        outAudio.grains.push_back(newGrain);
     }
 }
 

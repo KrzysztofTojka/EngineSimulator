@@ -38,9 +38,13 @@ public:
     void playRandomGrain(Audio* audio, int minId, int maxId);
     void playRandomGrain(Audio* audio);
 
-    static bool loadWav(const std::string& filePath, Audio& out, int sampleRate);
+    static bool loadWav(const std::string& filePath, Audio& output, int sampleRate);
+    static bool saveWav(const std::string& filePath, const Audio& input, int sampleRate);
+    
     static void generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sampleRate, bool debug);
     static int findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples);
+    static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, float phase1, float phase2, bool debug);
+    static void interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, float phase1, float phase2, bool debug);
 
     Audio* getActiveAudio();
     float getPlaybackSpeed();
