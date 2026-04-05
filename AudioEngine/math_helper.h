@@ -6,12 +6,12 @@
 static std::random_device random;
 static std::mt19937 randGen(random());
 
-double roundTo(double value, int decimalPlaces) {
+inline static double roundTo(double value, int decimalPlaces) {
     double multiplier = std::pow(10.0, decimalPlaces);
     return std::round(value * multiplier) / multiplier;
 }
 
-int randomInt(int min, int max) {
+inline static int randomInt(int min, int max) {
     std::uniform_int_distribution<> dis(min, max);
     return dis(randGen);
 }

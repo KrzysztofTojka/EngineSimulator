@@ -83,8 +83,9 @@ namespace EngineSimulator {
 
         private static void SoundThread() {
             int sampleRate = 44100;
+            int bufferSize = 16384; // 2^14, around 0.37s
 
-            AudioEngine.Init(sampleRate);
+            AudioEngine.Init(sampleRate, bufferSize);
             AudioEngine.LoadAudio("AudioEngine/assets/3000.wav", sampleRate, 1755);
             AudioEngine.SetVolume(0.0f);
             AudioEngine.StartEngine();

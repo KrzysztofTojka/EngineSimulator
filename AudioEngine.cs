@@ -6,7 +6,7 @@ public class AudioEngine {
     private const string DllPath = "AudioEngine/AudioEngine.dll";
 
     [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void Init(int sampleRate);
+    public static extern void Init(int sampleRate, int bufferSize);
 
     [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool LoadAudio(string path, int sampleRate, int firstGrainSize);

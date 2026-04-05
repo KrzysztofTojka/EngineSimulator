@@ -287,6 +287,7 @@ xcopy /Y /I /E "$(ProjectDir)assets" "$(ProjectDir)..\bin\Debug\AudioEngine\asse
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
+    <ClInclude Include="audio_buffer.h" />
     <ClInclude Include="audio_engine.h" />
     <ClInclude Include="math_helper.h" />
   </ItemGroup>

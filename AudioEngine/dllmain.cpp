@@ -5,9 +5,9 @@ AudioEngine* audioEngine = nullptr;
 Audio audio;
 
 extern "C" {
-    __declspec(dllexport) void Init(int sampleRate) {
+    __declspec(dllexport) void Init(int sampleRate, int bufferSize) {
         if (!audioEngine) {
-            audioEngine = new AudioEngine(sampleRate);
+            audioEngine = new AudioEngine(sampleRate, bufferSize);
         }
     }
 

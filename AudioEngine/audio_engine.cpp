@@ -8,7 +8,7 @@
 #include <algorithm>
 
 
-AudioEngine::AudioEngine(int sampleRate) {
+AudioEngine::AudioEngine(int sampleRate, int bufferSize) : buffer(AudioBuffer(bufferSize)), activeAudio(nullptr), useBuffer(false), playbackSpeed(1.0f), volume(1.0f), sampleRate(sampleRate) {
     this->config = ma_device_config_init(ma_device_type_playback);
     config.playback.format = ma_format_f32;
     config.playback.channels = 2;
@@ -16,21 +16,20 @@ AudioEngine::AudioEngine(int sampleRate) {
     config.dataCallback = AudioEngine::audioCallback;
     config.pUserData = this;
 
-    this->activeAudio = nullptr;
-    this->playbackSpeed = 1.0f;
-    this->volume = 1.0f;
-    this->sampleRate = sampleRate;
-
     ma_device_init(NULL, &config, &device);
 }
 
 void AudioEngine::audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
     AudioEngine* audioEngine = (AudioEngine*)pDevice->pUserData;
 
-    audioEngine->processAudio((float*)pOutput, frameCount);
+    if (audioEngine->isUsingBuffer()) {
+        audioEngine->processAudioBuffer((float*)pOutput, frameCount);
+    } else {
+        audioEngine->processAudioStatic((float*)pOutput, frameCount);
+    }    
 }
 
-void AudioEngine::processAudio(float* pOutput, ma_uint32 frameCount) {
+void AudioEngine::processAudioStatic(float* pOutput, ma_uint32 frameCount) {
     if (activeAudio == nullptr || activeAudio->samples.empty()) {
         for (ma_uint32 i = 0; i < frameCount * 2; i++) {
             pOutput[i] = 0.0f;
@@ -72,6 +71,18 @@ void AudioEngine::processAudio(float* pOutput, ma_uint32 frameCount) {
 
             playGrain(audio, audio->currentGrainId + 1, overflow);
         }
+    }
+}
+
+void AudioEngine::processAudioBuffer(float* pOutput, ma_uint32 frameCount) {
+    for (ma_uint32 i = 0; i < frameCount; i++) {
+        float sample;
+        if (!buffer.read(sample)) {
+            sample = 0.0f;
+        }
+
+        pOutput[i * 2] = sample; // left
+        pOutput[i * 2 + 1] = sample; // right
     }
 }
 
@@ -245,6 +256,10 @@ void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, co
     }
 }
 
+void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, bool debug) {
+    interpolateGrains(audio1, audio2, grain1, grain2, outSamples, newGrain, proportion, 0.0f, 0.0f, debug);
+}
+
 void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, float phase1, float phase2, bool debug) {
     int minSize = std::min(audio1.grains.size(), audio2.grains.size());
 
@@ -267,8 +282,41 @@ void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Aud
     }
 }
 
+void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, bool debug) {
+    interpolateAudio(audio1, audio2, outAudio, proportion, 0.0f, 0.0f, debug);
+}
+
+void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportion) {
+    std::vector<float> newSamples;
+    Grain newGrain;
+
+    interpolateGrains(audio1, audio2, grain1, grain2, newSamples, newGrain, proportion, false);
+
+    for (float sample : newSamples) {
+        while (!buffer.write(sample)) {
+            Sleep(1);
+        }
+    }
+}
+
+AudioBuffer& AudioEngine::getBuffer() {
+    return buffer;
+}
+
 Audio* AudioEngine::getActiveAudio() {
     return activeAudio;
+}
+
+double AudioEngine::getBufferLengthMs() {
+    return 1000.0 * ((double) buffer.getSampleCount() / sampleRate);
+}
+
+void AudioEngine::playFromBuffer(bool useBuffer) {
+    this->useBuffer = useBuffer;
+}
+
+bool AudioEngine::isUsingBuffer() {
+    return useBuffer;
 }
 
 float AudioEngine::getPlaybackSpeed() {
