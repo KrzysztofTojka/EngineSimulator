@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <string>
+#include <thread>
 #include "miniaudio.h"
 #include "audio.h"
 #include "audio_buffer.h"
@@ -18,6 +19,8 @@ class ENGINE_API AudioEngine {
 private:
     AudioBuffer buffer;
     Audio* activeAudio;
+    std::thread generatorThread;
+    std::atomic<bool> isRunning = false;
     ma_device_config config;
     ma_device device;
     int sampleRate;
@@ -25,6 +28,7 @@ private:
 
     float playbackSpeed;
     float volume;
+    float rpm;
 
     static void audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
     void processAudioStatic(float* pOutput, ma_uint32 frameCount);
@@ -45,7 +49,8 @@ public:
     static bool loadWav(const std::string& filePath, Audio& output, int sampleRate);
     static bool saveWav(const std::string& filePath, const Audio& input, int sampleRate);
     
-    static void generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sampleRate, bool debug);
+    static int findGrainSize(Audio& audio, double referenceRpm, int start, int sampleRate);
+    static void generateGrains(Audio& audio, int firstGrainSize, int sampleRate, bool debug);
     static int findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples);
     static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, float phase1, float phase2, bool debug);
     static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, bool debug);
@@ -53,16 +58,19 @@ public:
     static void interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, bool debug);
 
     void interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportion);
+    void runGenerator();
 
     AudioBuffer& getBuffer();
     Audio* getActiveAudio();
     double getBufferLengthMs();
-    void playFromBuffer(bool useBuffer);
+    void setUseBuffer(bool useBuffer);
     bool isUsingBuffer();
     float getPlaybackSpeed();
     void setPlaybackSpeed(float playbackSpeed);
     float getVolume();
     void setVolume(float volume);
+    float getRpm();
+    void setRpm(float rpm);
 };
 
 #endif

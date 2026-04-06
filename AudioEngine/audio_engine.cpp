@@ -3,6 +3,11 @@
 
 #include "audio_engine.h"
 #include "math_helper.h"
+#include "sample_map.h"
+
+#include <Windows.h>
+#include <timeapi.h> // Windows timer moment :)
+#pragma comment(lib, "winmm.lib")
 
 #include <iostream>
 #include <algorithm>
@@ -81,6 +86,8 @@ void AudioEngine::processAudioBuffer(float* pOutput, ma_uint32 frameCount) {
             sample = 0.0f;
         }
 
+        sample *= volume;
+
         pOutput[i * 2] = sample; // left
         pOutput[i * 2 + 1] = sample; // right
     }
@@ -93,10 +100,20 @@ void AudioEngine::setAudio(Audio& audio) {
 }
 
 void AudioEngine::start() {
+    if (useBuffer && !isRunning) {
+        isRunning = true;
+        timeBeginPeriod(1);
+        generatorThread = std::thread(&AudioEngine::runGenerator, this);
+    }
     ma_device_start(&device);
 }
 
 void AudioEngine::stop() {
+    isRunning = false;
+    if (generatorThread.joinable()) {
+        generatorThread.join();
+    }
+    timeEndPeriod(1);
     ma_device_stop(&device);
 }
 
@@ -189,7 +206,42 @@ int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSampl
     return -1;
 }
 
-void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int cyclesPerGrain, int sampleRate, bool debug) {
+int AudioEngine::findGrainSize(Audio& audio, double referenceRpm, int start, int sampleRate) {
+    int referenceSize = (int)((1.0 / (referenceRpm / 60.0)) * sampleRate);
+    int rangeMin = (int)(referenceSize * 0.9);
+    int rangeMax = (int)(referenceSize * 1.1);
+
+    float maxCorrelation = -1.0f;
+    int bestSize = 0;
+
+    for (int size = start + rangeMin; size < start + rangeMax; size++) {
+        //if (std::signbit(audio.samples[size]) == std::signbit(audio.samples[size + 1])) {
+        if (!(audio.samples[size] < 0.0f && audio.samples[size + 1] > 0.0f)) {
+            continue;
+        }
+
+        int windowSize = std::min(referenceSize, (int) audio.samples.size() - start - referenceSize);
+
+        float correlation = 0.0f;
+        float energy = 0.00001f; // div by zero lol
+
+        for (int j = 0; j < windowSize; j++) {
+            correlation += audio.samples[j] * audio.samples[j + size];
+            energy += std::pow(audio.samples[j + size], 2);
+        }
+
+        correlation = correlation / std::sqrt(energy);
+
+        if (correlation > maxCorrelation) {
+            maxCorrelation = correlation;
+            bestSize = size;
+        }
+    }
+
+    return bestSize;
+}
+
+void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int sampleRate, bool debug) {
     int grainStart = 0;
     int grainSize = firstGrainSize;
     int direction = 1;
@@ -208,8 +260,7 @@ void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int cyclesPer
             break;
         }
 
-        double lengthSeconds = (double)grainSize / sampleRate;
-        double cycleLength = lengthSeconds / cyclesPerGrain;
+        double cycleLength = (double)grainSize / sampleRate;
         double rpm = (1.0 / cycleLength) * 60.0;
 
         double sizeDelta = grainSize - (grainEnd - grainStart);
@@ -251,7 +302,8 @@ void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, co
         float sample2 = std::lerp(audio2.samples[(int)pos2], audio2.samples[(int)pos2 + 1], pos2 - (int)pos2);
 
         //float resultSample = (1.0f - proportion) * sample1 + proportion * sample2;
-        float resultSample = std::sqrt(1.0f - proportion) * sample1 + std::sqrt(proportion) * sample2;
+        //float resultSample = std::sqrt(1.0f - proportion) * sample1 + std::sqrt(proportion) * sample2;
+        float resultSample = pow(1.0f - proportion, 0.85f) * sample1 + pow(proportion, 0.85f) * sample2;
         outSamples.push_back(resultSample);
     }
 }
@@ -299,6 +351,58 @@ void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, 
     }
 }
 
+void AudioEngine::runGenerator() {
+    SampleMap sampleMap = SampleMap(sampleRate);
+    sampleMap.loadSamples("assets/samples");
+
+    setUseBuffer(true);
+    getBuffer().writeSilence(1000);
+
+    // TODO change it
+    float minRpm = 1000;
+    float maxRpm = 6000;
+
+    rpm = std::clamp(rpm, minRpm, maxRpm);
+
+    double lastGrainRpm = rpm;
+
+    int grainId = 0;
+
+    while (isRunning) {
+        double avgRpm = (rpm + lastGrainRpm) / 2.0;
+        double avgCycleLength = rpmToMs(avgRpm);
+
+        if (getBufferLengthMs() < std::min(100.0, avgCycleLength * 4)) {
+            SamplePair samplePair = sampleMap.getClosestSamples(avgRpm);
+
+            if (grainId >= std::min(samplePair.lowerAudio->grains.size(), samplePair.upperAudio->grains.size())) {
+                grainId = 0;
+            }
+
+            // TODO better grain selection algorithm
+            //Grain& grain1 = getRandomGrain(*samplePair.lowerAudio);
+            Grain& grain1 = samplePair.lowerAudio->grains[grainId];
+            //Grain& grain2 = getRandomGrain(*samplePair.upperAudio);
+            Grain& grain2 = samplePair.upperAudio->grains[grainId];
+
+            grainId++;
+
+            double cycleLengthLower = rpmToMs(samplePair.upperRpm);
+            double cycleLengthUpper = rpmToMs(samplePair.lowerRpm);
+            float proportion = 1.0f - (avgCycleLength - cycleLengthLower) / (cycleLengthUpper - cycleLengthLower);
+            proportion = std::clamp(proportion, 0.0f, 1.0f);
+
+            interpolateToBuffer(*samplePair.lowerAudio, *samplePair.upperAudio, grain1, grain2, proportion);
+
+            lastGrainRpm = rpm;
+
+            //std::cout << now() - startTime << "ms - RPM: " << audioEngine.getRpm() << ", prop:" << roundTo(proportion, 4) << ", avgLen: " << avgCycleLength << ", buf: " << audioEngine.getBufferLengthMs() << ", low: " << samplePair.lowerRpm << "\n";
+        }
+
+        Sleep(5);
+    }
+}
+
 AudioBuffer& AudioEngine::getBuffer() {
     return buffer;
 }
@@ -311,7 +415,7 @@ double AudioEngine::getBufferLengthMs() {
     return 1000.0 * ((double) buffer.getSampleCount() / sampleRate);
 }
 
-void AudioEngine::playFromBuffer(bool useBuffer) {
+void AudioEngine::setUseBuffer(bool useBuffer) {
     this->useBuffer = useBuffer;
 }
 
@@ -334,4 +438,12 @@ float AudioEngine::getVolume() {
 void AudioEngine::setVolume(float volume) {
     volume = std::clamp(volume, 0.0f, 1.0f);
     this->volume = volume;
+}
+
+float AudioEngine::getRpm() {
+    return rpm;
+}
+
+void AudioEngine::setRpm(float rpm) {
+    this->rpm = rpm;
 }

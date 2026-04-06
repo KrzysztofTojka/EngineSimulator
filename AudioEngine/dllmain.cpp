@@ -5,9 +5,10 @@ AudioEngine* audioEngine = nullptr;
 Audio audio;
 
 extern "C" {
-    __declspec(dllexport) void Init(int sampleRate, int bufferSize) {
+    __declspec(dllexport) void Init(int sampleRate, bool useBuffer, int bufferSize) {
         if (!audioEngine) {
             audioEngine = new AudioEngine(sampleRate, bufferSize);
+            audioEngine->setUseBuffer(useBuffer);
         }
     }
 
@@ -17,7 +18,7 @@ extern "C" {
         }
 
         if (AudioEngine::loadWav(path, audio, sampleRate)) {
-            AudioEngine::generateGrains(audio, firstGrainSize, 2, sampleRate, false);
+            AudioEngine::generateGrains(audio, firstGrainSize, sampleRate, false);
             audioEngine->setAudio(audio);
             return true;
         }
@@ -41,6 +42,12 @@ extern "C" {
         if (audioEngine) {
             audioEngine->setVolume(volume);
 
+        }
+    }
+
+    __declspec(dllexport) void SetRpm(double rpm) {
+        if (audioEngine) {
+            audioEngine->setRpm((float) rpm);
         }
     }
 }
