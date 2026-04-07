@@ -4,6 +4,7 @@
 #include "audio_engine.h"
 #include "math_helper.h"
 #include "sample_map.h"
+#include "sound_effects.h"
 
 #include <Windows.h>
 #include <timeapi.h> // Windows timer moment :)
@@ -13,7 +14,7 @@
 #include <algorithm>
 
 
-AudioEngine::AudioEngine(int sampleRate, int bufferSize) : buffer(AudioBuffer(bufferSize)), activeAudio(nullptr), useBuffer(false), playbackSpeed(1.0f), volume(1.0f), sampleRate(sampleRate) {
+AudioEngine::AudioEngine(int sampleRate, int bufferSize) : buffer(AudioBuffer(bufferSize)), activeAudio(nullptr), useBuffer(false), playbackSpeed(1.0f), volume(1.0f), rpm(0.0f), load(-1.0f), sampleRate(sampleRate) {
     this->config = ma_device_config_init(ma_device_type_playback);
     config.playback.format = ma_format_f32;
     config.playback.channels = 2;
@@ -182,8 +183,8 @@ bool AudioEngine::saveWav(const std::string& filePath, const Audio& input, int s
 int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples) {
     int endEstimated = -1;
 
-    // -1, 40
-    for (int i = firstSample + prevSize; i - (firstSample + prevSize) < 40; i++) {
+    // -1, 3.5%
+    for (int i = firstSample + prevSize; i - (firstSample + prevSize) < prevSize * 0.035; i++) {
         if (samples[i] > 0.0f) {
             endEstimated = i;
             break;
@@ -194,8 +195,9 @@ int AudioEngine::findNextGrain(const std::vector<float>& samples, int firstSampl
         return -1;
     }
 
-    // 5, -30
-    for (int i = endEstimated + 5; i > endEstimated - 30; i--) {
+    // 5, -2.5%
+    int rangeEnd = endEstimated - 0.975 * (endEstimated - firstSample);
+    for (int i = endEstimated + 5; i > rangeEnd; i--) {
         if (std::signbit(samples[i]) != std::signbit(samples[i - 1])) {
             int lastSample = i;
             int size = lastSample - firstSample;
@@ -281,38 +283,44 @@ void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int sampleRat
     }
 }
 
-void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, float phase1, float phase2, bool debug) {
+float bassState = 0.0f;
+float resonancePhase = 0.0f;
+
+void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportionStart, float proportionEnd, float rpm, float load, bool debug) {
+    float proportionAvg = (proportionStart + proportionEnd) / 2.0;
+    
     newGrain.start = outSamples.size();
-    newGrain.length = (int)((1.0 - proportion) * grain1.length + proportion * grain2.length);
+    newGrain.length = (int)((1.0 - proportionAvg) * grain1.length + proportionAvg * grain2.length);
 
     for (int j = 0; j < newGrain.length; j++) {
-        float relativePos1 = (float)j / (float)newGrain.length + phase1;
-        if (relativePos1 > 1.0f) {
-            relativePos1 -= 1.0f;
-        }
-        float relativePos2 = (float)j / (float)newGrain.length + phase2;
-        if (relativePos2 > 1.0f) {
-            relativePos2 -= 1.0f;
-        }
+        float relativePos = (float)j / (float)newGrain.length;
 
-        float pos1 = grain1.start + (relativePos1 * grain1.length);
-        float pos2 = grain2.start + (relativePos2 * grain2.length);
+        float pos1 = grain1.start + (relativePos * grain1.length);
+        pos1 = std::min(pos1, (float) audio1.samples.size() - 2);
+        float pos2 = grain2.start + (relativePos * grain2.length);
+        pos2 = std::min(pos2, (float)audio2.samples.size() - 2);
 
         float sample1 = std::lerp(audio1.samples[(int)pos1], audio1.samples[(int)pos1 + 1], pos1 - (int)pos1);
         float sample2 = std::lerp(audio2.samples[(int)pos2], audio2.samples[(int)pos2 + 1], pos2 - (int)pos2);
 
+        float localProportion = std::lerp(proportionStart, proportionEnd, relativePos);
+
         //float resultSample = (1.0f - proportion) * sample1 + proportion * sample2;
         //float resultSample = std::sqrt(1.0f - proportion) * sample1 + std::sqrt(proportion) * sample2;
-        float resultSample = pow(1.0f - proportion, 0.85f) * sample1 + pow(proportion, 0.85f) * sample2;
+        float resultSample = pow(1.0f - localProportion, 0.85f) * sample1 + pow(localProportion, 0.85f) * sample2;
+
+        if (load != -1.0f && rpm != -1.0f) {      
+            //applyResonance(resultSample, resonancePhase, 20.0f, 0.1f * std::pow(load, 1.25), rpm);
+
+            applySaturation(resultSample, std::lerp(0.0f, 0.2f, load));
+            applyBassBoost(resultSample, bassState, std::lerp(1.0f, 1.8f, load));
+        }
+
         outSamples.push_back(resultSample);
     }
 }
 
-void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, bool debug) {
-    interpolateGrains(audio1, audio2, grain1, grain2, outSamples, newGrain, proportion, 0.0f, 0.0f, debug);
-}
-
-void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, float phase1, float phase2, bool debug) {
+void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, bool debug) {
     int minSize = std::min(audio1.grains.size(), audio2.grains.size());
 
     for (int i = 0; i < minSize; i++) {
@@ -326,7 +334,7 @@ void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Aud
 
         Grain newGrain;
 
-        interpolateGrains(audio1, audio2, audio1.grains[i], audio2.grains[i], outAudio.samples, newGrain, proportion, phase1, phase2, debug);
+        interpolateGrains(audio1, audio2, audio1.grains[i], audio2.grains[i], outAudio.samples, newGrain, proportion, proportion, -1.0f, -1.0f, debug);
 
         if (debug) std::cout << i << ": " << newGrain.length << "\n";
 
@@ -334,15 +342,18 @@ void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Aud
     }
 }
 
-void AudioEngine::interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, bool debug) {
-    interpolateAudio(audio1, audio2, outAudio, proportion, 0.0f, 0.0f, debug);
+float AudioEngine::calculateProportion(float cycleLength, float cycleLengthLower, float cycleLengthUpper) {
+    if (std::abs(cycleLengthUpper - cycleLengthLower) < 0.0001f) {
+        return 0.0f;
+    }
+    return std::clamp(1.0f - (cycleLength - cycleLengthLower) / (cycleLengthUpper - cycleLengthLower), 0.0f, 1.0f);
 }
 
-void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportion) {
+void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportionStart, float proportionEnd, float load) {
     std::vector<float> newSamples;
     Grain newGrain;
 
-    interpolateGrains(audio1, audio2, grain1, grain2, newSamples, newGrain, proportion, false);
+    interpolateGrains(audio1, audio2, grain1, grain2, newSamples, newGrain, proportionStart, proportionEnd, rpm, load, false);
 
     for (float sample : newSamples) {
         while (!buffer.write(sample)) {
@@ -353,27 +364,33 @@ void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, 
 
 void AudioEngine::runGenerator() {
     SampleMap sampleMap = SampleMap(sampleRate);
-    sampleMap.loadSamples("assets/samples");
+    sampleMap.loadSamples("assets/samples", false);
 
     setUseBuffer(true);
     getBuffer().writeSilence(1000);
 
     // TODO change it
-    float minRpm = 1000;
+    float minRpm = 670;
     float maxRpm = 6000;
 
-    rpm = std::clamp(rpm, minRpm, maxRpm);
-
-    double lastGrainRpm = rpm;
+    float currentRpm = rpm;
+    double lastGrainRpm = currentRpm;
 
     int grainId = 0;
 
     while (isRunning) {
-        double avgRpm = (rpm + lastGrainRpm) / 2.0;
-        double avgCycleLength = rpmToMs(avgRpm);
+        currentRpm = rpm;
+
+        double avgRpm = (currentRpm + lastGrainRpm) / 2.0;
+        double avgCycleLength = (rpmToMs(currentRpm) + rpmToMs(lastGrainRpm)) / 2.0;
 
         if (getBufferLengthMs() < std::min(100.0, avgCycleLength * 4)) {
             SamplePair samplePair = sampleMap.getClosestSamples(avgRpm);
+
+            if (!samplePair.lowerAudio || !samplePair.upperAudio || samplePair.lowerAudio->grains.empty() || samplePair.upperAudio->grains.empty()) {
+                Sleep(5);
+                continue;
+            }
 
             if (grainId >= std::min(samplePair.lowerAudio->grains.size(), samplePair.upperAudio->grains.size())) {
                 grainId = 0;
@@ -389,14 +406,18 @@ void AudioEngine::runGenerator() {
 
             double cycleLengthLower = rpmToMs(samplePair.upperRpm);
             double cycleLengthUpper = rpmToMs(samplePair.lowerRpm);
-            float proportion = 1.0f - (avgCycleLength - cycleLengthLower) / (cycleLengthUpper - cycleLengthLower);
-            proportion = std::clamp(proportion, 0.0f, 1.0f);
+            //float proportion = calculateProportion(avgCycleLength, cycleLengthLower, cycleLengthUpper);
+            //float proportion = 1.0f - (avgCycleLength - cycleLengthLower) / (cycleLengthUpper - cycleLengthLower);
 
-            interpolateToBuffer(*samplePair.lowerAudio, *samplePair.upperAudio, grain1, grain2, proportion);
+            // TODO handle cross-pair proportions
+            float proportionStart = calculateProportion(rpmToMs(lastGrainRpm), cycleLengthLower, cycleLengthUpper);
+            float proportionEnd = calculateProportion(rpmToMs(currentRpm), cycleLengthLower, cycleLengthUpper);
 
-            lastGrainRpm = rpm;
+            interpolateToBuffer(*samplePair.lowerAudio, *samplePair.upperAudio, grain1, grain2, proportionStart, proportionEnd, load);
 
-            //std::cout << now() - startTime << "ms - RPM: " << audioEngine.getRpm() << ", prop:" << roundTo(proportion, 4) << ", avgLen: " << avgCycleLength << ", buf: " << audioEngine.getBufferLengthMs() << ", low: " << samplePair.lowerRpm << "\n";
+            lastGrainRpm = currentRpm;
+
+            //std::cout << "RPM: " << currentRpm << ", load: " << load << ", avgLen: " << avgCycleLength << ", buf: " << getBufferLengthMs() << ", low: " << samplePair.lowerRpm << "\n";
         }
 
         Sleep(5);
@@ -446,4 +467,13 @@ float AudioEngine::getRpm() {
 
 void AudioEngine::setRpm(float rpm) {
     this->rpm = rpm;
+}
+
+float AudioEngine::getLoad() {
+    return load;
+}
+
+void AudioEngine::setLoad(float load) {
+    load = std::clamp(load, 0.0f, 1.0f);
+    this->load = load;
 }

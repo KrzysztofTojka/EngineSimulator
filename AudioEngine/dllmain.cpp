@@ -50,6 +50,12 @@ extern "C" {
             audioEngine->setRpm((float) rpm);
         }
     }
+
+    __declspec(dllexport) void SetLoad(double load) {
+        if (audioEngine) {
+            audioEngine->setLoad((float)load);
+        }
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {

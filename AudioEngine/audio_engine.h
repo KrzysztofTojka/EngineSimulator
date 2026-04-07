@@ -29,6 +29,7 @@ private:
     float playbackSpeed;
     float volume;
     float rpm;
+    float load;
 
     static void audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
     void processAudioStatic(float* pOutput, ma_uint32 frameCount);
@@ -52,12 +53,12 @@ public:
     static int findGrainSize(Audio& audio, double referenceRpm, int start, int sampleRate);
     static void generateGrains(Audio& audio, int firstGrainSize, int sampleRate, bool debug);
     static int findNextGrain(const std::vector<float>& samples, int firstSample, int prevSize, int direction, int sampleRate, int totalSamples);
-    static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, float phase1, float phase2, bool debug);
-    static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportion, bool debug);
-    static void interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, float phase1, float phase2, bool debug);
+    static void interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportionStart, float proportionEnd, float rpm, float load, bool debug);
     static void interpolateAudio(const Audio& audio1, const Audio& audio2, Audio& outAudio, float proportion, bool debug);
 
-    void interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportion);
+    static float calculateProportion(float cycleLength, float cycleLengthLower, float cycleLengthUpper);
+
+    void interpolateToBuffer(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, float proportionStart, float proportionEnd, float load);
     void runGenerator();
 
     AudioBuffer& getBuffer();
@@ -71,6 +72,8 @@ public:
     void setVolume(float volume);
     float getRpm();
     void setRpm(float rpm);
+    float getLoad();
+    void setLoad(float load);
 };
 
 #endif

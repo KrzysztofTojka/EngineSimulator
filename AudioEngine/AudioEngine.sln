@@ -9,6 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		DLL_debug|x64 = DLL_debug|x64
+		DLL_debug|x86 = DLL_debug|x86
 		DLL|x64 = DLL|x64
 		DLL|x86 = DLL|x86
 		EXE|x64 = EXE|x64
@@ -21,6 +23,10 @@ Global
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.Debug|x64.Build.0 = Debug|x64
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.Debug|x86.ActiveCfg = Debug|Win32
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.Debug|x86.Build.0 = Debug|Win32
+		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL_debug|x64.ActiveCfg = DLL_debug|x64
+		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL_debug|x64.Build.0 = DLL_debug|x64
+		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL_debug|x86.ActiveCfg = DLL_debug|Win32
+		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL_debug|x86.Build.0 = DLL_debug|Win32
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL|x64.ActiveCfg = DLL|x64
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL|x64.Build.0 = DLL|x64
 		{8B4CB794-2E53-480A-B618-F88B573ADF55}.DLL|x86.ActiveCfg = DLL|Win32

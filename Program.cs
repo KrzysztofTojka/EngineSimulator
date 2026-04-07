@@ -71,7 +71,7 @@ namespace EngineSimulator {
                 engine.UpdateRpm(0.01);
 
                 if (i == 1) {
-                    engine.ShowInfo();
+                    //engine.ShowInfo();
                     i = 0;
                 }
                 

@@ -14,7 +14,7 @@ namespace EngineSimulator {
         public override double BASE_THERMAL_EFFICIENCY => 0.455; // 0.45
 
         public GasolineEngine(double displacementL = 2.0, double maxRpm = 6000, double inertia = 0.12) : base(displacementL, maxRpm, inertia) {
-            ecu.SetIdleThrottle(0.0165); // 2.0 - 0.0165
+            ecu.SetIdleThrottle(0.0162); // 2.0 - 0.0165
             this.maxVe = 0.95;
             this.optimalIntakeRpm = 4700;
             this.veRangeScale = 2.0;
@@ -43,7 +43,7 @@ namespace EngineSimulator {
         }
 
         public override double GetBrakingTorque(double rpm, double throttle) {
-            double staticTorque = 22.0 * ((displacement * Units.L) / 2.0); // 17.0
+            double staticTorque = 22.0 * ((displacement * Units.L) / 2.0); // 22.0
 
             double referenceTorque = 4.5; // 5.5
             double referenceRpm = 1000;

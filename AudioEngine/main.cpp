@@ -71,12 +71,13 @@ void liveTest() {
     audioEngine.getBuffer().writeSilence(2000);
     audioEngine.start();
 
-    double loopTime = 3300;
+    double loopTime = 2000;
 
-    float minRpm = 1000;
-    float maxRpm = 6000;
+    float minRpm = 1500;
+    float maxRpm = 2000;
 
     float rpm = minRpm;
+    audioEngine.setRpm(minRpm);
     float lastGrainRpm = rpm;
     bool accel = true;
 
@@ -86,7 +87,6 @@ void liveTest() {
 
     while (true) {
         double rpmDelta = (maxRpm - minRpm) / (loopTime / 5);
-
         if (accel) {
             rpm += rpmDelta;
             if (rpm > maxRpm) {
@@ -101,16 +101,26 @@ void liveTest() {
         }
 
         audioEngine.setRpm(rpm);
+        //audioEngine.setLoad(std::pow((rpm - minRpm) / (maxRpm - minRpm), 0.4));
+        //audioEngine.setLoad((rpm - minRpm) / (maxRpm - minRpm));
+        audioEngine.setLoad(1.0f);
 
         Sleep(5);
     }
 }
 
+void sampleTest() {
+    std::string path = "assets/samples";
+    SampleMap sampleMap = SampleMap(44100);
+    sampleMap.loadSamples(path, false);
+}
+
 int main() {
     //staticTest();
     liveTest();
+    //sampleTest();
 
-    std::cin.get();
+    //std::cin.get();
 
     return 0;
 }

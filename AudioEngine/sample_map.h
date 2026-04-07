@@ -34,7 +34,7 @@ public:
 		}
 	}
 
-	void loadSamples(std::string dirPath) {
+	void loadSamples(std::string dirPath, bool debug) {
 		fs::path dir = fs::path(dirPath);
 		for (auto& entry : fs::directory_iterator(dir)) {
 			if (!entry.is_regular_file()) {
@@ -62,13 +62,14 @@ public:
 				std::string samplePath = dirPath + "/" + fileName;
 
 				AudioEngine::loadWav(samplePath, audio, sampleRate);
-				std::cout << "Loaded " << fileName << " - " << audio.samples.size() << std::endl;
+				if (debug) std::cout << "Loaded " << fileName << " - " << audio.samples.size() << std::endl;
 
 				int grainSize = AudioEngine::findGrainSize(audio, rpm, 0, sampleRate);
-				std::cout << "Grain size: " << grainSize << std::endl;
+				if (debug) std::cout << "Grain size: " << grainSize << std::endl;
 
-				AudioEngine::generateGrains(audio, grainSize, sampleRate, false);
-				std::cout << "Generated: " << audio.grains.size() << " grains" << std::endl;
+				AudioEngine::generateGrains(audio, grainSize, sampleRate, debug);
+				if (debug) std::cout << "Generated: " << audio.grains.size() << " grains" << std::endl;
+				if (debug) std::cout << "---------------------------------------------------" << std::endl;
 			}
 		}
 
@@ -89,6 +90,11 @@ public:
 		}
 
 		auto itUpper = samples.lower_bound((int)rpm);
+
+		if (itUpper == samples.begin()) {
+			return { minRpm, minRpm, &itUpper->second, &itUpper->second };
+		}
+
 		auto itLower = std::prev(itUpper);
 
 		return { itLower->first, itUpper->first, &(itLower->second), &(itUpper->second) };
