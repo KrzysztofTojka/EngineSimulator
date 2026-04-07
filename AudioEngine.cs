@@ -9,9 +9,6 @@ public class AudioEngine {
     public static extern void Init(int sampleRate, bool useBuffer, int bufferSize);
 
     [DllImport(DllPath)]
-    public static extern bool LoadAudio(string path, int sampleRate, int firstGrainSize);
-
-    [DllImport(DllPath)]
     public static extern void StartEngine();
 
     [DllImport(DllPath)]

@@ -72,7 +72,7 @@ namespace EngineSimulator {
             }
 
             if (shiftPhase == ShiftPhase.IDLE) {
-                clutch.SetEngagement(Program.GetClutchPedalPosition());
+                clutch.SetPosition(1.0 - Program.GetClutchPedalPosition());
             }
         }
 

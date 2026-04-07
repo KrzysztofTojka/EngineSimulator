@@ -16,7 +16,7 @@ namespace EngineSimulator {
 
         public override void Update(double dt) {
             base.Update(dt);
-            clutch.SetEngagement(Program.GetClutchPedalPosition());
+            clutch.SetPosition(1.0 - Program.GetClutchPedalPosition());
             clutch.Update(dt);
         }
 

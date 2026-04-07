@@ -8,8 +8,12 @@ using System.Windows.Forms;
 namespace EngineSimulator {
     public class Program {
 
-        public static double temperatureC = 20.0;
-        public static double pressureHPA = 1024.0;
+        public static bool AUTO_START = true;
+
+        public static double TEMPERATURE_C = 20.0;
+        public static double PRESSURE_HPA = 1024.0;
+
+        static SteeringWheel steeringWheel;
 
         static Thread simulationThread;
         static Thread soundThread;
@@ -20,12 +24,22 @@ namespace EngineSimulator {
         static Gearbox gearbox;
         static Dyno dyno;
 
+        static double throttlePedalPosition = 0.0;
+        static double brakePedalPosition = 0.0;
         static double clutchPedalPosition = 0.0;
 
         public static double startTime;
 
         public static void Main() {
             Console.WindowWidth = 160;
+
+            if (SteeringWheel.IsPresent()) {
+                steeringWheel = new SteeringWheel();
+                Console.WriteLine("Steering wheel initialized: " + steeringWheel.GetName());
+                steeringWheel.Poll();
+            } else {
+                Console.WriteLine("No steering wheel found");
+            }
 
             simulationThread = new Thread(Run);
 
@@ -46,7 +60,7 @@ namespace EngineSimulator {
 
             simulationThread.Start();
             soundThread = new Thread(SoundThread);
-            soundThread.Start();
+            //soundThread.Start();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -57,10 +71,15 @@ namespace EngineSimulator {
             dyno = new Dyno();
             dyno.DoMaxTorqueRun(1.0);
 
+            if (AUTO_START) {
+                engine.SetIgnition(true);
+                engine.SetRPM(500);
+            }
+
             int i = 1;
 
             while (isRunning) {
-                HandleInput();
+                UpdateInput();
 
                 lastUpdateTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
@@ -95,40 +114,49 @@ namespace EngineSimulator {
             }
         }
 
-        public static void HandleInput() {
-            double currentThrottle = 0.0;
+        public static void UpdateInput() {
+            throttlePedalPosition = 0;
+            clutchPedalPosition = 0;
+            brakePedalPosition = 0;
 
             Keyboard.Update();
 
+            if (!(steeringWheel is null)) {
+                steeringWheel.Poll();
+                throttlePedalPosition = steeringWheel.GetThrottle();
+                brakePedalPosition = steeringWheel.GetBrake();
+                clutchPedalPosition = steeringWheel.GetClutch();
+            }
+
             if (Keyboard.IsKeyDown(Keys.D1)) {
-                currentThrottle = 0.1;
+                throttlePedalPosition = 0.1;
             }
             if (Keyboard.IsKeyDown(Keys.D2)) {
-                currentThrottle = 0.2;
+                throttlePedalPosition = 0.2;
             }
             if (Keyboard.IsKeyDown(Keys.D3)) {
-                currentThrottle = 0.3;
+                throttlePedalPosition = 0.3;
             }
             if (Keyboard.IsKeyDown(Keys.D4)) {
-                currentThrottle = 0.4;
+                throttlePedalPosition = 0.4;
             }
             if (Keyboard.IsKeyDown(Keys.D5)) {
-                currentThrottle = 0.5;
+                throttlePedalPosition = 0.5;
             }
             if (Keyboard.IsKeyDown(Keys.D6)) {
-                currentThrottle = 0.6;
+                throttlePedalPosition = 0.6;
             }
             if (Keyboard.IsKeyDown(Keys.D7)) {
-                currentThrottle = 0.7;
+                throttlePedalPosition = 0.7;
             }
             if (Keyboard.IsKeyDown(Keys.D8)) {
-                currentThrottle = 0.8;
+                throttlePedalPosition = 0.8;
             }
             if (Keyboard.IsKeyDown(Keys.D9)) {
-                currentThrottle = 0.9;
+                throttlePedalPosition = 0.9;
             }
             if (Keyboard.IsKeyDown(Keys.D0)) {
-                currentThrottle = 1.0;
+                throttlePedalPosition = 1.0;
             }
 
             if (Keyboard.WasKeyPressed(Keys.A)) {
@@ -140,15 +168,11 @@ namespace EngineSimulator {
             }
 
             if (Keyboard.IsKeyDown(Keys.Space)) {
-                clutchPedalPosition = 0.0;
-            } else {
                 clutchPedalPosition = 1.0;
             }
 
             if (Keyboard.IsKeyDown(Keys.S)) {
-                gearbox.SetBrakesEngangement(1.0);
-            } else {
-                gearbox.SetBrakesEngangement(0.0);
+                brakePedalPosition = 1.0;
             }
 
             if (Keyboard.WasKeyPressed(Keys.Q)) {
@@ -157,7 +181,7 @@ namespace EngineSimulator {
 
             engine.SetStarter(Keyboard.IsKeyDown(Keys.E));
 
-            engine.GetECU().SetThrottle(currentThrottle);
+            engine.GetECU().SetThrottle(throttlePedalPosition);
         }
 
         public static Engine GetEngine() {
@@ -174,6 +198,10 @@ namespace EngineSimulator {
 
         public static double GetClutchPedalPosition() {
             return clutchPedalPosition;
+        }
+
+        public static double GetBrakePedalPosition() {
+            return brakePedalPosition;
         }
 
         public static long GetLastUpdateTime() {

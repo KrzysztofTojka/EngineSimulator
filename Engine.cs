@@ -13,8 +13,8 @@ namespace EngineSimulator {
         public virtual double LHV => 0; // J/kg
         public virtual double BASE_THERMAL_EFFICIENCY => 0;
 
-        private readonly double temperature = Units.C_to_K(Program.temperatureC);
-        protected readonly double pressureAtm = Program.pressureHPA * 100.0;
+        private readonly double temperature = Units.C_to_K(Program.TEMPERATURE_C);
+        protected readonly double pressureAtm = Program.PRESSURE_HPA * 100.0;
 
         protected double displacement; // m3
         protected double inertia; // kg*m2

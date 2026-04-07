@@ -15,7 +15,7 @@ namespace EngineSimulator {
         protected double area = 2.2;
         protected double rollingResistance = 0.015; // 0.015
         protected double airDensity = 1.225;
-        protected double brakesTorque = 12000.0;
+        protected double brakesTorque = 8000.0;
 
         protected Type type;
         protected int gears;
@@ -51,6 +51,8 @@ namespace EngineSimulator {
                 return;
             }
 
+            brakesEngangement = Math.Pow(Program.GetBrakePedalPosition(), 2.0);
+
             double gearRatio = GetTotalRatio();
             double driveForce = (inputTorque * gearRatio) / wheelRadius;
             double brakesForce = brakesTorque * brakesEngangement / wheelRadius;
@@ -83,13 +85,12 @@ namespace EngineSimulator {
 
             double dragForce = 0.5 * airDensity * Cd * area * carSpeed * carSpeed * Math.Sign(carSpeed);
 
-            double drivetrainFriction = 100.0 * (engine.GetRPM() / engine.GetMaxRPM()); // Nm
+            double drivetrainFriction = MathHelper.Lerp(10.0, 40.0, engine.GetRPM() / engine.GetMaxRPM()); // Nm
             double drivetrainLosses = 0;
 
-            if (currentGear > 0 && Program.GetClutchPedalPosition() > 0.0) {
+            if (currentGear > 0) {
                 //drivetrainLosses = (drivetrainFriction * GetTotalRatio()) / wheelRadius;
             }
-
 
             return rollingForce + dragForce + drivetrainLosses;
         }

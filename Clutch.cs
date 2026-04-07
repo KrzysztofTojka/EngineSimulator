@@ -3,6 +3,8 @@ using System;
 
 public class Clutch {
 
+    public const double DEAD_ZONE = 0.25;
+
     private Engine engine;
     private Gearbox gearbox;
 
@@ -44,8 +46,10 @@ public class Clutch {
         //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TRSF: {torqueTransfer,6:F1} Nm | SLIP: {slip,6:F2}");
     }
 
-    public void SetEngagement(double value) {
-        engagement = MathHelper.Clamp(value, 0, 1);
+    public void SetPosition(double position) {
+        position = Math.Max(0.0, (position - DEAD_ZONE) / (1.0 - DEAD_ZONE));
+        engagement = Math.Pow(position, 2.5);
+        engagement = MathHelper.Clamp(engagement, 0.0, 1.0);
     }
 
     public double GetEngangement() {
