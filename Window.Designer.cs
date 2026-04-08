@@ -44,9 +44,12 @@ namespace EngineSimulator {
             this.gearLabel = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.dynoPage = new System.Windows.Forms.TabPage();
+            this.torqueGraphButton = new System.Windows.Forms.Button();
             this.shiftingPage = new System.Windows.Forms.TabPage();
             this.shiftingChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.torqueGraphButton = new System.Windows.Forms.Button();
+            this.clutchBar = new VerticalFillBarSimple();
+            this.brakeBar = new VerticalFillBarSimple();
+            this.throttleBar = new VerticalFillBarSimple();
             this.dynoThrottleSlider = new DialSlider();
             this.torqueBar = new VerticalFillBarSimple();
             this.powerBar = new VerticalFillBarSimple();
@@ -67,14 +70,16 @@ namespace EngineSimulator {
             // 
             // dynoChart
             // 
+            this.dynoChart.Anchor = System.Windows.Forms.AnchorStyles.Top;
             chartArea1.Name = "ChartArea1";
             this.dynoChart.ChartAreas.Add(chartArea1);
             this.dynoChart.Location = new System.Drawing.Point(3, 3);
+            this.dynoChart.Margin = new System.Windows.Forms.Padding(3, 3, 3, 30);
             this.dynoChart.Name = "dynoChart";
             series1.ChartArea = "ChartArea1";
             series1.Name = "Series1";
             this.dynoChart.Series.Add(series1);
-            this.dynoChart.Size = new System.Drawing.Size(772, 454);
+            this.dynoChart.Size = new System.Drawing.Size(768, 468);
             this.dynoChart.TabIndex = 0;
             this.dynoChart.Text = "dynoChart";
             this.dynoChart.Paint += new System.Windows.Forms.PaintEventHandler(this.dyno_Paint);
@@ -258,10 +263,10 @@ namespace EngineSimulator {
             this.fuelRateGauge.Glossiness = 40F;
             this.fuelRateGauge.Location = new System.Drawing.Point(421, 511);
             this.fuelRateGauge.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.fuelRateGauge.MaxValue = 50F;
+            this.fuelRateGauge.MaxValue = 60F;
             this.fuelRateGauge.MinValue = 0F;
             this.fuelRateGauge.Name = "fuelRateGauge";
-            this.fuelRateGauge.NoOfDivisions = 5;
+            this.fuelRateGauge.NoOfDivisions = 6;
             this.fuelRateGauge.NoOfSubDivisions = 4;
             this.fuelRateGauge.PointerColor = System.Drawing.Color.Black;
             this.fuelRateGauge.RimAlpha = 255;
@@ -377,11 +382,10 @@ namespace EngineSimulator {
             this.mafGauge.Glossiness = 40F;
             this.mafGauge.Location = new System.Drawing.Point(679, 263);
             this.mafGauge.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.mafGauge.MaxValue = 130F;
+            this.mafGauge.MaxValue = 140F;
             this.mafGauge.MinValue = 0F;
             this.mafGauge.Name = "mafGauge";
-            this.mafGauge.NoOfDivisions = 13;
-            this.mafGauge.NoOfSubDivisions = 2;
+            this.mafGauge.NoOfDivisions = 7;
             this.mafGauge.PointerColor = System.Drawing.Color.Black;
             this.mafGauge.RimAlpha = 255;
             this.mafGauge.RimColor = System.Drawing.Color.Silver;
@@ -444,13 +448,24 @@ namespace EngineSimulator {
             this.dynoPage.Text = "Dyno";
             this.dynoPage.UseVisualStyleBackColor = true;
             // 
+            // torqueGraphButton
+            // 
+            this.torqueGraphButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.torqueGraphButton.Location = new System.Drawing.Point(607, 438);
+            this.torqueGraphButton.Name = "torqueGraphButton";
+            this.torqueGraphButton.Size = new System.Drawing.Size(164, 30);
+            this.torqueGraphButton.TabIndex = 23;
+            this.torqueGraphButton.Text = "Generate torque graph";
+            this.torqueGraphButton.UseVisualStyleBackColor = true;
+            this.torqueGraphButton.Click += new System.EventHandler(this.torqueGraphButton_Click);
+            // 
             // shiftingPage
             // 
             this.shiftingPage.Controls.Add(this.shiftingChart);
             this.shiftingPage.Location = new System.Drawing.Point(4, 27);
             this.shiftingPage.Name = "shiftingPage";
             this.shiftingPage.Padding = new System.Windows.Forms.Padding(3);
-            this.shiftingPage.Size = new System.Drawing.Size(777, 458);
+            this.shiftingPage.Size = new System.Drawing.Size(777, 474);
             this.shiftingPage.TabIndex = 0;
             this.shiftingPage.Text = "Shifting";
             this.shiftingPage.UseVisualStyleBackColor = true;
@@ -464,20 +479,51 @@ namespace EngineSimulator {
             series2.ChartArea = "ChartArea1";
             series2.Name = "Series1";
             this.shiftingChart.Series.Add(series2);
-            this.shiftingChart.Size = new System.Drawing.Size(772, 454);
+            this.shiftingChart.Size = new System.Drawing.Size(768, 468);
             this.shiftingChart.TabIndex = 0;
             this.shiftingChart.Text = "shiftingChart";
             // 
-            // torqueGraphButton
+            // clutchBar
             // 
-            this.torqueGraphButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.torqueGraphButton.Location = new System.Drawing.Point(607, 438);
-            this.torqueGraphButton.Name = "torqueGraphButton";
-            this.torqueGraphButton.Size = new System.Drawing.Size(164, 30);
-            this.torqueGraphButton.TabIndex = 23;
-            this.torqueGraphButton.Text = "Generate torque graph";
-            this.torqueGraphButton.UseVisualStyleBackColor = true;
-            this.torqueGraphButton.Click += new System.EventHandler(this.torqueGraphButton_Click);
+            this.clutchBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.clutchBar.FillColor = System.Drawing.Color.Blue;
+            this.clutchBar.Location = new System.Drawing.Point(1014, 555);
+            this.clutchBar.MaxValue = 1F;
+            this.clutchBar.MinValue = 0F;
+            this.clutchBar.Name = "clutchBar";
+            this.clutchBar.RimColor = System.Drawing.Color.Gray;
+            this.clutchBar.Size = new System.Drawing.Size(27, 182);
+            this.clutchBar.TabIndex = 25;
+            this.clutchBar.Text = "clutchBar";
+            this.clutchBar.Value = 0.5F;
+            // 
+            // brakeBar
+            // 
+            this.brakeBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.brakeBar.FillColor = System.Drawing.Color.Red;
+            this.brakeBar.Location = new System.Drawing.Point(981, 555);
+            this.brakeBar.MaxValue = 1F;
+            this.brakeBar.MinValue = 0F;
+            this.brakeBar.Name = "brakeBar";
+            this.brakeBar.RimColor = System.Drawing.Color.Gray;
+            this.brakeBar.Size = new System.Drawing.Size(27, 182);
+            this.brakeBar.TabIndex = 24;
+            this.brakeBar.Text = "brakeBar";
+            this.brakeBar.Value = 0.5F;
+            // 
+            // throttleBar
+            // 
+            this.throttleBar.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.throttleBar.FillColor = System.Drawing.Color.Lime;
+            this.throttleBar.Location = new System.Drawing.Point(948, 555);
+            this.throttleBar.MaxValue = 1F;
+            this.throttleBar.MinValue = 0F;
+            this.throttleBar.Name = "throttleBar";
+            this.throttleBar.RimColor = System.Drawing.Color.Gray;
+            this.throttleBar.Size = new System.Drawing.Size(27, 182);
+            this.throttleBar.TabIndex = 23;
+            this.throttleBar.Text = "throttleBar";
+            this.throttleBar.Value = 0.5F;
             // 
             // dynoThrottleSlider
             // 
@@ -535,7 +581,7 @@ namespace EngineSimulator {
             this.maxAirflowRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.maxAirflowRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.maxAirflowRpmSlider.LabelWidth = 140;
-            this.maxAirflowRpmSlider.Location = new System.Drawing.Point(1422, 695);
+            this.maxAirflowRpmSlider.Location = new System.Drawing.Point(1443, 695);
             this.maxAirflowRpmSlider.MaxValue = 6000F;
             this.maxAirflowRpmSlider.MinValue = 3000F;
             this.maxAirflowRpmSlider.Name = "maxAirflowRpmSlider";
@@ -558,7 +604,7 @@ namespace EngineSimulator {
             this.veScaleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.veScaleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.veScaleSlider.LabelWidth = 140;
-            this.veScaleSlider.Location = new System.Drawing.Point(1422, 646);
+            this.veScaleSlider.Location = new System.Drawing.Point(1443, 646);
             this.veScaleSlider.MaxValue = 3F;
             this.veScaleSlider.MinValue = 0.5F;
             this.veScaleSlider.Name = "veScaleSlider";
@@ -581,7 +627,7 @@ namespace EngineSimulator {
             this.maxVeRpmSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.maxVeRpmSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.maxVeRpmSlider.LabelWidth = 140;
-            this.maxVeRpmSlider.Location = new System.Drawing.Point(1422, 602);
+            this.maxVeRpmSlider.Location = new System.Drawing.Point(1443, 602);
             this.maxVeRpmSlider.MaxValue = 6000F;
             this.maxVeRpmSlider.MinValue = 1000F;
             this.maxVeRpmSlider.Name = "maxVeRpmSlider";
@@ -604,7 +650,7 @@ namespace EngineSimulator {
             this.rpmLimitSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.rpmLimitSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.rpmLimitSlider.LabelWidth = 140;
-            this.rpmLimitSlider.Location = new System.Drawing.Point(1027, 695);
+            this.rpmLimitSlider.Location = new System.Drawing.Point(1083, 695);
             this.rpmLimitSlider.MaxValue = 10000F;
             this.rpmLimitSlider.MinValue = 4000F;
             this.rpmLimitSlider.Name = "rpmLimitSlider";
@@ -627,7 +673,7 @@ namespace EngineSimulator {
             this.inertiaSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.inertiaSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.inertiaSlider.LabelWidth = 140;
-            this.inertiaSlider.Location = new System.Drawing.Point(1027, 651);
+            this.inertiaSlider.Location = new System.Drawing.Point(1083, 651);
             this.inertiaSlider.MaxValue = 0.3F;
             this.inertiaSlider.MinValue = 0.05F;
             this.inertiaSlider.Name = "inertiaSlider";
@@ -650,7 +696,7 @@ namespace EngineSimulator {
             this.idleThrottleSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.idleThrottleSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.idleThrottleSlider.LabelWidth = 140;
-            this.idleThrottleSlider.Location = new System.Drawing.Point(1027, 602);
+            this.idleThrottleSlider.Location = new System.Drawing.Point(1083, 602);
             this.idleThrottleSlider.MaxValue = 0.08F;
             this.idleThrottleSlider.MinValue = 0.005F;
             this.idleThrottleSlider.Name = "idleThrottleSlider";
@@ -673,7 +719,7 @@ namespace EngineSimulator {
             this.displacementSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.displacementSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.displacementSlider.LabelWidth = 140;
-            this.displacementSlider.Location = new System.Drawing.Point(1027, 555);
+            this.displacementSlider.Location = new System.Drawing.Point(1083, 555);
             this.displacementSlider.MaxValue = 6F;
             this.displacementSlider.MinValue = 1F;
             this.displacementSlider.Name = "displacementSlider";
@@ -696,7 +742,7 @@ namespace EngineSimulator {
             this.maxVeSlider.DialColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.maxVeSlider.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.maxVeSlider.LabelWidth = 140;
-            this.maxVeSlider.Location = new System.Drawing.Point(1422, 555);
+            this.maxVeSlider.Location = new System.Drawing.Point(1443, 555);
             this.maxVeSlider.MaxValue = 1.2F;
             this.maxVeSlider.MinValue = 0.8F;
             this.maxVeSlider.Name = "maxVeSlider";
@@ -718,6 +764,9 @@ namespace EngineSimulator {
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1858, 767);
+            this.Controls.Add(this.clutchBar);
+            this.Controls.Add(this.brakeBar);
+            this.Controls.Add(this.throttleBar);
             this.Controls.Add(this.dynoThrottleSlider);
             this.Controls.Add(this.torqueBar);
             this.Controls.Add(this.powerBar);
@@ -781,6 +830,9 @@ namespace EngineSimulator {
         private System.Windows.Forms.DataVisualization.Charting.Chart shiftingChart;
         private DialSlider dynoThrottleSlider;
         private Button torqueGraphButton;
+        private VerticalFillBarSimple throttleBar;
+        private VerticalFillBarSimple brakeBar;
+        private VerticalFillBarSimple clutchBar;
     }
 }
 

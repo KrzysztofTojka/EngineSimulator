@@ -18,11 +18,13 @@ namespace EngineSimulator {
         private Dyno dyno;
 
         private bool initialized = false;
+        private long lastTickTime;
 
         public Window() {
             this.AutoScaleMode = AutoScaleMode.Dpi;
             this.engine = Program.GetEngine();
             this.dyno = Program.GetDyno();
+            this.lastTickTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             InitializeComponent();
             DrawDyno();
             DrawShifting();
@@ -64,6 +66,10 @@ namespace EngineSimulator {
 
             dynoChart.Series.Clear();
             dynoChart.ChartAreas[0].AxisY.Minimum = 0.0;
+            dynoChart.ChartAreas[0].Position.X = 2;
+            dynoChart.ChartAreas[0].Position.Y = 4;
+            dynoChart.ChartAreas[0].Position.Width = 96;
+            dynoChart.ChartAreas[0].Position.Height = 90;
 
             Series powerLine = new Series("Power");
             powerLine.ChartType = SeriesChartType.Line;
@@ -129,7 +135,11 @@ namespace EngineSimulator {
             if (!initialized) return;
 
             long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            double dt = (now - Program.GetLastUpdateTime()) / 50.0;
+            double dt = (now - lastTickTime) / 1000.0;
+
+            throttleBar.Value = (float) Program.GetThrottlePedalPosition();
+            brakeBar.Value = (float) Program.GetBrakePedalPosition();
+            clutchBar.Value = (float) Program.GetClutchPedalPosition();
 
             SetGaugeValue(rpmGauge, engine.GetRPM() / 100.0, dt);
             rpmGauge.DigitalValue = (float)engine.GetRPM();
@@ -186,12 +196,29 @@ namespace EngineSimulator {
             }
 
             UpdatePowerBars();
+
+            lastTickTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
 
-        private void SetGaugeValue(AquaGauge gauge, double value, double dt) {
-            //gauge.Value = (float) MathHelper.Lerp(gauge.Value, value, dt);
-            gauge.Value = (float) value;
-            gauge.DigitalValue = (float) value;
+
+        /// <param name="smoothFactor">time (s) to reach approx. 2/3 of targetValue</param>
+        /// <param name="maxSpeed">Max % of scale per second</param>
+        private void SetGaugeValue(AquaGauge gauge, double targetValue, double dt, float smoothFactor = 0.05f, float maxSpeed = 3.0f) {
+            double smoothing = Math.Exp(-(1.0f / smoothFactor));
+            float newValue = (float)(targetValue + (gauge.Value - targetValue) * Math.Pow(smoothing, dt));
+
+            float step = (float)newValue - gauge.Value;
+
+            float range = gauge.MaxValue - gauge.MinValue;
+
+            float maxStepValue = range * maxSpeed * (float) dt;
+
+            if (Math.Abs(step) > maxStepValue) {
+                step = Math.Sign(step) * maxStepValue;
+            }
+
+            gauge.Value = gauge.Value + step;
+            gauge.DigitalValue = (float)targetValue;
         }
 
         private void SetRpmLimit(double rpmLimit) {

@@ -214,6 +214,10 @@ namespace EngineSimulator {
             return gearbox;
         }
 
+        public static double GetThrottlePedalPosition() {
+            return throttlePedalPosition;
+        }
+
         public static double GetClutchPedalPosition() {
             return clutchPedalPosition;
         }
