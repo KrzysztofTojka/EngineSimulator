@@ -43,6 +43,8 @@ namespace EngineSimulator {
         protected double loadTorque;
         protected double netTorque;
 
+        private double timeElapsed = 0.0;
+
         public Engine(double displacementL, double maxRpm, double inertia) {
             this.ecu = new ECU(this);
             //this.turbocharger = new Turbocharger(this, 1.0);
@@ -100,6 +102,8 @@ namespace EngineSimulator {
             if (turbocharger != null) {
                 turbocharger.Update(dt);
             }
+
+            timeElapsed += dt;
         }
 
         public void UpdateRpm(double dt) {

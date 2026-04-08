@@ -131,6 +131,7 @@
     <Compile Include="Keyboard.cs" />
     <Compile Include="ManualGearbox.cs" />
     <Compile Include="MathHelper.cs" />
+    <Compile Include="PerformanceMeter.cs" />
     <Compile Include="RangeSlider.cs">
       <SubType>Component</SubType>
     </Compile>

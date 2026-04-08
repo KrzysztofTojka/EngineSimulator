@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace EngineSimulator {
     public class Program {
@@ -43,7 +44,7 @@ namespace EngineSimulator {
 
             simulationThread = new Thread(Run);
 
-            engine = new GasolineEngine(2.5, 6500, 0.15);
+            engine = new GasolineEngine(2.5, 6500, 0.17);
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.056;//4.325; 4.056
 
@@ -60,7 +61,7 @@ namespace EngineSimulator {
 
             simulationThread.Start();
             soundThread = new Thread(SoundThread);
-            //soundThread.Start();
+            soundThread.Start();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -76,27 +77,38 @@ namespace EngineSimulator {
                 engine.SetRPM(500);
             }
 
+            double dt = 0.01;
+            double accumulator = 0.0;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            double lastTime = stopwatch.Elapsed.TotalSeconds;
             int i = 1;
 
             while (isRunning) {
+                double currentTime = stopwatch.Elapsed.TotalSeconds;
+                double frameTime = currentTime - lastTime;
+                lastTime = currentTime;
+
+                if (frameTime > 0.25) frameTime = 0.25;
+                accumulator += frameTime;
+
                 UpdateInput();
 
-                lastUpdateTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                while (accumulator >= dt) {
+                    engine.Update(dt);
+                    gearbox.Update(dt);
+                    engine.UpdateRpm(dt);
+                    PerformanceMeter.Update(gearbox.GetCarSpeed() * (Units.km / Units.h));
 
-                engine.Update(0.01);
+                    if (i == 1) {
+                        //engine.ShowInfo();
+                        i = 0;
+                    }
 
-                gearbox.Update(0.01);
-
-                engine.UpdateRpm(0.01);
-
-                if (i == 1) {
-                    //engine.ShowInfo();
-                    i = 0;
+                    accumulator -= dt;
+                    i++;
                 }
-                
-                Thread.Sleep(10);
 
-                i++;
+                Thread.Sleep(1);
             }
         }
 
@@ -177,6 +189,12 @@ namespace EngineSimulator {
 
             if (Keyboard.WasKeyPressed(Keys.Q)) {
                 engine.SetIgnition(!engine.IsIgnitionOn());
+            }
+
+            if (Keyboard.WasKeyPressed(Keys.P)) {
+                PerformanceMeter.Reset();
+                PerformanceMeter.SetTargetSpeeds(40, 50, 60, 80, 100, 120, 130, 140, 150, 160, 180);
+                PerformanceMeter.Start();
             }
 
             engine.SetStarter(Keyboard.IsKeyDown(Keys.E));
