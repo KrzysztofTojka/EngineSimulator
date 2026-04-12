@@ -28,6 +28,7 @@ namespace EngineSimulator {
         protected double rpm = 0.0;
         protected bool ignition = false;
         protected bool starter = false;
+        protected bool retardIgnition = false;
         protected double starterTorque = 40.0;
 
         protected double afr;
@@ -89,8 +90,13 @@ namespace EngineSimulator {
                 fuelPower = 0.0;
             }
 
-            fuelTorque = PowerToTorque(fuelPower, rpm);
             load = GetEngineLoad(fuelPower, rpm, afr);
+
+            if (retardIgnition) {
+                fuelPower *= 0.1;
+            }
+
+            fuelTorque = PowerToTorque(fuelPower, rpm);
             brakePower = GetThermalEfficiency() * fuelPower - TorqueToPower(GetBrakingTorque(rpm, throttle), rpm);
             brakeTorque = PowerToTorque(brakePower, rpm);
 
@@ -116,6 +122,7 @@ namespace EngineSimulator {
                 //newRpm = 0;
             }
             rpm = Math.Max(0, newRpm);
+            loadTorque = 0.0;
         }
 
         public void ShowInfo() {
@@ -343,8 +350,8 @@ namespace EngineSimulator {
             this.maxRpm = maxRpm;
         }
 
-        public void SetLoadTorque(double loadTorque) {
-            this.loadTorque = loadTorque;
+        public void AddLoadTorque(double loadTorque) {
+            this.loadTorque += loadTorque;
         }
 
         public double GetMaxVe() {
@@ -403,6 +410,10 @@ namespace EngineSimulator {
 
         public void SetStarter(bool starter) {
             this.starter = starter;
+        }
+
+        public void RetardIgnition(bool retardIgnition) {
+            this.retardIgnition = retardIgnition;
         }
 
         public string Serialize() {

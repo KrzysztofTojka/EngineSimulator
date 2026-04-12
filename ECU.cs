@@ -5,14 +5,16 @@ namespace EngineSimulator {
 
         public double idleThrottle;
 
-        Engine engine;
+        private Engine engine;
 
-        double throttle;
+        private double throttle;
+        private double throttleOverride;
 
         public ECU(Engine engine) {
             this.engine = engine;
             this.throttle = 0.0;
             this.idleThrottle = 0.012; // 4.0 - 0.006, 2.0 - 0.012
+            this.throttleOverride = -1;
         }
 
         public double GetThrottleMap(double throttle) {
@@ -33,6 +35,10 @@ namespace EngineSimulator {
         }
 
         public double GetThrottle() {
+            if (throttleOverride != -1) {
+                return throttleOverride;
+            }
+
             double throttleMapped = GetThrottleMap(throttle);
             double throttleFinal;
 
@@ -47,11 +53,15 @@ namespace EngineSimulator {
                 throttleFinal = throttleMapped;
             }
 
-            return idleThrottle + (1.0 - idleThrottle) * throttleFinal;
+            return GetIdleThrottle() + (1.0 - GetIdleThrottle()) * throttleFinal;
         }
 
         public double GetIdleThrottle() {
-            return idleThrottle;
+            double multiplier = 1.0;
+            if (Program.GetGearbox() is AutomaticGearbox && !(Program.GetGearbox() is DualClutchGearbox) && Program.GetGearbox().GetCurrentGear() != 0) {
+                multiplier = 1.1 + ((1.0 - Program.GetBrakePedalPosition()) * 0.25);
+            }
+            return idleThrottle * multiplier;
         }
 
         public void SetIdleThrottle(double idleThrottle) {
@@ -60,6 +70,10 @@ namespace EngineSimulator {
 
         public double GetThrottlePedal() {
             return throttle;
+        }
+
+        public void SetThrottleOverride(double throttle) {
+            this.throttleOverride = throttle;
         }
 
         public double GetAFR(double rpm, double map, double throttle, bool random = true) {

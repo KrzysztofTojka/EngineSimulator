@@ -20,12 +20,12 @@ namespace EngineSimulator {
         private DriveMode driveMode;
         private ShiftMode shiftMode;
         private ShiftPhase shiftPhase;
-        private double shiftTimer;
+        protected double shiftTimer;
         private int targetGear;
         private int prevGear;
-        private long lastShiftTime;
-        private long lastUpshiftTime;
-        private long lastDownshiftTime;
+        protected long lastShiftTime;
+        protected long lastUpshiftTime;
+        protected long lastDownshiftTime;
 
         public AutomaticGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
             this.type = Type.Automatic;
@@ -52,7 +52,7 @@ namespace EngineSimulator {
             //clutch.Update(dt); // for now
         }
 
-        public void UpdateShiftLogic(double dt) {
+        protected virtual void UpdateShiftLogic(double dt) {
             if (currentGear == 0) {
                 return;
             }
@@ -76,7 +76,7 @@ namespace EngineSimulator {
             }
         }
 
-        public void UpdateShiftTimer(double dt) {
+        protected virtual void UpdateShiftTimer(double dt) {
             if (shiftTimer == -1) {
                 return;
             }
@@ -95,8 +95,8 @@ namespace EngineSimulator {
 
             shiftTimer += dt * 1000.0;
         }
-
-        public int GetMinDownshiftGear() {
+        
+        public int GetMinDownshiftGear(double throttlePedal) {
             if (currentGear <= 1) {
                 return currentGear;
             }
@@ -105,7 +105,7 @@ namespace EngineSimulator {
                 return currentGear - 1;
             }
 
-            double currentTorque = GetWheelTorque(engine.GetTorque(GetRpmForGear(currentGear)), currentGear);
+            double currentTorque = GetWheelTorque(engine.GetTorque(engine.GetECU().GetThrottleMap(throttlePedal), GetRpmForGear(currentGear)), currentGear);
 
             int minGear = currentGear;
             double maxTorque = currentTorque;
@@ -115,7 +115,7 @@ namespace EngineSimulator {
                 if (prevGearRpm >= engine.GetMaxRPM() * 0.9) {
                     return minGear;
                 }
-                double prevGearTorque = GetWheelTorque(engine.GetTorque(prevGearRpm), i - 1);
+                double prevGearTorque = GetWheelTorque(engine.GetTorque(engine.GetECU().GetThrottleMap(throttlePedal), prevGearRpm), i - 1);
 
                 if (prevGearTorque > maxTorque) {
                     maxTorque = prevGearTorque;
@@ -124,6 +124,10 @@ namespace EngineSimulator {
             }
 
             return minGear;
+        }
+
+        public int GetMinDownshiftGear() {
+            return GetMinDownshiftGear(Program.GetThrottlePedalPosition());
         }
 
         public bool ShouldUpshift() {
@@ -163,7 +167,7 @@ namespace EngineSimulator {
             return nextGearTorque > currentTorque;
         }
 
-        public void StartShift(int gear) {
+        protected virtual void StartShift(int gear) {
             if (gear > currentGear) {
                 lastUpshiftTime = Now();
             }
@@ -237,11 +241,11 @@ namespace EngineSimulator {
             }
         }
 
-        private long Now() {
+        protected long Now() {
             return DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
 
-        private long TimeSince(long timestamp) {
+        protected long TimeSince(long timestamp) {
             return Now() - timestamp;
         }
 

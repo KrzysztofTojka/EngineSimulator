@@ -9,15 +9,16 @@ namespace EngineSimulator {
 
         public const double STALL_TORQUE_RATIO = 2.0;
         public const double COUPLING_POINT = 0.9;
-        public const double K_FACTOR = 100.0;
+        public const double K_FACTOR_MIN = 5.0;
+        public const double K_FACTOR_MAX = 110.0;
 
         Engine engine;
-        AutomaticGearbox gearbox;
+        Gearbox gearbox;
 
         private double pumpRpm;
         private double turbineRpm;
 
-        public TorqueConverter(Engine engine, AutomaticGearbox gearbox) {
+        public TorqueConverter(Engine engine, Gearbox gearbox) {
             this.engine = engine;
             this.gearbox = gearbox;
 
@@ -36,26 +37,43 @@ namespace EngineSimulator {
             
             double speedRatio = turbineRpm / pumpRpm;
 
-            double ratioScaled = speedRatio > 1.0 ? Math.Min(1.0, 1.0 / speedRatio) : Math.Min(1.0, Math.Abs(speedRatio));
+            bool isLocked = false;
+            double transferTorque;
+            double outputTorque;
 
-            double torqueMultiplier = 1.0;
-            if (speedRatio >= 0 && speedRatio < COUPLING_POINT) {
-                torqueMultiplier = STALL_TORQUE_RATIO - (speedRatio / COUPLING_POINT) * (STALL_TORQUE_RATIO - 1.0);
+            if (isLocked && gearbox.GetCurrentGear() != 0) {
+                double resistanceTorque = (gearbox.GetTotalResistance() * gearbox.GetWheelRadius()) / gearbox.GetTotalRatio();
+
+                double totalInertia = engine.GetInertia() + gearbox.GetCarInertia();
+                double netTorque = engine.GetBrakeTorque() - resistanceTorque;
+                double netAccel = netTorque / totalInertia;
+
+                transferTorque = engine.GetBrakeTorque() - (engine.GetInertia() * netAccel);
+                outputTorque = transferTorque;
+
+                double avgRpm = (pumpRpm + turbineRpm) / 2.0;
+                engine.SetRPM(avgRpm);
+                gearbox.SetInputRPM(avgRpm);
+                Console.WriteLine($"{(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Program.startTime) / 1000.0:F2}s | RPM: {engine.GetRPM(),4:F0} | SPD: {gearbox.GetCarSpeed() * (Units.km / Units.h):F2} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TQ_OUT: {outputTorque,6:F1} Nm | SPD_RATIO: {speedRatio:F2} | LOCKED");
+            } else {
+                double torqueMultiplier = 1.0;
+                if (speedRatio >= 0 && speedRatio < COUPLING_POINT) {
+                    torqueMultiplier = STALL_TORQUE_RATIO - (speedRatio / COUPLING_POINT) * (STALL_TORQUE_RATIO - 1.0);
+                }
+
+                double ratioScaled = speedRatio > 1.0 ? Math.Min(1.0, 1.0 / speedRatio) : Math.Min(1.0, Math.Abs(speedRatio));
+                double kFactor = MathHelper.Lerp(K_FACTOR_MAX, K_FACTOR_MIN, Math.Pow(Math.Min(1.0, ratioScaled), 1.2));
+                //double kFactor = MathHelper.Lerp(K_FACTOR_MAX, K_FACTOR_MIN, MathHelper.SigmoidFunction(ratioScaled, 3.0, 0.5));
+
+                double slipRpm = pumpRpm - turbineRpm;
+                transferTorque = Math.Pow(slipRpm / kFactor, 2) * Math.Sign(slipRpm);
+                outputTorque = transferTorque * torqueMultiplier;
+
+                Console.WriteLine($"{(DateTimeOffset.Now.ToUnixTimeMilliseconds() - Program.startTime) / 1000.0:F2}s | RPM: {engine.GetRPM(),4:F0} | SPD: {gearbox.GetCarSpeed() * (Units.km / Units.h):F2} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TQ_OUT: {outputTorque,6:F1} Nm | SPD_RATIO: {speedRatio:F2} | K: {kFactor:F2} | MULT: {torqueMultiplier:F2} | SLIP: {slipRpm:F2}");
             }
-            
-            double kFactor = 150.0 - (130.0 * Math.Pow(Math.Min(1.0, ratioScaled), 0.5));
 
-            double slipRpm = pumpRpm - turbineRpm;
-            double transferTorque = Math.Pow(slipRpm / kFactor, 2) * Math.Sign(slipRpm);
-
-            bool isLocked = false; // todo
-
-            double outputTorque = transferTorque * torqueMultiplier;
-
-            engine.SetLoadTorque(transferTorque);
+            engine.AddLoadTorque(transferTorque);
             gearbox.SetInputTorque(outputTorque);
-
-            //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TQ_OUT: {outputTorque,6:F1} Nm | SPD_RATIO: {speedRatio:F2} | MULT: {torqueMultiplier:F2} | SLIP: {slipRpm:F2} | RAT: {gearbox.GetTotalRatio():F2}");
         }
     }
 }

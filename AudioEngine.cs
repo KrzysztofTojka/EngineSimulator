@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 public class AudioEngine {
     private const string DllPath = "AudioEngine/AudioEngine.dll";
 
-    [DllImport(DllPath)]
+    [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
     public static extern void Init(int sampleRate, bool useBuffer, int bufferSize);
 
-    [DllImport(DllPath)]
+    [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
     public static extern void StartEngine();
 
     [DllImport(DllPath)]

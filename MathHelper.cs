@@ -47,6 +47,11 @@ namespace EngineSimulator {
             return result;
         }
 
+        public static double SigmoidFunction(double x, double steepness = 10.0, double midpoint = 0.5) {
+            double sigmoid = 1.0 / (1.0 + Math.Exp(-steepness * (x - midpoint)));
+            return sigmoid;
+        }
+
         public static void UseRandom(bool use) {
             useRandom = use;
         }

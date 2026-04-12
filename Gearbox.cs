@@ -46,6 +46,10 @@ namespace EngineSimulator {
         }
 
         public virtual void Update(double dt) {
+            UpdatePhysics(dt);
+        }
+
+        public void UpdatePhysics(double dt) {
             if (currentGear == 0) {
                 inputRpm = engine.GetRPM();
                 return;
@@ -117,8 +121,12 @@ namespace EngineSimulator {
             return 2 * Math.PI * wheelRadius * wheelRpm / 60.0;
         }
 
-        public double CarSpeedToRpm(double carSpeedMS, double wheelRadius, double totalRatio) {
-            return (carSpeedMS / (2.0 * Math.PI * wheelRadius)) * totalRatio * 60;
+        public double CarSpeedToRpm(double carSpeed, double wheelRadius, double totalRatio) {
+            return (carSpeed / (2.0 * Math.PI * wheelRadius)) * totalRatio * 60;
+        }
+
+        public double RpmToCarSpeed(double engineRpm, double wheelRadius, double totalRatio) {
+            return (engineRpm / 60.0) / totalRatio * (2.0 * Math.PI * wheelRadius);
         }
 
         public double GetCarInertia() {

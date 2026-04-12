@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -124,6 +125,7 @@
     <Compile Include="AutomaticGearbox.cs" />
     <Compile Include="Clutch.cs" />
     <Compile Include="DieselEngine.cs" />
+    <Compile Include="DualClutchGearbox.cs" />
     <Compile Include="Dyno.cs" />
     <Compile Include="ECU.cs" />
     <Compile Include="GasolineEngine.cs" />

@@ -1,5 +1,6 @@
 ﻿using EngineSimulator;
 using System;
+using System.Windows.Forms;
 
 public class Clutch {
 
@@ -8,7 +9,9 @@ public class Clutch {
     private Engine engine;
     private Gearbox gearbox;
 
-    private double engagement = 0.0;
+    private double engagement;
+    private double outputTorque;
+    private double outputRpm;
 
     private double maxTorque = 400;
     private double damping = 15.0;
@@ -17,6 +20,9 @@ public class Clutch {
         this.engine = engine;
         this.gearbox = gearbox;
         this.maxTorque = maxTorque;
+        this.engagement = 0.0;
+        this.outputTorque = 0.0;
+        this.outputRpm = 0.0;
     }
 
     public void Update(double dt) {
@@ -26,8 +32,10 @@ public class Clutch {
         double slip = engineOmega - gearboxOmega;
         double torqueLimit = maxTorque * engagement;
 
+        bool isLocked = engagement > 0.9 && Math.Abs(slip) < 35.0 && gearbox.GetCurrentGear() > 0;
+
         double torqueTransfer;
-        if (engagement > 0.9 && Math.Abs(slip) < 35.0 && gearbox.GetCurrentGear() > 0) {
+        if (isLocked) {
             double resistanceTorque = (gearbox.GetTotalResistance() * gearbox.GetWheelRadius()) / gearbox.GetTotalRatio();
             double netTorque = engine.GetBrakeTorque() - resistanceTorque;
             double netAccel = netTorque / (engine.GetInertia() + gearbox.GetCarInertia());
@@ -35,13 +43,15 @@ public class Clutch {
             double avgRpm = (engine.GetRPM() + gearbox.GetInputRPM()) / 2.0;
             engine.SetRPM(avgRpm);
             gearbox.SetInputRPM(avgRpm);
+            //outputRpm = avgRpm;
         } else {
             torqueTransfer = slip * damping * engagement;
             torqueTransfer = MathHelper.Clamp(torqueTransfer, -torqueLimit, torqueLimit);
         }
 
-        engine.SetLoadTorque(torqueTransfer);
-        gearbox.SetInputTorque(torqueTransfer);
+        engine.AddLoadTorque(torqueTransfer);
+        //gearbox.SetInputTorque(torqueTransfer);
+        outputTorque = torqueTransfer;
 
         //Console.WriteLine($"RPM: {engine.GetRPM(),4:F0} | THR: {engine.GetThrottle():F2} | TQ_ENG: {engine.GetBrakeTorque(),6:F1} Nm | TRSF: {torqueTransfer,6:F1} Nm | SLIP: {slip,6:F2}");
     }
@@ -52,8 +62,16 @@ public class Clutch {
         engagement = MathHelper.Clamp(engagement, 0.0, 1.0);
     }
 
+    public void SetEngagement(double engagement) {
+        this.engagement = MathHelper.Clamp(engagement, 0.0, 1.0);
+    }
+
     public double GetEngangement() {
         return engagement;
+    }
+
+    public double GetOutputTorque() { 
+        return outputTorque; 
     }
 
 }

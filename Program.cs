@@ -52,8 +52,9 @@ namespace EngineSimulator {
             //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             //double finalGearRatio = 3.65;
 
-            gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
+            //gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
             //gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
+            gearbox = new DualClutchGearbox(engine, 6, gearRatios, finalGearRatio);
 
             isRunning = true;
 
@@ -100,7 +101,7 @@ namespace EngineSimulator {
                     PerformanceMeter.Update(gearbox.GetCarSpeed() * (Units.km / Units.h));
 
                     if (i == 1) {
-                        //engine.ShowInfo();
+                        engine.ShowInfo();
                         i = 0;
                     }
 

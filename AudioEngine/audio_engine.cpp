@@ -364,7 +364,7 @@ void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, 
 
 void AudioEngine::runGenerator() {
     SampleMap sampleMap = SampleMap(sampleRate);
-    sampleMap.loadSamples("assets/samples", false);
+    sampleMap.loadSamples("AudioEngine/assets/samples", false);
 
     setUseBuffer(true);
     getBuffer().writeSilence(1000);
