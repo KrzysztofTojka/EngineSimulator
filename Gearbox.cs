@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace EngineSimulator {
-    public class Gearbox {
+    public abstract class Gearbox {
 
         protected Engine engine;
 

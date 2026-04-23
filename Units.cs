@@ -8,7 +8,7 @@ namespace EngineSimulator {
     public static class Units {
 
         public const double GAS_CONSTANT = 287.05;
-
+        
         public const double HP = 1 / 745.7;
         public const double kPa = 1 / 1000.0;
         public const double L = 1000.0;

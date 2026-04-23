@@ -37,12 +37,12 @@ namespace EngineSimulator {
         }
 
         public double GetBrake() {
-            bool enabled = !(Program.GetGearbox() is ManualGearbox) || Keyboard.IsKeyDown(Keys.LShiftKey);
+            bool enabled = !(Program.GetGearbox() is ManualGearbox) || Program.GetKeyboard().IsKeyDown(Keys.LShiftKey);
             return enabled ? AxisToDouble(SDL.SDL_JoystickGetAxis(joystick, SECOND_AXIS)) : 0.0;
         }
 
         public double GetClutch() {
-            bool enabled = (Program.GetGearbox() is ManualGearbox) && !Keyboard.IsKeyDown(Keys.LShiftKey);
+            bool enabled = (Program.GetGearbox() is ManualGearbox) && !Program.GetKeyboard().IsKeyDown(Keys.LShiftKey);
             return enabled ? AxisToDouble(SDL.SDL_JoystickGetAxis(joystick, SECOND_AXIS)) : 0.0;
         }
 

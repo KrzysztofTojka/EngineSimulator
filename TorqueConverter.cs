@@ -5,23 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace EngineSimulator {
-    public class TorqueConverter {
+    public class TorqueConverter : BaseClutch {
 
         public const double STALL_TORQUE_RATIO = 2.0;
         public const double COUPLING_POINT = 0.9;
         public const double K_FACTOR_MIN = 5.0;
         public const double K_FACTOR_MAX = 110.0;
 
-        Engine engine;
-        Gearbox gearbox;
-
         private double pumpRpm;
         private double turbineRpm;
 
-        public TorqueConverter(Engine engine, Gearbox gearbox) {
-            this.engine = engine;
-            this.gearbox = gearbox;
-
+        public TorqueConverter(Engine engine, Gearbox gearbox) : base(engine, gearbox) {
             this.pumpRpm = 0.0;
             this.turbineRpm = 0.0;
         }

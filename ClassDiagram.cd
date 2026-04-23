@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="EngineSimulator.Program" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <AssociationLine Name="car" Type="EngineSimulator.Car" FixedToPoint="true">
+      <Path>
+        <Point X="7.375" Y="1.062" />
+        <Point X="7.375" Y="2.75" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="steeringWheel" Type="EngineSimulator.SteeringWheel" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7" Y="1.062" />
+        <Point X="7" Y="2.14" />
+        <Point X="5" Y="2.14" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="keyboard" Type="EngineSimulator.Keyboard" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6.75" Y="1.062" />
+        <Point X="6.75" Y="1.5" />
+        <Point X="5" Y="1.5" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="dyno" Type="EngineSimulator.Dyno" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.688" Y="1.062" />
+        <Point X="7.688" Y="2.125" />
+        <Point X="8.75" Y="2.125" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAABMAIAgIACADAAAiyIAQAhABAAECkAAAEBASEDAI=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="car" />
+      <Field Name="steeringWheel" />
+      <Field Name="keyboard" />
+      <Field Name="dyno" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="EngineSimulator.Engine" Collapsed="true">
+    <Position X="3.5" Y="3.75" Width="1.5" />
+    <AssociationLine Name="ecu" Type="EngineSimulator.ECU" ManuallyRouted="true">
+      <Path>
+        <Point X="4.125" Y="4.312" />
+        <Point X="4.125" Y="4.454" />
+        <Point X="2.325" Y="4.454" />
+        <Point X="2.325" Y="6.031" />
+        <Point X="2" Y="6.031" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>yBRC0CSEQMYScDYgFKQgQAWABCBiBRKEB6zBDXXGUNI=</HashCode>
+      <FileName>Engine.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="ecu" />
+      <Field Name="turbocharger" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="EngineSimulator.GasolineEngine" Collapsed="true">
+    <Position X="4.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABACAAAAAAYAIAAAAAQAAAAAAAAAAACAAAABAAAAAJA=</HashCode>
+      <FileName>GasolineEngine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Gearbox" Collapsed="true">
+    <Position X="7.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>goxAAgEAAIAChARMEACCEAwAAEARAAJYAKAwIAUAgKE=</HashCode>
+      <FileName>Gearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.ManualGearbox" Collapsed="true">
+    <Position X="6.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAIAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ManualGearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.AutomaticGearbox" Collapsed="true">
+    <Position X="8.5" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gAwAQkCAAIAAmgNEAAQAABADADIAAAAAAIAQAAiAAAI=</HashCode>
+      <FileName>AutomaticGearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.DualClutchGearbox" Collapsed="true">
+    <Position X="8.5" Y="6.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gBQAEAwAEAggiBAAAGQAggAAQggAABAEAIEQCAAQiBA=</HashCode>
+      <FileName>DualClutchGearbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.DieselEngine" Collapsed="true">
+    <Position X="2.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABACAAAAAAYAIBAAAAQAAAAAAAAAAACAAAAAAAAAAJA=</HashCode>
+      <FileName>DieselEngine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Car" Collapsed="true">
+    <Position X="7" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIwAQAAAAAAAgAAAEAACAAAABBAAAAAAQAAEAAQABAE=</HashCode>
+      <FileName>Car.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="engine" />
+      <Field Name="gearbox" />
+      <Field Name="clutch" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="EngineSimulator.Turbocharger" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQkAAEgAAAACAAABABAgAAAAAAAEQAAAAABQFQAARA=</HashCode>
+      <FileName>Turbocharger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.ECU" Collapsed="true">
+    <Position X="0.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAACAAKCAAACAAAAAQABAAAAAAAAAAAAIQAgsg=</HashCode>
+      <FileName>ECU.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.BaseClutch" Collapsed="true">
+    <Position X="11.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAA=</HashCode>
+      <FileName>BaseClutch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Clutch" Collapsed="true">
+    <Position X="10.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAQAAACAAAAABAAAQAIAAgAAAAAIAgAAAAAAAEIAAAA=</HashCode>
+      <FileName>Clutch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.TorqueConverter" Collapsed="true">
+    <Position X="12.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQQEAQAAAAAAAAAAAACAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>TorqueConverter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Dyno" Collapsed="true">
+    <Position X="8.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAwAgABEAAAABAAAAAgIAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Dyno.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.Keyboard" Collapsed="true">
+    <Position X="3.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAQAAAA=</HashCode>
+      <FileName>Keyboard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineSimulator.SteeringWheel" Collapsed="true">
+    <Position X="3.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAUAEAAAAAAAAAAAAABEgECAAAAAAQAAkABAA=</HashCode>
+      <FileName>SteeringWheel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

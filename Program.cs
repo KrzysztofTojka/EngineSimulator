@@ -9,30 +9,36 @@ using System.Diagnostics;
 namespace EngineSimulator {
     public class Program {
 
+        private static Car car;
+
+        public const double TEMPERATURE_C = 20.0;
+        public const double PRESSURE_HPA = 1024.0;
+        public const double AIR_DENSITY = 1.225;
+
+        private static SteeringWheel steeringWheel;
+        private static Keyboard keyboard;
+
+        private static Thread simulationThread;
+        private static Thread soundThread;
+        private static bool isRunning = false;
+        private static long lastUpdateTime = 0;
+
+        private static Engine engine;
+        private static Gearbox gearbox;
+        private static Dyno dyno;
+
         public static bool AUTO_START = true;
 
-        public static double TEMPERATURE_C = 20.0;
-        public static double PRESSURE_HPA = 1024.0;
-
-        static SteeringWheel steeringWheel;
-
-        static Thread simulationThread;
-        static Thread soundThread;
-        static bool isRunning = false;
-        static long lastUpdateTime = 0;
-
-        static Engine engine;
-        static Gearbox gearbox;
-        static Dyno dyno;
-
-        static double throttlePedalPosition = 0.0;
-        static double brakePedalPosition = 0.0;
-        static double clutchPedalPosition = 0.0;
+        private static double throttlePedalPosition = 0.0;
+        private static double brakePedalPosition = 0.0;
+        private static double clutchPedalPosition = 0.0;
 
         public static double startTime;
 
         public static void Main() {
             Console.WindowWidth = 160;
+
+            keyboard = new Keyboard();
 
             if (SteeringWheel.IsPresent()) {
                 steeringWheel = new SteeringWheel();
@@ -42,24 +48,25 @@ namespace EngineSimulator {
                 Console.WriteLine("No steering wheel found");
             }
 
-            simulationThread = new Thread(Run);
-
-            engine = new GasolineEngine(2.5, 6500, 0.17);
             var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
             double finalGearRatio = 4.056;//4.325; 4.056
 
-            //engine = new DieselEngine(1.9, 4500);
             //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
             //double finalGearRatio = 3.65;
 
-            //gearbox = new ManualGearbox(engine, 6, gearRatios, finalGearRatio);
-            //gearbox = new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio);
-            gearbox = new DualClutchGearbox(engine, 6, gearRatios, finalGearRatio);
+            car = new Car();
+            car.SetEngine(new GasolineEngine(2.5, 6500, 0.17));
+            //car.SetEngine(new DieselEngine(1.9, 4500));
+            car.SetGearbox(new ManualGearbox(car.GetEngine(), 6, gearRatios, finalGearRatio));
+            //car.SetGearbox(new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio));
+            //car.SetGearbox(new DualClutchGearbox(engine, 6, gearRatios, finalGearRatio));
+
+            UseCar(car);
 
             isRunning = true;
-
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
+            simulationThread = new Thread(Run);
             simulationThread.Start();
             soundThread = new Thread(SoundThread);
             soundThread.Start();
@@ -95,9 +102,7 @@ namespace EngineSimulator {
                 UpdateInput();
 
                 while (accumulator >= dt) {
-                    engine.Update(dt);
-                    gearbox.Update(dt);
-                    engine.UpdateRpm(dt);
+                    car.Update(dt);
                     PerformanceMeter.Update(gearbox.GetCarSpeed() * (Units.km / Units.h));
 
                     if (i == 1) {
@@ -132,7 +137,7 @@ namespace EngineSimulator {
             clutchPedalPosition = 0;
             brakePedalPosition = 0;
 
-            Keyboard.Update();
+            keyboard.Update();
 
             if (!(steeringWheel is null)) {
                 steeringWheel.Poll();
@@ -141,66 +146,76 @@ namespace EngineSimulator {
                 clutchPedalPosition = steeringWheel.GetClutch();
             }
 
-            if (Keyboard.IsKeyDown(Keys.D1)) {
+            if (keyboard.IsKeyDown(Keys.D1)) {
                 throttlePedalPosition = 0.1;
             }
-            if (Keyboard.IsKeyDown(Keys.D2)) {
+            if (keyboard.IsKeyDown(Keys.D2)) {
                 throttlePedalPosition = 0.2;
             }
-            if (Keyboard.IsKeyDown(Keys.D3)) {
+            if (keyboard.IsKeyDown(Keys.D3)) {
                 throttlePedalPosition = 0.3;
             }
-            if (Keyboard.IsKeyDown(Keys.D4)) {
+            if (keyboard.IsKeyDown(Keys.D4)) {
                 throttlePedalPosition = 0.4;
             }
-            if (Keyboard.IsKeyDown(Keys.D5)) {
+            if (keyboard.IsKeyDown(Keys.D5)) {
                 throttlePedalPosition = 0.5;
             }
-            if (Keyboard.IsKeyDown(Keys.D6)) {
+            if (keyboard.IsKeyDown(Keys.D6)) {
                 throttlePedalPosition = 0.6;
             }
-            if (Keyboard.IsKeyDown(Keys.D7)) {
+            if (keyboard.IsKeyDown(Keys.D7)) {
                 throttlePedalPosition = 0.7;
             }
-            if (Keyboard.IsKeyDown(Keys.D8)) {
+            if (keyboard.IsKeyDown(Keys.D8)) {
                 throttlePedalPosition = 0.8;
             }
-            if (Keyboard.IsKeyDown(Keys.D9)) {
+            if (keyboard.IsKeyDown(Keys.D9)) {
                 throttlePedalPosition = 0.9;
             }
-            if (Keyboard.IsKeyDown(Keys.D0)) {
+            if (keyboard.IsKeyDown(Keys.D0)) {
                 throttlePedalPosition = 1.0;
             }
 
-            if (Keyboard.WasKeyPressed(Keys.A)) {
+            if (keyboard.WasKeyPressed(Keys.A)) {
                 gearbox.GearDown();
             }
 
-            if (Keyboard.WasKeyPressed(Keys.D)) {
+            if (keyboard.WasKeyPressed(Keys.D)) {
                 gearbox.GearUp();
             }
 
-            if (Keyboard.IsKeyDown(Keys.Space)) {
+            if (keyboard.IsKeyDown(Keys.Space)) {
                 clutchPedalPosition = 1.0;
             }
 
-            if (Keyboard.IsKeyDown(Keys.S)) {
+            if (keyboard.IsKeyDown(Keys.S)) {
                 brakePedalPosition = 1.0;
             }
 
-            if (Keyboard.WasKeyPressed(Keys.Q)) {
+            if (keyboard.WasKeyPressed(Keys.Q)) {
                 engine.SetIgnition(!engine.IsIgnitionOn());
             }
 
-            if (Keyboard.WasKeyPressed(Keys.P)) {
+            if (keyboard.WasKeyPressed(Keys.P)) {
                 PerformanceMeter.Reset();
                 PerformanceMeter.SetTargetSpeeds(40, 50, 60, 80, 100, 120, 130, 140, 150, 160, 180);
                 PerformanceMeter.Start();
             }
 
-            engine.SetStarter(Keyboard.IsKeyDown(Keys.E));
+            engine.SetStarter(keyboard.IsKeyDown(Keys.E));
 
             engine.GetECU().SetThrottle(throttlePedalPosition);
+        }
+
+        public static void UseCar(Car car) {
+            Program.car = car;
+            Program.engine = car.GetEngine();
+            Program.gearbox = car.GetGearbox();
+        }
+
+        public static Keyboard GetKeyboard() {
+            return keyboard;
         }
 
         public static Engine GetEngine() {
