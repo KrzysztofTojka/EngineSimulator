@@ -48,36 +48,33 @@ namespace EngineSimulator {
                 Console.WriteLine("No steering wheel found");
             }
 
-            var gearRatios = Gearbox.GearSet(3.552, 2.022, 1.452, 1.000, 0.708, 0.599);
-            double finalGearRatio = 4.056;//4.325; 4.056
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-            //var gearRatios = Gearbox.GearSet(3.82, 2.05, 1.30, 0.96, 0.74, 0.61);
-            //double finalGearRatio = 3.65;
-
-            car = new Car();
-            car.SetEngine(new GasolineEngine(2.5, 6500, 0.17));
-            //car.SetEngine(new DieselEngine(1.9, 4500));
-            car.SetGearbox(new ManualGearbox(car.GetEngine(), 6, gearRatios, finalGearRatio));
-            //car.SetGearbox(new AutomaticGearbox(engine, 6, gearRatios, finalGearRatio));
-            //car.SetGearbox(new DualClutchGearbox(engine, 6, gearRatios, finalGearRatio));
-
-            UseCar(car);
+            using (CarSelectDialog carSelectDialog = new CarSelectDialog()) {
+                if (carSelectDialog.ShowDialog() == DialogResult.OK) {
+                    car = carSelectDialog.GetSelectedCar();
+                    UseCar(car);
+                } else {
+                    return;
+                }
+            }
 
             isRunning = true;
             startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
+            dyno = new Dyno();
+
             simulationThread = new Thread(Run);
             simulationThread.Start();
+            
             soundThread = new Thread(SoundThread);
             soundThread.Start();
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Window());
         }
 
         public static void Run() {
-            dyno = new Dyno();
             dyno.DoMaxTorqueRun(1.0);
 
             if (AUTO_START) {
@@ -106,7 +103,7 @@ namespace EngineSimulator {
                     PerformanceMeter.Update(gearbox.GetCarSpeed() * (Units.km / Units.h));
 
                     if (i == 1) {
-                        engine.ShowInfo();
+                        //engine.ShowInfo();
                         i = 0;
                     }
 

@@ -31,6 +31,7 @@ namespace EngineSimulator {
 
         public void SetGearbox(Gearbox gearbox) {
             this.gearbox = gearbox;
+            gearbox.SetEngine(this.engine);
         }
 
         public Gearbox GetGearbox() {

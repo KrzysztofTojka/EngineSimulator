@@ -10,9 +10,12 @@ namespace EngineSimulator {
         protected Engine engine;
         protected Gearbox gearbox;
 
-        public BaseClutch(Engine engine, Gearbox gearbox) {
-            this.engine = engine;
+        public BaseClutch(Gearbox gearbox) {
             this.gearbox = gearbox;
+        }
+
+        public void SetEngine(Engine engine) {
+            this.engine = engine;
         }
 
     }

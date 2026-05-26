@@ -125,13 +125,22 @@
     <Compile Include="AutomaticGearbox.cs" />
     <Compile Include="BaseClutch.cs" />
     <Compile Include="Car.cs" />
+    <Compile Include="CarParts.cs" />
+    <Compile Include="CarSelectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CarSelectDialog.Designer.cs">
+      <DependentUpon>CarSelectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Clutch.cs" />
     <Compile Include="DieselEngine.cs" />
     <Compile Include="DualClutchGearbox.cs" />
     <Compile Include="Dyno.cs" />
     <Compile Include="ECU.cs" />
+    <Compile Include="EnginePreset.cs" />
     <Compile Include="GasolineEngine.cs" />
     <Compile Include="Gearbox.cs" />
+    <Compile Include="GearboxPreset.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="ManualGearbox.cs" />
     <Compile Include="MathHelper.cs" />
@@ -160,6 +169,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CarSelectDialog.resx">
+      <DependentUpon>CarSelectDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

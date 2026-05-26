@@ -29,9 +29,7 @@ namespace EngineSimulator {
         protected double wheelRpm; // rpm
         protected double carSpeed; // m/s
 
-        public Gearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) {
-            this.engine = engine;
-
+        public Gearbox(int gears, double[] gearRatios, double finalGearRatio) {
             this.type = Type.Manual;
             this.gears = gears;
             this.finalDriveRatio = finalGearRatio;
@@ -192,6 +190,14 @@ namespace EngineSimulator {
 
         public static double[] GearSet(params double[] values) {
             return values;
+        }
+
+        public virtual void SetEngine(Engine engine) {
+            this.engine = engine;
+        }
+
+        public Engine GetEngine() {
+            return engine;
         }
 
         public class ShiftData {

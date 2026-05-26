@@ -10,10 +10,10 @@ namespace EngineSimulator {
         private Clutch clutch;
         private TorqueConverter torqueConverter;
 
-        public ManualGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
+        public ManualGearbox(int gears, double[] gearRatios, double finalGearRatio) : base(gears, gearRatios, finalGearRatio) {
             this.type = Type.Manual;
-            this.clutch = new Clutch(engine, this, 700);
-            this.torqueConverter = new TorqueConverter(engine, this);
+            this.clutch = new Clutch(this, 700);
+            //this.torqueConverter = new TorqueConverter(this);
         }
 
         public override void Update(double dt) {
@@ -22,6 +22,11 @@ namespace EngineSimulator {
             SetInputTorque(clutch.GetOutputTorque());
             base.Update(dt);
             //torqueConverter.Update(dt);
+        }
+
+        public override void SetEngine(Engine engine) {
+            base.SetEngine(engine);
+            clutch.SetEngine(engine);
         }
 
     }

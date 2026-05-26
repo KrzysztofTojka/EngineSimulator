@@ -21,9 +21,9 @@ namespace EngineSimulator {
         private double launchThrottle;
         private double launchClutchEngangement;
 
-        public DualClutchGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
-            this.clutchEven = new Clutch(engine, this);
-            this.clutchOdd = new Clutch(engine, this);
+        public DualClutchGearbox(int gears, double[] gearRatios, double finalGearRatio) : base(gears, gearRatios, finalGearRatio) {
+            this.clutchEven = new Clutch(this);
+            this.clutchOdd = new Clutch(this);
             this.gearEven = 2;
             this.gearOdd = 1;
             this.shiftPhase = ShiftPhase.STALL;

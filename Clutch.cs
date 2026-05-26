@@ -14,7 +14,7 @@ namespace EngineSimulator {
         private double maxTorque = 400;
         private double damping = 15.0;
 
-        public Clutch(Engine engine, Gearbox gearbox, double maxTorque = 400) : base(engine, gearbox) {
+        public Clutch(Gearbox gearbox, double maxTorque = 400) : base(gearbox) {
             this.maxTorque = maxTorque;
             this.engagement = 0.0;
             this.outputTorque = 0.0;
@@ -22,6 +22,8 @@ namespace EngineSimulator {
         }
 
         public void Update(double dt) {
+            if (engine == null) engine = gearbox.GetEngine();
+
             double engineOmega = engine.GetRPM() * 2 * Math.PI / 60;
             double gearboxOmega = gearbox.GetInputRPM() * 2 * Math.PI / 60;
 

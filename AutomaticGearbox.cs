@@ -27,10 +27,10 @@ namespace EngineSimulator {
         protected long lastUpshiftTime;
         protected long lastDownshiftTime;
 
-        public AutomaticGearbox(Engine engine, int gears, double[] gearRatios, double finalGearRatio) : base(engine, gears, gearRatios, finalGearRatio) {
+        public AutomaticGearbox(int gears, double[] gearRatios, double finalGearRatio) : base(gears, gearRatios, finalGearRatio) {
             this.type = Type.Automatic;
-            this.clutch = new Clutch(engine, this, 2000);
-            this.torqueConverter = new TorqueConverter(engine, this);
+            this.clutch = new Clutch(this, 2000);
+            this.torqueConverter = new TorqueConverter(this);
             this.driveMode = DriveMode.NEUTRAL;
             this.shiftMode = ShiftMode.NORMAL;
             this.shiftPhase = ShiftPhase.IDLE;
@@ -239,6 +239,11 @@ namespace EngineSimulator {
                 default:
                     return "";
             }
+        }
+
+        public override void SetEngine(Engine engine) {
+            base.SetEngine(engine);
+               torqueConverter.SetEngine(engine);
         }
 
         protected long Now() {

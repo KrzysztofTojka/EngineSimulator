@@ -30,9 +30,10 @@ void AudioEngine::audioCallback(ma_device* pDevice, void* pOutput, const void* p
 
     if (audioEngine->isUsingBuffer()) {
         audioEngine->processAudioBuffer((float*)pOutput, frameCount);
-    } else {
+    }
+    else {
         audioEngine->processAudioStatic((float*)pOutput, frameCount);
-    }    
+    }
 }
 
 void AudioEngine::processAudioStatic(float* pOutput, ma_uint32 frameCount) {
@@ -222,7 +223,7 @@ int AudioEngine::findGrainSize(Audio& audio, double referenceRpm, int start, int
             continue;
         }
 
-        int windowSize = std::min(referenceSize, (int) audio.samples.size() - start - referenceSize);
+        int windowSize = std::min(referenceSize, (int)audio.samples.size() - start - referenceSize);
 
         float correlation = 0.0f;
         float energy = 0.00001f; // div by zero lol
@@ -284,11 +285,12 @@ void AudioEngine::generateGrains(Audio& audio, int firstGrainSize, int sampleRat
 }
 
 float bassState = 0.0f;
+float lowPassState = 0.0f;
 float resonancePhase = 0.0f;
 
 void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, const Grain& grain1, const Grain& grain2, std::vector<float>& outSamples, Grain& newGrain, float proportionStart, float proportionEnd, float rpm, float load, bool debug) {
     float proportionAvg = (proportionStart + proportionEnd) / 2.0;
-    
+
     newGrain.start = outSamples.size();
     newGrain.length = (int)((1.0 - proportionAvg) * grain1.length + proportionAvg * grain2.length);
 
@@ -296,7 +298,7 @@ void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, co
         float relativePos = (float)j / (float)newGrain.length;
 
         float pos1 = grain1.start + (relativePos * grain1.length);
-        pos1 = std::min(pos1, (float) audio1.samples.size() - 2);
+        pos1 = std::min(pos1, (float)audio1.samples.size() - 2);
         float pos2 = grain2.start + (relativePos * grain2.length);
         pos2 = std::min(pos2, (float)audio2.samples.size() - 2);
 
@@ -309,11 +311,12 @@ void AudioEngine::interpolateGrains(const Audio& audio1, const Audio& audio2, co
         //float resultSample = std::sqrt(1.0f - proportion) * sample1 + std::sqrt(proportion) * sample2;
         float resultSample = pow(1.0f - localProportion, 0.85f) * sample1 + pow(localProportion, 0.85f) * sample2;
 
-        if (load != -1.0f && rpm != -1.0f) {      
+        if (load != -1.0f && rpm != -1.0f) {
             //applyResonance(resultSample, resonancePhase, 20.0f, 0.1f * std::pow(load, 1.25), rpm);
 
             applySaturation(resultSample, std::lerp(0.0f, 0.2f, load));
-            applyBassBoost(resultSample, bassState, std::lerp(1.0f, 1.8f, load));
+            applyBassBoost(resultSample, bassState, std::lerp(1.8f, 2.4f, load));
+            applyLowPass(resultSample, lowPassState, 0.03f + 0.97f * std::pow(load, 2.0f));
         }
 
         outSamples.push_back(resultSample);
@@ -364,8 +367,8 @@ void AudioEngine::interpolateToBuffer(const Audio& audio1, const Audio& audio2, 
 
 void AudioEngine::runGenerator() {
     SampleMap sampleMap = SampleMap(sampleRate);
-    sampleMap.loadSamples("AudioEngine/assets/samples", false);
 
+    sampleMap.loadSamples("AudioEngine/assets/samples", false);
     setUseBuffer(true);
     getBuffer().writeSilence(1000);
 
@@ -402,8 +405,6 @@ void AudioEngine::runGenerator() {
             //Grain& grain2 = getRandomGrain(*samplePair.upperAudio);
             Grain& grain2 = samplePair.upperAudio->grains[grainId];
 
-            grainId++;
-
             double cycleLengthLower = rpmToMs(samplePair.upperRpm);
             double cycleLengthUpper = rpmToMs(samplePair.lowerRpm);
             //float proportion = calculateProportion(avgCycleLength, cycleLengthLower, cycleLengthUpper);
@@ -415,6 +416,7 @@ void AudioEngine::runGenerator() {
 
             interpolateToBuffer(*samplePair.lowerAudio, *samplePair.upperAudio, grain1, grain2, proportionStart, proportionEnd, load);
 
+            grainId++;
             lastGrainRpm = currentRpm;
 
             //std::cout << "RPM: " << currentRpm << ", load: " << load << ", avgLen: " << avgCycleLength << ", buf: " << getBufferLengthMs() << ", low: " << samplePair.lowerRpm << "\n";
@@ -433,7 +435,7 @@ Audio* AudioEngine::getActiveAudio() {
 }
 
 double AudioEngine::getBufferLengthMs() {
-    return 1000.0 * ((double) buffer.getSampleCount() / sampleRate);
+    return 1000.0 * ((double)buffer.getSampleCount() / sampleRate);
 }
 
 void AudioEngine::setUseBuffer(bool useBuffer) {

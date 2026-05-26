@@ -26,4 +26,9 @@ inline void applyResonance(float& sample, float& phase, float targetFreq, float 
     sample += std::sin(phase) * power;
 }
 
+inline void applyLowPass(float& sample, float& state, float cutoff) {
+    state = state + cutoff * (sample - state);
+    sample = state;
+}
+
 #endif
