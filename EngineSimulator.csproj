@@ -125,7 +125,7 @@
     <Compile Include="AutomaticGearbox.cs" />
     <Compile Include="BaseClutch.cs" />
     <Compile Include="Car.cs" />
-    <Compile Include="CarParts.cs" />
+    <Compile Include="CarDatabase.cs" />
     <Compile Include="CarPreset.cs" />
     <Compile Include="CarSelectDialog.cs">
       <SubType>Form</SubType>

@@ -9,8 +9,11 @@ namespace EngineSimulator {
 
         public string Name { get; set; }
 
-        public string EnginePresetName { get; set; }
-        public string GearboxPresetName { get; set; }
+        public List<string> Engines { get; set; } = new List<string>();
+        public string Gearbox { get; set; }
+
+        public double Weight { get; set; }
+        public double WheelRadius { get; set; }
 
         public override string ToString() {
             return Name;

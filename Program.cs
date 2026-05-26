@@ -196,7 +196,7 @@ namespace EngineSimulator {
 
             if (keyboard.WasKeyPressed(Keys.P)) {
                 PerformanceMeter.Reset();
-                PerformanceMeter.SetTargetSpeeds(40, 50, 60, 80, 100, 120, 130, 140, 150, 160, 180);
+                PerformanceMeter.SetTargetSpeeds(40, 50, 60, 80, 100, 120, 130, 140, 150, 160, 180, 200);
                 PerformanceMeter.Start();
             }
 

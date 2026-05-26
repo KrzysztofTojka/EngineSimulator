@@ -183,6 +183,14 @@ namespace EngineSimulator {
             return WheelRpmToCarSpeed(engine.GetMaxRPM() / (gearRatios[gear] * finalDriveRatio), wheelRadius);
         }
 
+        public void SetWeight(double weight) {
+            this.mass = weight;
+        }
+
+        public void SetWheelRadius(double wheelRadius) {
+            this.wheelRadius = wheelRadius;
+        }
+
         public enum Type {
             Manual,
             Automatic

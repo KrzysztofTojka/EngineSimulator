@@ -61,7 +61,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label1.Location = new System.Drawing.Point(26, 103);
+            this.label1.Location = new System.Drawing.Point(25, 110);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 24);
             this.label1.TabIndex = 2;
@@ -82,7 +82,7 @@
             this.engineList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.engineList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.engineList.FormattingEnabled = true;
-            this.engineList.Location = new System.Drawing.Point(116, 105);
+            this.engineList.Location = new System.Drawing.Point(115, 112);
             this.engineList.Name = "engineList";
             this.engineList.Size = new System.Drawing.Size(277, 24);
             this.engineList.TabIndex = 4;
@@ -94,7 +94,7 @@
             this.gearboxList.FormattingEnabled = true;
             this.gearboxList.Items.AddRange(new object[] {
             "Mazda SKYACTIV-G 2.0L"});
-            this.gearboxList.Location = new System.Drawing.Point(116, 145);
+            this.gearboxList.Location = new System.Drawing.Point(115, 152);
             this.gearboxList.Name = "gearboxList";
             this.gearboxList.Size = new System.Drawing.Size(277, 24);
             this.gearboxList.TabIndex = 6;
@@ -103,7 +103,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label3.Location = new System.Drawing.Point(26, 143);
+            this.label3.Location = new System.Drawing.Point(25, 150);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(83, 24);
             this.label3.TabIndex = 5;
@@ -114,7 +114,7 @@
             this.carList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.carList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.carList.FormattingEnabled = true;
-            this.carList.Location = new System.Drawing.Point(116, 65);
+            this.carList.Location = new System.Drawing.Point(115, 72);
             this.carList.Name = "carList";
             this.carList.Size = new System.Drawing.Size(277, 24);
             this.carList.TabIndex = 8;
@@ -124,7 +124,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label4.Location = new System.Drawing.Point(26, 63);
+            this.label4.Location = new System.Drawing.Point(25, 70);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(39, 24);
             this.label4.TabIndex = 7;

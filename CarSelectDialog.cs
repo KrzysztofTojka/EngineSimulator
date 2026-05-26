@@ -17,16 +17,16 @@ namespace EngineSimulator {
         private List<EnginePreset> engines;
         private List<GearboxPreset> gearboxes;
 
-        private readonly CarPreset customPreset = new CarPreset { Name = "Custom" };
+        private readonly CarPreset customPreset = new CarPreset { Name = "Custom", Weight = 1450, WheelRadius = 0.316 };
 
         private bool updatingFromPreset = false;
 
         public CarSelectDialog() {
             InitializeComponent();
 
-            cars = CarParts.GetCars();
-            engines = CarParts.GetEngines();
-            gearboxes = CarParts.GetGearboxes();
+            cars = CarDatabase.GetCars();
+            engines = CarDatabase.GetEngines();
+            gearboxes = CarDatabase.GetGearboxes();
 
             cars.Add(customPreset);
 
@@ -41,6 +41,7 @@ namespace EngineSimulator {
         }
 
         private void startButton_Click(object sender, EventArgs e) {
+            CarPreset carPreset = carList.SelectedItem as CarPreset;
             EnginePreset enginePreset = engineList.SelectedItem as EnginePreset;
             GearboxPreset gearboxPreset = gearboxList.SelectedItem as GearboxPreset;
 
@@ -57,6 +58,9 @@ namespace EngineSimulator {
             selectedCar.SetEngine(engine);
             selectedCar.SetGearbox(gearbox);
 
+            selectedCar.SetWeight(carPreset.Weight);
+            selectedCar.SetWheelRadius(carPreset.WheelRadius);
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -71,20 +75,32 @@ namespace EngineSimulator {
             }
             
             if (carList.SelectedItem is CarPreset carPreset && carPreset != customPreset) {
-                carList.SelectedItem = customPreset;
+                EnginePreset selectedEngine = engineList.SelectedItem as EnginePreset;
+                GearboxPreset selectedGearbox = gearboxList.SelectedItem as GearboxPreset;
+
+                bool isEngineValid = selectedEngine != null && carPreset.Engines.Contains(selectedEngine.Name);
+                bool isGearboxValid = selectedGearbox != null && carPreset.Gearbox == selectedGearbox.Name;
+
+                if (!isEngineValid || !isGearboxValid) {
+                    carList.SelectedItem = customPreset;
+                }
             }
         }
 
         private void carList_SelectedIndexChanged(object sender, EventArgs e) {
             if (carList.SelectedItem is CarPreset carPreset && carPreset != customPreset) {
+                EnginePreset currentEngine = engineList.SelectedItem as EnginePreset;
+
                 updatingFromPreset = true;
                 
-                EnginePreset enginePreset = engines.FirstOrDefault(eng =>  eng.Name == carPreset.EnginePresetName);
-                if (enginePreset != null) {
-                    engineList.SelectedItem = enginePreset;
+                if (!carPreset.Engines.Contains(currentEngine.Name)) {
+                    EnginePreset enginePreset = engines.FirstOrDefault(eng => eng.Name == carPreset.Engines.First());
+                    if (enginePreset != null) {
+                        engineList.SelectedItem = enginePreset;
+                    }
                 }
 
-                GearboxPreset gearboxPreset = gearboxes.FirstOrDefault(gb => gb.Name == carPreset.GearboxPresetName);
+                GearboxPreset gearboxPreset = gearboxes.FirstOrDefault(gb => gb.Name == carPreset.Gearbox);
                 if (gearboxPreset != null) {
                     gearboxList.SelectedItem = gearboxPreset;
                 }
