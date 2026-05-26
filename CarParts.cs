@@ -7,15 +7,39 @@ using System.Threading.Tasks;
 namespace EngineSimulator {
     public class CarParts {
 
+        public static List<CarPreset> GetCars() {
+            return new List<CarPreset> {
+                new CarPreset {
+                    Name = "Mazda CX-5 II 2.5 SKYACTIV-G",
+                    EnginePresetName = "Mazda 2.5 SKYACTIV-G (194 HP)",
+                    GearboxPresetName = "Mazda 6-Speed Automatic"
+                },
+                new CarPreset {
+                    Name = "Opel Astra H 1.9 CDTI",
+                    EnginePresetName = "Opel 1.9 CDTI Ecotec (150 HP)",
+                    GearboxPresetName = "M32 6-Speed Manual"
+                },
+                new CarPreset {
+                    Name = "BMW M235i xDrive",
+                    EnginePresetName = "BMW 2.0 B48A20T1 (306 HP)",
+                    GearboxPresetName = "BMW Dual-Clutch 8-Speed (GA8S45DW)"
+                }
+            };
+        }
+
         public static List<EnginePreset> GetEngines() {
             return new List<EnginePreset> {
                 new EnginePreset {
-                    Name = "Mazda SKYACTIV-G 2.5 (194 HP)",
-                    Create = () => new GasolineEngine(2.5, 6200, 0.155)
+                    Name = "Mazda 2.5 SKYACTIV-G (194 HP)",
+                    Create = () => new GasolineEngine(2.5, 6200, 0.185)
                 },
                 new EnginePreset {
-                    Name = "Opel Ecotec 1.9 CDTI (150 HP)",
+                    Name = "Opel 1.9 CDTI Ecotec (150 HP)",
                     Create = () => new DieselEngine(1.9, 4500)
+                },
+                new EnginePreset {
+                    Name = "BMW 2.0 B48A20T1 (306 HP)",
+                    Create = () => new GasolineEngine(2.0, 6800, 0.16, maxAirflowRpm: 6100, turbo: new Turbocharger(0.65))
                 }
             };
         }

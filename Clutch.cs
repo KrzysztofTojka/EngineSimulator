@@ -11,10 +11,10 @@ namespace EngineSimulator {
         private double outputTorque;
         private double outputRpm;
 
-        private double maxTorque = 400;
+        private double maxTorque = 600;
         private double damping = 15.0;
 
-        public Clutch(Gearbox gearbox, double maxTorque = 400) : base(gearbox) {
+        public Clutch(Gearbox gearbox, double maxTorque = 600) : base(gearbox) {
             this.maxTorque = maxTorque;
             this.engagement = 0.0;
             this.outputTorque = 0.0;

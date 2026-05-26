@@ -13,11 +13,31 @@ namespace EngineSimulator {
 
         private Car selectedCar;
 
+        private List<CarPreset> cars;
+        private List<EnginePreset> engines;
+        private List<GearboxPreset> gearboxes;
+
+        private readonly CarPreset customPreset = new CarPreset { Name = "Custom" };
+
+        private bool updatingFromPreset = false;
+
         public CarSelectDialog() {
             InitializeComponent();
 
-            engineList.DataSource = CarParts.GetEngines();
-            gearboxList.DataSource = CarParts.GetGearboxes();
+            cars = CarParts.GetCars();
+            engines = CarParts.GetEngines();
+            gearboxes = CarParts.GetGearboxes();
+
+            cars.Add(customPreset);
+
+            carList.DataSource = cars;
+            engineList.DataSource = engines;
+            gearboxList.DataSource = gearboxes;
+
+            engineList.SelectedIndexChanged += component_SelectedIndexChanged;
+            gearboxList.SelectedIndexChanged += component_SelectedIndexChanged;
+
+            carList_SelectedIndexChanged(null, null);
         }
 
         private void startButton_Click(object sender, EventArgs e) {
@@ -44,6 +64,36 @@ namespace EngineSimulator {
         public Car GetSelectedCar() {
             return selectedCar;
         }
+
+        private void component_SelectedIndexChanged(object sender, EventArgs e) {
+            if (updatingFromPreset) {
+                return;
+            }
+            
+            if (carList.SelectedItem is CarPreset carPreset && carPreset != customPreset) {
+                carList.SelectedItem = customPreset;
+            }
+        }
+
+        private void carList_SelectedIndexChanged(object sender, EventArgs e) {
+            if (carList.SelectedItem is CarPreset carPreset && carPreset != customPreset) {
+                updatingFromPreset = true;
+                
+                EnginePreset enginePreset = engines.FirstOrDefault(eng =>  eng.Name == carPreset.EnginePresetName);
+                if (enginePreset != null) {
+                    engineList.SelectedItem = enginePreset;
+                }
+
+                GearboxPreset gearboxPreset = gearboxes.FirstOrDefault(gb => gb.Name == carPreset.GearboxPresetName);
+                if (gearboxPreset != null) {
+                    gearboxList.SelectedItem = gearboxPreset;
+                }
+
+                updatingFromPreset = false;
+            }
+        }
+
+
 
     }
 }

@@ -18,8 +18,7 @@ namespace EngineSimulator {
         private double boost;
         private double speed;
 
-        public Turbocharger(Engine engine, double maxBoost, double wastegate = 0.9, double inertia = 3.0, bool electronicWastegate = true) {
-            this.engine = engine;
+        public Turbocharger(double maxBoost, double wastegate = 0.9, double inertia = 3.0, bool electronicWastegate = true) {
             this.electronicWastegate = electronicWastegate;
             this.maxBoost = maxBoost;
             this.inertia = inertia;
@@ -131,6 +130,10 @@ namespace EngineSimulator {
 
         public void SetWastegate(double wastegate) {
             currentWastegate = Math.Min(wastegate, this.wastegate);
+        }
+
+        public void SetEngine(Engine engine) {
+            this.engine = engine;
         }
 
         public void ShowInfo() {

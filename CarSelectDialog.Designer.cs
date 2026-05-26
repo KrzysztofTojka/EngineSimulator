@@ -30,13 +30,15 @@
             this.engineList = new System.Windows.Forms.ComboBox();
             this.gearboxList = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.carList = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // startButton
             // 
             this.startButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.startButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this.startButton.Location = new System.Drawing.Point(413, 180);
+            this.startButton.Location = new System.Drawing.Point(413, 206);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(85, 28);
             this.startButton.TabIndex = 0;
@@ -48,7 +50,7 @@
             // 
             this.exitButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.exitButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.exitButton.Location = new System.Drawing.Point(322, 180);
+            this.exitButton.Location = new System.Drawing.Point(322, 206);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(85, 28);
             this.exitButton.TabIndex = 1;
@@ -59,7 +61,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label1.Location = new System.Drawing.Point(27, 73);
+            this.label1.Location = new System.Drawing.Point(26, 103);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 24);
             this.label1.TabIndex = 2;
@@ -77,18 +79,22 @@
             // 
             // engineList
             // 
+            this.engineList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.engineList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.engineList.FormattingEnabled = true;
-            this.engineList.Location = new System.Drawing.Point(117, 75);
+            this.engineList.Location = new System.Drawing.Point(116, 105);
             this.engineList.Name = "engineList";
             this.engineList.Size = new System.Drawing.Size(277, 24);
             this.engineList.TabIndex = 4;
             // 
             // gearboxList
             // 
+            this.gearboxList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.gearboxList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.gearboxList.FormattingEnabled = true;
             this.gearboxList.Items.AddRange(new object[] {
             "Mazda SKYACTIV-G 2.0L"});
-            this.gearboxList.Location = new System.Drawing.Point(117, 115);
+            this.gearboxList.Location = new System.Drawing.Point(116, 145);
             this.gearboxList.Name = "gearboxList";
             this.gearboxList.Size = new System.Drawing.Size(277, 24);
             this.gearboxList.TabIndex = 6;
@@ -97,17 +103,40 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label3.Location = new System.Drawing.Point(27, 113);
+            this.label3.Location = new System.Drawing.Point(26, 143);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(83, 24);
             this.label3.TabIndex = 5;
             this.label3.Text = "Gearbox";
             // 
+            // carList
+            // 
+            this.carList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.carList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
+            this.carList.FormattingEnabled = true;
+            this.carList.Location = new System.Drawing.Point(116, 65);
+            this.carList.Name = "carList";
+            this.carList.Size = new System.Drawing.Size(277, 24);
+            this.carList.TabIndex = 8;
+            this.carList.SelectedIndexChanged += new System.EventHandler(this.carList_SelectedIndexChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.label4.Location = new System.Drawing.Point(26, 63);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 24);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Car";
+            // 
             // CarSelectDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(506, 217);
+            this.ClientSize = new System.Drawing.Size(506, 246);
+            this.Controls.Add(this.carList);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.gearboxList);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.engineList);
@@ -131,5 +160,7 @@
         private System.Windows.Forms.ComboBox engineList;
         private System.Windows.Forms.ComboBox gearboxList;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox carList;
+        private System.Windows.Forms.Label label4;
     }
 }

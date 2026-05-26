@@ -46,9 +46,13 @@ namespace EngineSimulator {
 
         private double timeElapsed = 0.0;
 
-        public Engine(double displacementL, double maxRpm, double inertia) {
+        public Engine(double displacementL, double maxRpm, double inertia, Turbocharger turbo = null) {
             this.ecu = new ECU(this);
-            //this.turbocharger = new Turbocharger(this, 1.0);
+            this.turbocharger = turbo;
+
+            if (turbo != null) {
+                turbo.SetEngine(this);
+            }
 
             this.displacement = displacementL / 1000;
             this.maxRpm = maxRpm;
@@ -268,6 +272,10 @@ namespace EngineSimulator {
 
         public void SetTurbocharger(Turbocharger turbo) {
             this.turbocharger = turbo;
+
+            if (this.turbocharger != null) {
+                this.turbocharger.SetEngine(this);
+            }
         }
 
         public double GetDisplacement() {

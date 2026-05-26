@@ -12,8 +12,8 @@ namespace EngineSimulator {
         public override double LHV => 42_600_000; // J/kg
         public override double BASE_THERMAL_EFFICIENCY => 0.35;
 
-        public DieselEngine(double displacementL, double maxRpm = 4500, double inertia = 0.2) : base(displacementL, maxRpm, inertia) {
-            this.SetTurbocharger(new Turbocharger(this, 1.6, 1.537, electronicWastegate: false));
+        public DieselEngine(double displacementL, double maxRpm = 4500, double inertia = 0.2, Turbocharger turbo = null) : base(displacementL, maxRpm, inertia, turbo) {
+            this.SetTurbocharger(new Turbocharger(1.6, 1.537, electronicWastegate: false));
             this.GetECU().SetIdleThrottle(0.042);
             this.maxVe = 0.97;
             this.optimalIntakeRpm = 2400;

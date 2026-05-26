@@ -13,12 +13,12 @@ namespace EngineSimulator {
         public override double LHV => 43_000_000; // J/kg
         public override double BASE_THERMAL_EFFICIENCY => 0.455; // 0.45
 
-        public GasolineEngine(double displacementL = 2.0, double maxRpm = 6000, double inertia = 0.12) : base(displacementL, maxRpm, inertia) {
+        public GasolineEngine(double displacementL = 2.0, double maxRpm = 6000, double inertia = 0.12, double maxAirflowRpm = 5800, Turbocharger turbo = null) : base(displacementL, maxRpm, inertia, turbo) {
             ecu.SetIdleThrottle(0.0162); // 2.0 - 0.0165
             this.maxVe = 0.95;
             this.optimalIntakeRpm = 4700;
             this.veRangeScale = 2.0;
-            this.maxAirflowRpm = 5800;
+            this.maxAirflowRpm = maxAirflowRpm;
         }
 
         public GasolineEngine(GasolineEngine other) : base(other) {
